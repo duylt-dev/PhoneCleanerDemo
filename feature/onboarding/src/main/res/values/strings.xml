@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:onboarding. Shared chrome copy (Back, Retry, the AppError messages) stays in
+  :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §5) — absolute, and a CI grep over strings.xml enforces it. No string below
+  makes a performance, memory or security claim, and none carries a percentage figure. The banned
+  wording is listed in LLM.md §5 and is deliberately not repeated here, so this comment cannot itself
+  trip the grep.
+
+  Two strings do real work and are worth naming:
+    * onboarding_consent_body — ONE format string with two placeholders, not four fragments joined at
+      runtime. VibrnancActivity.java:466 concatenates its equivalent and ships full-width CJK
+      parentheses into all 17 locales; a format string lets a translator move the link text.
+    * onboarding_device_check_note — replaces @string/inlaweed, "the initial scan might take longer as
+      it searches for junk files and analyzes your phone's data", which describes a scan this screen
+      does not perform (docs/screens/10-splash-and-onboarding.md §3.5 delta 3). Ours says what the
+      screen actually does: it reads five facts and changes nothing.
+-->
+<resources>
+
+    <!-- ── splash ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="onboarding_consent_body">I agree to the %1$s and the %2$s.</string>
+    <string name="onboarding_consent_terms">Terms of Service</string>
+    <string name="onboarding_consent_privacy">Privacy Policy</string>
+
+    <!-- The only exit while the consent panel is up. Tapping it without the box ticked raises the
+         notice below and navigates nowhere — delta 7: the competitor's guard has no `return`, so its
+         Toast also fires from ad callbacks. -->
+    <string name="onboarding_splash_continue">Continue</string>
+    <string name="onboarding_splash_policies_required">Please accept the Terms of Service and the Privacy Policy to continue.</string>
+    <string name="onboarding_splash_progress">Starting…</string>
+
+    <!-- ── devicecheck ───────────────────────────────────────────────────────────────────────── -->
+    <string name="onboarding_device_check_title">About this device</string>
+    <string name="onboarding_device_check_note">Reading a few details about this device. Nothing is scanned, and nothing is changed.</string>
+
+    <!-- Five rows, not six. The competitor's sixth is titled "Initializing engine" and its value is
+         the literal "Complete" (AssimssesActivity.java:569-571) — a row that reports nothing. -->
+    <string name="onboarding_device_field_device">Device</string>
+    <string name="onboarding_device_field_os">System version</string>
+    <string name="onboarding_device_field_resolution">Screen resolution</string>
+    <string name="onboarding_device_field_density">Screen density</string>
+    <string name="onboarding_device_field_storage">Storage used</string>
+
+    <!-- Values are formatted HERE, never in the ViewModel (MVI §5). The bytes arrive as Longs and
+         are rendered through ByteFormatter, so one formatter decides the units app-wide. -->
+    <string name="onboarding_device_value_resolution">%1$d × %2$d</string>
+    <string name="onboarding_device_value_density">%1$d dpi</string>
+    <string name="onboarding_device_value_storage">%1$s of %2$s</string>
+    <string name="onboarding_device_value_pending">—</string>
+
+    <string name="onboarding_device_check_cta">Get started</string>
+    <string name="onboarding_device_check_cta_countdown">Get started (%1$d)</string>
+
+    <string name="onboarding_device_row_loading">Reading</string>
+    <string name="onboarding_device_row_done">Read</string>
+
+</resources>

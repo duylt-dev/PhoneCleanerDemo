@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  :feature:notification copy.
+
+  WORDING RULES that apply to every string in this file, not only to the ones already here:
+  no claim about removing viruses, blocking scams, speeding a phone up or freeing memory, and no
+  performance percentage figures. A measured number is reported with its unit; what the number will
+  do for the user is never asserted. The competitor's equivalents of these screens are where that
+  copy concentrates.
+
+  Every string is resolved with `stringResource` at render, never held on a model. `ae.i2` resolves
+  feature names to Strings from `Resources` at object initialisation, in an app with a 17-locale
+  in-app picker, so switching language leaves them stale until the process restarts
+  (`docs/system-architecture.md` §4.3).
+-->
+<resources>
+
+    <!-- gate -->
+    <string name="notification_cleaner_title">Notification cleaner</string>
+    <string name="notification_gate_listener_missing_title">Notification access is off</string>
+    <string name="notification_gate_listener_missing_body">To move notifications out of your shade and keep them here, this app needs notification access. You grant it in the system settings screen that opens next, by finding this app in the list and turning it on.</string>
+    <string name="notification_gate_listener_missing_cta">Open notification access settings</string>
+    <string name="notification_gate_hiding_disabled_title">Notification hiding is paused</string>
+    <string name="notification_gate_hiding_disabled_body">Nothing is being moved out of your shade right now. Turn hiding back on to start collecting notifications here again.</string>
+    <string name="notification_gate_hiding_disabled_cta">Turn hiding on</string>
+
+    <!-- hidingsettings -->
+    <string name="notification_hiding_settings_title">Hiding settings</string>
+    <string name="notification_hiding_master_title">Hide notifications</string>
+    <string name="notification_hiding_master_subtitle">When this is on, notifications from the apps you pick below are moved out of the shade and listed in this app.</string>
+    <string name="notification_hiding_master_on">On</string>
+    <string name="notification_hiding_master_off">Off</string>
+    <string name="notification_hiding_none_selected">No apps are selected, so nothing will be hidden. Pick an app below.</string>
+    <string name="notification_hiding_apps_header">Apps</string>
+    <string name="notification_hiding_empty">No apps to show.</string>
+    <string name="notification_hiding_row_state_on">Hiding on</string>
+    <string name="notification_hiding_row_state_off">Hiding off</string>
+
+    <!-- hiddenlist -->
+    <string name="hidden_notifications_title">Hidden notifications</string>
+    <string name="hidden_notifications_empty">No hidden notifications yet.</string>
+    <string name="hidden_notifications_clear_all">Clear all</string>
+    <string name="hidden_notifications_clearing">Clearing…</string>
+    <string name="hidden_notifications_clear_in_progress">Wait for the clear to finish.</string>
+    <string name="hidden_notifications_paused_banner">Hiding is paused. New notifications stay in your shade.</string>
+    <string name="hidden_notifications_paused_action">Turn on</string>
+    <string name="hidden_notifications_settings">Hiding settings</string>
+    <string name="hidden_notifications_no_title">(No title)</string>
+
+    <!-- permissionmanager -->
+    <string name="permission_manager_title">Permission manager</string>
+    <string name="permission_manager_tab_apps">Apps</string>
+    <string name="permission_manager_tab_sensitive">Sensitive</string>
+    <string name="permission_manager_tab_special">Special access</string>
+    <string name="permission_manager_scanning">Reading installed apps…</string>
+    <string name="permission_manager_scan_in_progress">Wait for the scan to finish.</string>
+    <string name="permission_manager_empty">No apps to show.</string>
+    <string name="permission_manager_manage">Manage in system settings</string>
+    <string name="permission_manager_granted">Granted</string>
+    <string name="permission_manager_not_granted">Not granted</string>
+    <string name="permission_manager_section_sensitive">Sensitive permissions</string>
+    <string name="permission_manager_section_normal">Normal permissions</string>
+    <string name="permission_manager_section_other">Other permissions</string>
+    <string name="permission_manager_no_settings_screen">This device has no settings screen for that.</string>
+
+    <plurals name="permission_manager_sensitive_count">
+        <item quantity="one">%d sensitive permission</item>
+        <item quantity="other">%d sensitive permissions</item>
+    </plurals>
+    <plurals name="permission_manager_group_app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
+
+    <!-- AppPermission labels. `:core:ui` owns this mapping in the design (§4.3); it is here because
+         core/** is not this cluster's to write. The enum itself still holds no resource id. -->
+    <string name="app_permission_storage">Storage</string>
+    <string name="app_permission_all_files">All files access</string>
+    <string name="app_permission_media">Photos and media</string>
+    <string name="app_permission_notifications">Post notifications</string>
+    <string name="app_permission_notification_listener">Notification access</string>
+    <string name="app_permission_usage_stats">Usage access</string>
+    <string name="app_permission_overlay">Display over other apps</string>
+    <string name="app_permission_write_settings">Modify system settings</string>
+    <string name="app_permission_do_not_disturb">Do Not Disturb access</string>
+    <string name="app_permission_ignore_battery_optimizations">Unrestricted background use</string>
+    <string name="app_permission_whatsapp_folder">WhatsApp folder access</string>
+
+    <!-- PermissionGroupId labels, in `SensitivePermissionCatalog`'s fixed order. -->
+    <string name="permission_group_activity_recognition">Physical activity</string>
+    <string name="permission_group_body_sensors">Body sensors</string>
+    <string name="permission_group_calendar">Calendar</string>
+    <string name="permission_group_camera">Camera</string>
+    <string name="permission_group_contacts">Contacts</string>
+    <string name="permission_group_location">Location</string>
+    <string name="permission_group_phone">Phone</string>
+    <string name="permission_group_query_packages">Installed app list</string>
+    <string name="permission_group_boot">Start at boot</string>
+    <string name="permission_group_microphone">Microphone</string>
+    <string name="permission_group_sms">SMS</string>
+</resources>

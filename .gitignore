@@ -1,0 +1,53 @@
+# ---- Build output ----
+build/
+.gradle/
+.cxx/
+.externalNativeBuild/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# ---- Local config / secrets ----
+local.properties
+*.jks
+*.keystore
+keystore.properties
+.env
+.env.*
+!.env.example
+google-services.json
+
+# ---- IDE ----
+.idea/
+*.iml
+.kotlin/
+captures/
+.navigation/
+*.hprof
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Reverse-engineering workspace (APK dịch ngược, 925M) ----
+decompiler/
+
+# ---- Plan artifacts: giữ markdown, bỏ dữ liệu nặng ----
+plans/**/snapshots/
+plans/**/workflow-state/
+plans/**/corpus-l2-fixed/
+plans/**/*.tar.gz
+plans/**/*.zip
+
+# ---- Claude session state ----
+.claude/.env
+.claude/agent-memory/
+.claude/settings.local.json
+.claude
+docs
+plans
+LLM.md

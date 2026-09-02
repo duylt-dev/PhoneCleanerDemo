@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  :data owns the manifest-declared platform entry points (LLM.md §3.6): the notification listener
+  service, the push service and the receivers. They are declared here, beside their code, and merge
+  into :app. None exists yet — their clusters have not been written.
+
+  PERMISSIONS: only what code in THIS module actually calls. The competitor declares 35
+  <uses-permission> entries, 13 of which it never uses and two of which are not real AOSP names
+  (docs/reverse-engineering/02 §1). A permission a store listing has to justify and no code reads is
+  a review risk with no feature behind it.
+
+  What is deliberately NOT here:
+
+  * MANAGE_EXTERNAL_STORAGE — never assumed grantable (system-architecture §8.1, owner decision).
+    The default branch is MediaStore + the Storage Access Framework, which is what storageDataModule
+    binds. Declaring it would make the manifest state a branch the code does not take, and it still
+    would not reach Android/data or Android/obb on API 30+, which is where the catalogue most wants
+    to look (§8.2). It belongs only in a build whose store declaration covers it, and never as the
+    only path.
+  * PACKAGE_USAGE_STATS, SYSTEM_ALERT_WINDOW, RECEIVE_BOOT_COMPLETED, POST_NOTIFICATIONS —
+    each sits behind a pending owner decision (running-apps, App Lock, out-of-app assertiveness).
+    Nothing here declares a permission on a decision's behalf.
+  * QUERY_ALL_PACKAGES — no code in this module enumerates packages. It belongs to whichever module
+    writes InstalledAppsRepository / AppPermissionScanRepository.
+  * ACCESS_MEDIA_LOCATION — MediaStoreQuery reads no EXIF location; the photo cluster declares it if
+    its own code does.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Read access for MediaStoreQuery / DefaultMediaStoreRepository — strategy 3 of §8.3.
+      API 33 split one permission into three; below 33 READ_EXTERNAL_STORAGE is the only form, so it
+      is capped rather than left to look like a live request on a modern device.
+    -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!--
+      DefaultFileDeleter only. minSdk is 28, and on API 28 deleting a file on shared storage needs
+      the write permission; from API 29 scoped storage replaces it with MediaStore.createDeleteRequest
+      (API 30+) and SAF, both of which need no manifest permission at all. Capped at 28 so it is
+      requested on exactly the one API level that requires it.
+    -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!--
+      POST_NOTIFICATIONS is deliberately ABSENT. It sits behind a pending owner decision
+      (out-of-app assertiveness), and `AppNotifier.areNotificationsEnabled()` already reports the
+      answer: without the grant the id-900 summary no-ops, visibly, rather than silently claiming to
+      have been checked. Nothing here declares a permission on a decision's behalf.
+    -->
+
+    <application>
+
+        <!--
+          The notification listener (docs/screens/17 §5). It replaces `DevitioService` + `od.i` + the
+          `flux_refresh_noti_list` event channel.
+
+          `BIND_NOTIFICATION_LISTENER_SERVICE` is a SIGNATURE permission held by the SYSTEM, not by
+          this app: declaring it here states that only the system may bind this service. It is NOT a
+          permission the user grants and is therefore not one of the pending owner decisions — the
+          user instead enables notification access in a system Settings screen, which
+          `NotificationGateRoute` opens and `PermissionRepository.isGranted(NotificationListener)`
+          reads back.
+
+          `exported` must be true — the system is an external binder — and that is safe precisely
+          because the signature permission gates it. Contrast `mf.EnsileActivity`, exported with no
+          intent-filter, no permission and no caller check (LLM.md §7.3).
+
+          No `android:process`: a second process would need its own Koin start and its own Room
+          connection to the same file.
+        -->
+        <service
+            android:name="com.pion.phonecleaner.data.notification.NotificationInterceptorService"
+            android:exported="true"
+            android:label="@string/channel_hidden_notifications_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!--
+          The push entry point (LLM.md §3.6: a manifest component is declared in :data, beside its
+          code, and merges into :app).
+
+          exported="false": the only caller is the Firebase Messaging SDK in this same process, and
+          the intent-filter below is how it finds the service. Contrast the competitor's out-of-app
+          entry, exported="true" with no intent-filter, no android:permission and no caller check,
+          forwarding its extras verbatim into a launch (AndroidManifest.xml:501-503,
+          mf/EnsileActivity.java:65-72) — any installed app can drive it to any module (LLM.md §7.3).
+          There is no exported trampoline here.
+
+          NOTE: nothing sends to this service. There is no backend and none is in scope (owner
+          decision 1), and with no google-services.json the default FirebaseApp does not initialise,
+          so the SDK never dispatches. The component exists so the boundary is real; see
+          data/push/PushMessagingService.kt for where it deliberately stops.
+
+          No POST_NOTIFICATIONS and no RECEIVE_BOOT_COMPLETED are declared on its behalf: both sit
+          behind pending owner decisions, and nothing in data/push posts a notification.
+        -->
+        <service
+            android:name="com.pion.phonecleaner.data.push.PushMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:antivirus. Shared chrome copy (Back, Cancel, Try again, the AppError messages)
+  stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §5; docs/screens/15-antivirus.md, wording note) — absolute, and a CI grep over
+  strings.xml enforces it. This is the cluster where it bites hardest: not one string below claims
+  that anything was detected, removed, blocked or made safe in our own voice. The competitor's four
+  words for this screen are quotations in the research chapter and are NOT carried into our copy.
+  Our vocabulary is: check, scan, finding, risk level, reviewed, removed.
+
+  The module identifier `antivirus` is the owner's (STATE.md:37) and is internal; no string below
+  contains it. `antivirus_powered_by` is the one exception in the other direction — LLM.md §5 makes
+  "Powered by Trustlook" MANDATORY, an SDK attribution requirement rather than decoration.
+
+  Three strings do real work and are worth naming:
+    * antivirus_consent_body — it must enumerate exactly what leaves the device, because §0.5 makes
+      "the consent text and the wire behaviour must agree" the whole point of re-asking on a version
+      bump. See the comment above it for the one open item it carries.
+    * antivirus_scan_unavailable — the state this build actually reaches. It says the check cannot
+      run, not that nothing was found: those are different claims and only one of them is true.
+    * antivirus_result_never_scanned — "no check has finished", a statement about the SCAN. Not
+      "you are protected", which is a claim about the device.
+-->
+<resources>
+
+    <string name="antivirus_title">App safety check</string>
+
+    <!-- ── scan ──────────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_scan_preparing">Preparing…</string>
+    <string name="antivirus_scan_network_hint">Files are compared against an online service, so this needs a connection.</string>
+    <string name="antivirus_scan_elapsed">%1$s elapsed</string>
+    <string name="antivirus_scan_idle">Ready to check.</string>
+
+    <!--
+      Coverage. system-architecture.md §8.4 makes this mandatory in the default (MediaStore + SAF)
+      branch: a check that could not see everything says so, rather than letting "nothing found" be
+      read as "nothing there".
+    -->
+    <string name="antivirus_coverage_partial">Installed apps only — storage could not be read, so files on storage were not included.</string>
+
+    <!-- Attribution. MANDATORY (LLM.md §5) — a licence term, not decoration. Do not reword. -->
+    <string name="antivirus_powered_by">Powered by Trustlook</string>
+
+    <!-- ── consent ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_consent_title">Before the check runs</string>
+    <!--
+      What leaves the device, enumerated (§0.5). The last sentence covers the background upload the
+      SDK ships with: docs/screens/15-antivirus.md open item 3 records that whether that job is
+      disabled, disclosed or left as-is is a product and legal decision that has NOT been taken. A
+      disclosure that omits a behaviour the component ships is the exact defect §0.5 names, so it is
+      disclosed here; if the owner disables the job, this sentence is removed in the same change and
+      the consent version key is bumped.
+    -->
+    <string name="antivirus_consent_body">To run the check, this app sends a fingerprint of each installed app and each app file it can read: the file digest, the package name, the file size and the signing certificate fingerprint. An app file itself may also be uploaded for analysis when the device is charging and on an unmetered network. Nothing else about you or your device is sent.</string>
+    <string name="antivirus_consent_accept">Agree and continue</string>
+    <string name="antivirus_consent_reject">Not now</string>
+
+    <!-- ── gates ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_gate_network_title">No connection</string>
+    <string name="antivirus_gate_network_body">The check compares files against an online service. Connect to a network and try again.</string>
+
+    <string name="antivirus_gate_consent_title">The check was not run</string>
+    <string name="antivirus_gate_consent_body">You chose not to share the data this check needs, and that answer is remembered. Nothing has been sent.</string>
+
+    <string name="antivirus_gate_storage_title">Storage access</string>
+    <string name="antivirus_gate_storage_body">With storage access the check also covers app files saved on this device. Without it, it covers installed apps only — either way it runs.</string>
+    <string name="antivirus_gate_storage_grant">Allow access</string>
+
+    <!-- ── stop ──────────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_stop_title">Stop the check?</string>
+    <string name="antivirus_stop_body">The check will stop and nothing found so far will be kept.</string>
+    <string name="antivirus_stop_confirm">Stop</string>
+    <string name="antivirus_stop_dismiss">Keep checking</string>
+
+    <!-- ── failures (docs/screens/15-antivirus.md §0.2 — one line per arm, never one for all) ─── -->
+    <string name="antivirus_failed_title">The check did not finish</string>
+    <string name="antivirus_failed_no_network">The connection was lost before the check finished.</string>
+    <string name="antivirus_failed_timeout">The check took too long and was stopped.</string>
+    <string name="antivirus_failed_bad_key">The service did not accept this app\'s credentials. This is a problem on our side, not on your device.</string>
+    <string name="antivirus_failed_server">The service could not be reached.</string>
+    <string name="antivirus_failed_nothing">There was nothing to check.</string>
+    <string name="antivirus_failed_unknown">The check stopped before it finished.</string>
+    <!-- The state this build actually reaches: the scanning component is not in this build. -->
+    <string name="antivirus_scan_unavailable">The checking component is not included in this build, so the check cannot run. Nothing was sent and nothing was checked.</string>
+
+    <!-- ── result ────────────────────────────────────────────────────────────────────────────── -->
+    <plurals name="antivirus_result_headline">
+        <item quantity="one">%1$d item to review</item>
+        <item quantity="other">%1$d items to review</item>
+    </plurals>
+    <string name="antivirus_result_scanned_at">Last checked %1$s</string>
+    <string name="antivirus_result_none">Nothing was flagged in what could be checked.</string>
+    <string name="antivirus_result_never_scanned">No check has finished yet, so there is nothing to show.</string>
+    <string name="antivirus_result_rescan">Check again</string>
+    <string name="antivirus_result_ignore">Ignore</string>
+
+    <string name="antivirus_risk_elevated">Elevated</string>
+    <string name="antivirus_risk_high">High</string>
+    <string name="antivirus_risk_clean">Low</string>
+
+    <string name="antivirus_remove_title">Remove %1$s?</string>
+    <string name="antivirus_remove_installed_note">This opens the system uninstall screen. Nothing is removed until you confirm it there.</string>
+    <string name="antivirus_remove_file_note">This deletes the file from this device.</string>
+    <string name="antivirus_remove_confirm">Remove</string>
+    <string name="antivirus_remove_dismiss">Cancel</string>
+
+</resources>

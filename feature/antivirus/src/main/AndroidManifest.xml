@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  :feature:antivirus declares exactly one permission, and only because code in THIS module calls the
+  API behind it: `AntivirusScanRoute` reads `ConnectivityManager` to report the network gate upward
+  as `GateStateReported(isOnline = …)` (docs/screens/15-antivirus.md §1.3 — platform truth lives in
+  the composable, MVI §4). `ConnectivityManager.getNetworkCapabilities` throws a SecurityException
+  without it.
+
+  The same rule the :data manifest states applies here: only what code in this module actually calls.
+  Nothing else is declared on another cluster's or another decision's behalf.
+
+  Deliberately NOT here:
+    * The storage read permissions — declared by :data, beside MediaStoreQuery, which is the code
+      that uses them. This module only *asks* for them through an ActivityResultContract.
+    * MANAGE_EXTERNAL_STORAGE — never assumed grantable (system-architecture.md §8.1, owner
+      decision). The scan degrades to ScanCoverage.InstalledAppsOnly and SAYS SO instead.
+    * QUERY_ALL_PACKAGES — this module enumerates no packages. The result rows' icons come from
+      AppIconLoader and fall back when a package is not visible; a permission a store listing has to
+      justify is not declared to improve an icon.
+    * REQUEST_DELETE_PACKAGES — the uninstall goes through Intent.ACTION_DELETE, which is the system
+      dialog and needs no permission. ACTION_UNINSTALL_PACKAGE, which would, is not used.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+</manifest>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:home. Shared chrome copy (Back, Cancel, Try again, the AppError messages, the
+  twenty feature titles and the four exit CTAs) stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5; docs/screens/11-home.md §4.2) — absolute, and a CI grep over
+  **/src/**/res/values*/strings.xml enforces it. Every string below names a capability or reports a
+  measurement; none claims an outcome, and the one percentage on this page is storage occupancy. The
+  banned wording is listed in LLM.md §5 and is deliberately not repeated here, so this comment
+  cannot itself trip the grep.
+
+  Three strings do real work and are worth naming:
+
+    * home_storage_ring_value / _description — a percentage, and the ONE this app may show: it is
+      storage occupancy, a measurement of how full the volume is (§4.2).
+    * home_junk_not_measured vs home_junk_none — "we have not looked" and "there is nothing" must
+      not read the same. The competitor infers both from the same two booleans and a -1 sentinel at
+      render time (delta 13), so they render identically.
+    * home_value_unknown — the two-hyphen placeholder. Kept deliberately: it is the honest
+      rendering of null and the one piece of competitor copy that says LESS than it knows rather
+      than more (§4.2, delta 4). It is a resource and not a hard-coded literal because :core:ui's
+      QuickToolTile KDoc objects to that placeholder on the ground that a translator has to handle
+      it; as a string it IS a translator's to change, and a zero is still never substituted for an
+      unknown figure.
+-->
+<resources>
+
+    <!-- ── header ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_header_title">Phone Cleaner</string>
+    <string name="home_open_settings">Settings</string>
+    <string name="home_permission_warning">Some features still need permission to run.</string>
+
+    <!-- ── hero card ─────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_storage_title">Storage</string>
+    <!-- How full the volume is, which is a measurement. %% is a literal percent sign. -->
+    <string name="home_storage_ring_value">%1$d%%</string>
+    <string name="home_storage_ring_description">Storage is %1$d percent full</string>
+    <string name="home_storage_used">Used</string>
+    <string name="home_storage_free">Free</string>
+
+    <string name="home_junk_not_measured">Not checked yet</string>
+    <string name="home_junk_none">No junk files were found in the folders that could be read</string>
+    <string name="home_junk_measured">%1$s of junk files found</string>
+    <string name="home_junk_checking">Checking…</string>
+
+    <string name="home_safety_check_due">A safety check has not been run today</string>
+
+    <!-- ── section headings ──────────────────────────────────────────────────────────────────── -->
+    <string name="home_section_save_space">Save space</string>
+    <string name="home_section_security">Privacy and access</string>
+
+    <!-- ── tiles ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_value_unknown">--</string>
+    <!-- A rendering rule, not a datum: the count above which a badge stops being exact. -->
+    <string name="home_badge_overflow">99+</string>
+    <string name="home_badge_attention">Needs attention</string>
+
+    <!-- ── notification banner ───────────────────────────────────────────────────────────────── -->
+    <string name="home_notification_banner_title">Turn on notifications</string>
+    <string name="home_notification_banner_body">Get a reminder when there is something on this device worth reviewing.</string>
+    <string name="home_notification_banner_action">Turn on</string>
+
+    <!-- ── footer ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_footer_days_label">With you for</string>
+    <plurals name="home_footer_days_value">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="home_footer_saved_label">Space recovered so far</string>
+
+    <!-- ── the notification-permission sheet ─────────────────────────────────────────────────── -->
+    <string name="home_notification_sheet_title">Turn on notifications?</string>
+    <string name="home_notification_sheet_body">Notifications are used to tell you when there is something on this device worth reviewing. You can turn them off again at any time, in Settings.</string>
+    <string name="home_notification_sheet_confirm">Turn on</string>
+    <string name="home_notification_sheet_dismiss">Not now</string>
+
+    <!-- ── the safety-check consent dialog ───────────────────────────────────────────────────── -->
+    <string name="home_consent_title">Before the app safety check</string>
+    <string name="home_consent_body">The check is carried out by Trustlook. Read the terms and the privacy policy below, then choose whether to continue.</string>
+    <!-- SDK attribution requirement, not decoration (LLM.md §5). -->
+    <string name="home_consent_powered_by">Powered by Trustlook</string>
+    <string name="home_consent_terms">Terms of Service</string>
+    <string name="home_consent_privacy">Privacy Policy</string>
+    <string name="home_consent_agree">Agree and continue</string>
+    <string name="home_consent_reject">Not now</string>
+
+    <!-- ── the exit offer dialog ─────────────────────────────────────────────────────────────── -->
+    <string name="home_exit_quit">Exit</string>
+
+</resources>

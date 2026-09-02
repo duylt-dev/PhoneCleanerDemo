@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  :data's own user-visible copy. There is very little of it, and there is a reason for each piece:
+  a notification channel's name and description are shown by the system in app settings, are
+  translated, and are read by code that has no composable and therefore no `stringResource`.
+
+  The file is named `strings_notification.xml` rather than `strings.xml` so a second concern in this
+  module adds its own file instead of editing this one. Android merges every `values/*.xml`.
+
+  WORDING RULES apply here as everywhere: no claim about removing viruses, blocking scams, speeding a
+  phone up or freeing memory, and no performance percentage figures.
+-->
+<resources>
+    <string name="channel_hidden_notifications_name">Hidden notifications</string>
+    <string name="channel_hidden_notifications_description">A summary of the notifications this app has moved out of your notification shade.</string>
+    <string name="hidden_notifications_summary_title">Notifications hidden</string>
+    <plurals name="hidden_notifications_summary_body">
+        <item quantity="one">%d notification is waiting in the notification cleaner.</item>
+        <item quantity="other">%d notifications are waiting in the notification cleaner.</item>
+    </plurals>
+</resources>

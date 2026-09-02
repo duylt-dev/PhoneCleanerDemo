@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:network. Shared chrome copy (Back, Try again, Cancel, the AppError messages, the
+  twenty feature titles) stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5) — absolute, and a CI grep over strings.xml enforces it. This is the
+  cluster the ban bites hardest in, because the competitor's speed test is where its performance
+  claims live. Every string below reports a MEASURED number with its unit, or says plainly that
+  nothing was measured. None of them:
+    * claims the phone will be faster,
+    * carries a percentage figure, or
+    * describes a connection as good, bad, fast or slow.
+
+  The speed-test strings say "not measured" rather than showing a zero, because the byte source for a
+  real measurement is an open owner decision (docs/screens/19-network-and-speed-test.md §2, §5 item 1)
+  and a fabricated figure is exactly what this screen must not ship.
+-->
+<resources>
+
+    <!-- ── traffic ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="traffic_title">Network traffic</string>
+    <string name="traffic_reading">Reading data usage…</string>
+    <string name="traffic_empty">No app recorded data use in this period.</string>
+    <string name="traffic_done">OK</string>
+
+    <string name="traffic_period_this_month">This month</string>
+    <string name="traffic_period_30_days">30 days</string>
+    <string name="traffic_period_24_hours">24 hours</string>
+
+    <string name="traffic_connection_label">Connection</string>
+    <string name="traffic_connection_all">All connections</string>
+    <string name="traffic_connection_mobile">Mobile data</string>
+    <string name="traffic_connection_wifi">Wi-Fi</string>
+
+    <string name="traffic_total_mobile">Mobile data</string>
+    <string name="traffic_total_wifi">Wi-Fi</string>
+    <string name="traffic_totals_caption">Totals Android recorded for every app in this period.</string>
+
+    <!--
+      The row action. It opens the system App info page and nothing else: no public API stops another
+      app, and the competitor's killBackgroundProcesses call needs a permission it never declares, so
+      every one of its calls throws (docs/screens/19-network-and-speed-test.md §1.5 D5).
+    -->
+    <string name="traffic_app_info">App info</string>
+    <string name="traffic_app_info_opened">Opened in Settings</string>
+    <string name="traffic_row_description">%1$s used %2$s</string>
+
+    <string name="traffic_usage_access_title">Usage access is needed</string>
+    <string name="traffic_usage_access_body">Android reports how much data each app used only to apps that have been given usage access. Without it, this screen has nothing to read.</string>
+    <string name="traffic_usage_access_action">Open usage access settings</string>
+
+    <!-- ── speedtest ─────────────────────────────────────────────────────────────────────────
+      PENDING OWNER DECISION 2 (docs/screens/19-network-and-speed-test.md §2, §5 item 1): the byte
+      source for a real measurement is not settled, so the shipped repository measures nothing and
+      the screen says so. There is no "0 B/s" anywhere here — a zero is a figure, and no figure was
+      measured.
+    -->
+    <string name="speed_test_title">Connection test</string>
+    <string name="speed_test_running">Measuring…</string>
+    <string name="speed_test_stage_download">Download</string>
+    <string name="speed_test_stage_upload">Upload</string>
+    <string name="speed_test_start">Start</string>
+    <string name="speed_test_not_measured_title">Nothing was measured</string>
+    <string name="speed_test_not_measured_body">This build has no measurement source set up, so no download or upload figure can be reported here.</string>
+    <string name="speed_test_dial_description">%1$s, %2$d of 100</string>
+    <string name="speed_test_dial_description_rate">%1$s, %2$d of 100, %3$s</string>
+
+    <string name="speed_test_abandon_title">Stop the test?</string>
+    <string name="speed_test_abandon_body">The measurement in progress will be discarded.</string>
+    <string name="speed_test_abandon_confirm">Stop</string>
+    <string name="speed_test_abandon_dismiss">Keep measuring</string>
+
+    <!-- ── speedtestresult ───────────────────────────────────────────────────────────────────── -->
+    <string name="speed_result_download">Download</string>
+    <string name="speed_result_upload">Upload</string>
+    <string name="speed_result_run_again">Run again</string>
+    <string name="speed_result_done">Done</string>
+    <string name="speed_result_not_measured">No measurement was recorded for this run.</string>
+
+</resources>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:junk. Shared chrome copy (Back, Cancel, Try again, the AppError messages) stays in
+  :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5; docs/screens/12-junk-cleaning.md §8.3) — absolute, and a CI grep over
+  strings.xml enforces it. No string below makes a performance claim, a security claim or a memory
+  claim, and none carries a percentage figure. The feature reports BYTES RECOVERED, measured — and it
+  says what it did not do. The banned wording is listed in LLM.md §5 and is deliberately not repeated
+  here, so this comment cannot itself trip the grep.
+
+  Two strings do real work and are worth naming:
+    * junk_review_empty — "nothing was found", a statement about the SCAN. Not "Very Clean", which is a
+      compliment about the device (§8.3).
+    * junk_review_clean_cta — carries the selected size through a %1$s placeholder. The competitor
+      concatenates it with full-width CJK parentheses in all 17 locales (VibrnancActivity.java:466).
+-->
+<resources>
+
+    <string name="junk_title">Junk files</string>
+
+    <!-- ── junkscan ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="junk_scan_scanning">Looking for junk files…</string>
+    <string name="junk_scan_finished">Scan finished</string>
+    <string name="junk_scan_stop_title">Stop scanning?</string>
+    <string name="junk_scan_stop_body">The scan will stop and nothing found so far will be kept.</string>
+    <string name="junk_scan_stop_confirm">Stop</string>
+
+    <string name="junk_permission_title">Storage access is needed</string>
+    <string name="junk_permission_body">To list files this device can remove, the app needs permission to read storage. It only reads what you allow, and nothing is removed until you choose it.</string>
+    <string name="junk_permission_grant">Allow access</string>
+
+    <!-- ── junkreview ────────────────────────────────────────────────────────────────────────── -->
+    <string name="junk_review_total_label">Found</string>
+    <string name="junk_review_total_collapsed">%1$s found</string>
+    <string name="junk_review_empty">No junk files were found in the folders that could be read.</string>
+    <string name="junk_review_clean_cta">Clean %1$s</string>
+    <string name="junk_review_nothing_selected">Nothing selected</string>
+    <string name="junk_category_expand">Show files</string>
+    <string name="junk_category_collapse">Hide files</string>
+
+    <!-- The three scan passes. The competitor hands its screen the English literals "System Cache",
+         "App Residuals" and "APK Files", so these are untranslated in all 17 of its locales. -->
+    <string name="junk_category_system_cache">Cached files</string>
+    <string name="junk_category_app_residual">Files left by removed apps</string>
+    <string name="junk_category_apk_files">Installer files</string>
+
+    <!-- ── junkclean ─────────────────────────────────────────────────────────────────────────── -->
+    <string name="junk_clean_title">Cleaning</string>
+    <string name="junk_clean_cleaning">Removing the files you selected…</string>
+    <string name="junk_clean_finished">Finished</string>
+    <string name="junk_clean_stop_title">Stop cleaning?</string>
+    <string name="junk_clean_stop_body">Files already removed stay removed. The rest are left alone.</string>
+    <string name="junk_clean_stop_confirm">Stop</string>
+    <string name="junk_clean_access_lost_title">Storage access is no longer granted</string>
+    <string name="junk_clean_access_lost_body">Nothing has been removed. Allow access again to continue.</string>
+
+    <!-- Say what was NOT done. A plural body, never a hand-appended "s". -->
+    <plurals name="junk_clean_failed_count">
+        <item quantity="one">%1$d file could not be removed</item>
+        <item quantity="other">%1$d files could not be removed</item>
+    </plurals>
+
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:cleanresult. Shared chrome copy (Back, Cancel, Try again, the AppError messages,
+  the twenty feature titles) stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5) — absolute. Nothing below claims to remove a virus, block a scam, speed
+  up a phone or free memory, and no string carries a performance percentage. This screen reports
+  BYTES RECOVERED, measured, and says plainly when a run recovered none.
+-->
+<resources>
+
+    <string name="clean_result_title">Finished</string>
+
+    <!-- One headline per CleanupOutcome. The competitor has two disagreeing `when (goTag)` blocks
+         whose id sets have already drifted; there is one `when` here, over an enum. -->
+    <string name="clean_result_headline_cleaned">Removed</string>
+    <string name="clean_result_headline_nothing_found">Nothing was found to remove</string>
+    <string name="clean_result_headline_threats_removed">Removed</string>
+    <string name="clean_result_headline_data_cleared">Data removed</string>
+    <string name="clean_result_headline_items_cleared">Cleared</string>
+
+    <plurals name="clean_result_item_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+
+    <string name="clean_result_lifetime">%1$s recovered since you installed this app</string>
+    <string name="clean_result_done">Done</string>
+    <string name="clean_result_suggestions_title">Other things you can look at</string>
+
+</resources>

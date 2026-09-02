@@ -1,0 +1,3 @@
+# Keep rules live here (LLM.md §10.4). Release optimisation is currently disabled; anything
+# reflective — Room, kotlinx.serialization, the TrustLook SDK — needs its rules written in the
+# same commit that adds it, not after minification first breaks.

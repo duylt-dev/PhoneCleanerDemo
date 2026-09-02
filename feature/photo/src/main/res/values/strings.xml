@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:photo. Shared chrome copy (Back, Cancel, Delete, Select all, Try again, the
+  AppError messages) stays in :core:ui and is referenced from there (LLM.md §4).
+
+  WORDING BAN (LLM.md §1, §5) — absolute. No string below claims to remove a virus, block a scam,
+  speed up a phone or free memory, and none carries a performance percentage figure. The compressor
+  reports the size it MEASURED; docs/screens/13-photo-and-media.md §3.5 records that the
+  competitor's baked "-40%" and "up to about 40%" disagree with its own engine.
+
+  Every count is a <plurals> with a quantity, never a hand-appended "s"
+  (docs/screens/13-photo-and-media.md §5.3, §7.5).
+-->
+<resources>
+
+    <!-- ── shared across the cluster ─────────────────────────────────────────────────────────── -->
+    <string name="photo_scanning">Reading your photos…</string>
+    <string name="photo_scan_progress">%1$d of %2$d</string>
+    <string name="photo_scan_finished">Finished</string>
+    <string name="photo_keep_badge">Keeping</string>
+    <string name="photo_open_preview">Open</string>
+    <string name="photo_action_continue">Continue</string>
+    <string name="photo_action_stop">Stop</string>
+
+    <!-- Said out loud rather than hidden: the default branch reads what the system grants and
+         nothing more (docs/screens/13-photo-and-media.md §0.1). -->
+    <string name="photo_consent_pending">Android is asking you to confirm this removal.</string>
+    <string name="photo_consent_declined">Nothing was removed. The confirmation was declined.</string>
+
+    <plurals name="photo_failed_count">
+        <item quantity="one">%1$d photo could not be changed</item>
+        <item quantity="other">%1$d photos could not be changed</item>
+    </plurals>
+
+    <!-- ── albums ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_albums_title">Images</string>
+    <string name="photo_albums_empty">No images were found in the folders that could be read.</string>
+    <plurals name="photo_album_count">
+        <item quantity="one">%1$d photo</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+
+    <!-- ── albumdetail ───────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_album_empty">This folder has no photos left.</string>
+    <string name="photo_album_delete_title">Remove the selected photos?</string>
+    <plurals name="photo_album_delete_body">
+        <item quantity="one">%1$d photo will be removed from this device.</item>
+        <item quantity="other">%1$d photos will be removed from this device.</item>
+    </plurals>
+    <plurals name="photo_delete_failed">
+        <item quantity="one">%1$d photo could not be removed</item>
+        <item quantity="other">%1$d photos could not be removed</item>
+    </plurals>
+
+    <!-- ── similar ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_similar_title">Similar photos</string>
+    <string name="photo_similar_empty">No photos that look alike were found.</string>
+    <string name="photo_similar_hashing">Comparing photos…</string>
+    <string name="photo_similar_group_cleanup">Keep one</string>
+    <plurals name="photo_similar_skipped">
+        <item quantity="one">%1$d photo could not be read and was left out</item>
+        <item quantity="other">%1$d photos could not be read and were left out</item>
+    </plurals>
+
+    <!-- ── preview ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_preview_title">Photo</string>
+    <string name="photo_preview_counter">%1$d/%2$d</string>
+    <string name="photo_preview_select">Select this photo</string>
+    <string name="photo_preview_deselect">Deselect this photo</string>
+
+    <!-- ── compressor ────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_compressor_title">Photo compressor</string>
+    <string name="photo_compressor_intro">Save a smaller copy of the photos you choose. The measured size for a sample of your own photos is shown below once the list is ready.</string>
+    <string name="photo_compressor_start">Start</string>
+    <string name="photo_compressor_empty">No photos large enough to be worth re-encoding were found.</string>
+    <string name="photo_compressor_estimate_before">Now</string>
+    <string name="photo_compressor_estimate_after">After</string>
+    <plurals name="photo_compressor_estimate_sample">
+        <item quantity="one">Measured on %1$d of your photos</item>
+        <item quantity="other">Measured on %1$d of your photos</item>
+    </plurals>
+
+    <!-- ── compressrun ───────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_compress_run_title">Compressing</string>
+    <string name="photo_compress_run_action">Compress all</string>
+    <string name="photo_compress_confirm_title">Compress the photos you chose?</string>
+    <plurals name="photo_compress_confirm_body">
+        <item quantity="one">%1$d photo will be replaced by a smaller copy.</item>
+        <item quantity="other">%1$d photos will be replaced by smaller copies.</item>
+    </plurals>
+    <string name="photo_compress_stop_title">Stop compressing?</string>
+    <string name="photo_compress_stop_body">Photos already compressed stay compressed. The rest are left alone.</string>
+    <string name="photo_compress_saved">Saved %1$s so far</string>
+    <string name="photo_session_lost">That selection is no longer available. Choose the photos again.</string>
+
+    <!-- ── privacy ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_privacy_title">Photo location tags</string>
+    <string name="photo_privacy_reassurance">Only the location tag is removed. The photo itself stays where it is, keeps its name, and is not sent anywhere.</string>
+    <string name="photo_privacy_empty">None of the photos that could be read carry a location tag.</string>
+    <string name="photo_privacy_action">Remove location</string>
+    <string name="photo_privacy_confirm_title">Remove the location tag?</string>
+    <plurals name="photo_privacy_confirm_body">
+        <item quantity="one">The location tag will be removed from %1$d photo.</item>
+        <item quantity="other">The location tag will be removed from %1$d photos.</item>
+    </plurals>
+    <string name="photo_privacy_stop_title">Stop?</string>
+    <string name="photo_privacy_stop_body">Photos already cleared stay cleared. The rest are left alone.</string>
+
+</resources>

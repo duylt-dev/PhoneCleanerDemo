@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:settings. Shared chrome copy — Back, Retry, Cancel and the AppError messages —
+  stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5), enforced by a CI grep over **/src/**/res/values*/strings.xml: no
+  marketing claim, and NO PERFORMANCE PERCENTAGE FIGURES. Nothing on these six screens reports a
+  measurement at all, so every string below either names a destination or explains what a permission
+  is used for. The banned wording is listed in LLM.md §5 and deliberately not repeated here, so this
+  comment cannot itself trip the grep.
+
+  Two groups are worth naming:
+
+    * settings_language_* — the seventeen endonyms are translatable="false" ON PURPOSE. An endonym
+      is the language's name IN THAT LANGUAGE; translating it defeats the only job it has, which is
+      to be readable by someone who cannot read the current UI language.
+    * settings_permission_* — the rationale copy. It states what the app does with the grant and
+      never that the user's device is at risk without it.
+-->
+<resources>
+
+    <!-- ── settings ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_row_language">Language</string>
+    <string name="settings_row_permission_centre">Permissions</string>
+    <string name="settings_row_about">About</string>
+    <string name="settings_row_resident_widget">Show a shortcut in the status bar</string>
+    <string name="settings_row_resident_widget_supporting">Off by default. You can turn this off again at any time.</string>
+    <string name="settings_language_follow_system">System default</string>
+
+    <!-- ── language ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_save">Save</string>
+    <string name="settings_language_system_default">System default</string>
+
+    <!--
+      The seventeen endonyms. translatable="false": see the header comment.
+      Source and the three corrections against it: SupportedLanguages.kt in :data.
+    -->
+    <string name="settings_language_en_us" translatable="false">English</string>
+    <string name="settings_language_zh_hans_cn" translatable="false">简体中文</string>
+    <string name="settings_language_pt_pt" translatable="false">Português</string>
+    <string name="settings_language_es_es" translatable="false">Español</string>
+    <string name="settings_language_fr_fr" translatable="false">Français</string>
+    <string name="settings_language_de_de" translatable="false">Deutsch</string>
+    <string name="settings_language_th_th" translatable="false">ไทย</string>
+    <string name="settings_language_id_id" translatable="false">Bahasa Indonesia</string>
+    <string name="settings_language_ms_my" translatable="false">Melayu</string>
+    <string name="settings_language_vi_vn" translatable="false">Tiếng Việt</string>
+    <string name="settings_language_ja_jp" translatable="false">日本語</string>
+    <string name="settings_language_it_it" translatable="false">Italiano</string>
+    <string name="settings_language_ko_kr" translatable="false">한국어</string>
+    <string name="settings_language_nl_nl" translatable="false">Nederlands</string>
+    <string name="settings_language_zh_hant_tw" translatable="false">繁體中文</string>
+    <string name="settings_language_tr_tr" translatable="false">Türkçe</string>
+    <string name="settings_language_ru_ru" translatable="false">Русский</string>
+
+    <!-- ── about ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_about_title">About</string>
+    <!-- Version name, then build number in brackets. Both come from the installed package. -->
+    <string name="settings_about_version">Version %1$s (%2$d)</string>
+    <string name="settings_about_terms_of_service">Terms of Service</string>
+    <string name="settings_about_privacy_policy">Privacy Policy</string>
+    <string name="settings_about_developer_tools">Developer tools</string>
+
+    <!-- ── webview ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_webview_terms_title">Terms of Service</string>
+    <string name="settings_webview_privacy_title">Privacy Policy</string>
+    <!-- Shown when this build has no URL configured for the document. It says so, plainly. -->
+    <string name="settings_webview_unavailable">This document is not available in this build.</string>
+
+    <!-- ── permission centre ─────────────────────────────────────────────────────────────────── -->
+    <string name="settings_permissions_title">Permissions</string>
+    <string name="settings_permissions_all_granted">Every permission this app asks for has been granted.</string>
+    <string name="settings_permissions_granted_section">Granted</string>
+    <string name="settings_permissions_grant">Grant</string>
+    <string name="settings_permissions_open_settings">Open Settings</string>
+    <string name="settings_permissions_declined">You returned without granting this. It can still be turned on in Settings.</string>
+    <string name="settings_permissions_cancel">Not now</string>
+
+    <string name="settings_permission_storage_title">Files and media</string>
+    <string name="settings_permission_storage_body">Used to list the files on this device so you can review and delete them yourself. Nothing is uploaded.</string>
+    <string name="settings_permission_media_title">Photos and videos</string>
+    <string name="settings_permission_media_body">Used to read photos and videos for the photo tools. Nothing is uploaded.</string>
+    <string name="settings_permission_notifications_title">Notifications</string>
+    <string name="settings_permission_notifications_body">Used to tell you when a task you started has finished.</string>
+    <string name="settings_permission_listener_title">Notification access</string>
+    <string name="settings_permission_listener_body">Needed by the notification cleaner to read and tidy the notifications already on this device. It is granted in a system screen.</string>
+
+    <!--
+      The steps a user follows in the system screen, shown BEFORE they leave. The competitor draws a
+      translucent activity over the system Settings app 1 500 ms after handing the user out; that is
+      a background activity start over another app, restricted since Android 10 (§5.4 delta 4).
+    -->
+    <string name="settings_permission_steps_title">In the screen that opens</string>
+    <string name="settings_permission_steps_listener">1. Find this app in the list.\n2. Turn its switch on.\n3. Press back to return here.</string>
+
+    <!-- ── developer tools (debug builds only) ───────────────────────────────────────────────── -->
+    <string name="settings_devtools_title">Developer tools</string>
+    <string name="settings_devtools_push_header">Simulate a push message</string>
+    <string name="settings_devtools_push_hint">One key=value pair per line</string>
+    <string name="settings_devtools_push_send">Deliver</string>
+    <string name="settings_devtools_push_delivered">Delivered %1$d data key(s) to PushRepository</string>
+    <string name="settings_devtools_push_invalid">No key=value pairs were recognised</string>
+    <string name="settings_devtools_push_failed">PushRepository reported a failure</string>
+
+</resources>

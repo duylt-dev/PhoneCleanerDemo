@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shared chrome copy for :core:ui (LLM.md §4: "Shared chrome copy goes in :core:ui/src/main/res/").
+  A string a single screen renders belongs to that feature module's own res/ instead.
+
+  WORDING BAN (LLM.md §1, §5, STATE.md:42-44) — absolute, and a CI grep over
+  **/src/**/res/values*/strings.xml enforces it. Nothing below claims to remove a virus, block a
+  scam, speed up a phone or free RAM, and no string carries a performance percentage. The security
+  feature is described by the owner's replacement framing, "app safety check" (STATE.md:48).
+-->
+<resources>
+
+    <!-- ── shared actions and chrome ─────────────────────────────────────────────────────────── -->
+    <string name="action_back">Back</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_retry">Try again</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_clear_selection">Clear selection</string>
+    <string name="state_loading">Working…</string>
+
+    <!-- SelectionBar. A count with a plural body, never a hand-appended "s" — the competitor
+         appends an English plural at java/nc/n0.java:62 (docs/screens/21 §3.2). -->
+    <plurals name="selection_count">
+        <item quantity="one">%1$d item selected</item>
+        <item quantity="other">%1$d items selected</item>
+    </plurals>
+
+    <!-- ── AppError -> copy. Resolved at render time by error/ErrorMessages.kt so one error reads
+         correctly in every locale (LLM.md §4, MVI §5). ─────────────────────────────────────── -->
+    <string name="error_permission_denied">This needs a permission that has not been granted.</string>
+    <string name="error_no_network">No connection right now.</string>
+    <string name="error_not_found">That is no longer here.</string>
+    <string name="error_storage">Storage could not be read.</string>
+    <string name="error_unexpected">Something went wrong.</string>
+
+    <!-- ── PIN pad content descriptions. The keypad holds no PIN; these name keys, not digits
+         entered (docs/screens/21 §4.4). ────────────────────────────────────────────────────── -->
+    <string name="pin_backspace">Delete last digit</string>
+    <string name="pin_dots_state">%1$d of %2$d digits entered</string>
+
+    <!-- ── the exit-dialog call to action. Four values, replacing the competitor's four-way `if`
+         (docs/screens/21 §5.2). ────────────────────────────────────────────────────────────── -->
+    <string name="feature_cta_clean">Clean now</string>
+    <string name="feature_cta_review">Review now</string>
+    <string name="feature_cta_check">Check now</string>
+    <string name="feature_cta_open">Open</string>
+
+    <!-- ── the twenty features. One title and one description each, resolved by stringResource at
+         render — never captured into a String at object initialisation, which is what leaves every
+         feature name stale after the in-app language picker changes locale (docs/screens/21 §5.4
+         G3). ───────────────────────────────────────────────────────────────────────────────── -->
+    <string name="feature_junk_clean_title">Junk files</string>
+    <string name="feature_junk_clean_description">Find cached and leftover files you can remove.</string>
+    <string name="feature_big_files_title">Large files</string>
+    <string name="feature_big_files_description">Find the biggest files stored on this device.</string>
+    <string name="feature_app_manager_title">App manager</string>
+    <string name="feature_app_manager_description">See installed apps and uninstall the ones you no longer use.</string>
+    <string name="feature_antivirus_title">App safety check</string>
+    <string name="feature_antivirus_description">Run a safety check over the apps installed on this device.</string>
+    <string name="feature_image_manager_title">Images</string>
+    <string name="feature_image_manager_description">Browse images by folder and remove the ones you do not need.</string>
+    <string name="feature_video_manager_title">Videos</string>
+    <string name="feature_video_manager_description">Browse videos by size and remove the ones you do not need.</string>
+    <string name="feature_audio_manager_title">Audio</string>
+    <string name="feature_audio_manager_description">Browse audio files and remove the ones you do not need.</string>
+    <string name="feature_notification_cleaner_title">Notification cleaner</string>
+    <string name="feature_notification_cleaner_description">Collect incoming notifications in one list instead of the status bar.</string>
+    <string name="feature_similar_photos_title">Similar photos</string>
+    <string name="feature_similar_photos_description">Group photos that look alike so you can keep the one you want.</string>
+    <string name="feature_photo_compressor_title">Photo compressor</string>
+    <string name="feature_photo_compressor_description">Save a smaller copy of a photo.</string>
+    <string name="feature_permission_manager_title">Permission manager</string>
+    <string name="feature_permission_manager_description">See which apps hold which permissions.</string>
+    <string name="feature_photo_privacy_title">Private album</string>
+    <string name="feature_photo_privacy_description">Move photos into an album that opens only for you.</string>
+    <string name="feature_duplicate_files_title">Duplicate files</string>
+    <string name="feature_duplicate_files_description">Find files that are stored more than once.</string>
+    <string name="feature_app_lock_title">App lock</string>
+    <string name="feature_app_lock_description">Ask for a PIN before a chosen app opens.</string>
+    <string name="feature_whatsapp_cleaner_title">WhatsApp cleaner</string>
+    <string name="feature_whatsapp_cleaner_description">Review the media WhatsApp has saved to this device.</string>
+    <string name="feature_battery_info_title">Battery info</string>
+    <string name="feature_battery_info_description">See battery level, temperature and charging state.</string>
+    <string name="feature_running_apps_title">Running apps</string>
+    <string name="feature_running_apps_description">See which apps are running right now.</string>
+    <string name="feature_device_status_title">Device status</string>
+    <string name="feature_device_status_description">See storage, memory and hardware details.</string>
+    <string name="feature_network_traffic_title">Network traffic</string>
+    <string name="feature_network_traffic_description">See how much data each app has used.</string>
+    <string name="feature_network_test_title">Connection test</string>
+    <string name="feature_network_test_description">Measure the connection this device is using now.</string>
+
+</resources>

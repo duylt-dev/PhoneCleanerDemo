@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:device. Shared chrome copy (Back, Cancel, Try again, the AppError messages, the
+  twenty feature titles) stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5) — absolute, and this cluster is where it bites hardest: the competitor's
+  device and battery screens are exactly where its performance claims live. Not one string below says
+  the app will speed anything up, free memory, extend battery life, or improve anything by any
+  percentage. Every string here either NAMES a reading or REPORTS one with its unit.
+
+  The second rule, from docs/screens/18 §1: no state holds a formatted string, so every %1$s below is
+  filled at render time by rememberByteFormat() or a stringResource — never by a ViewModel.
+
+  The third: a value that could not be read says so. `value_unavailable` is used wherever the
+  competitor substitutes a constant (4660 mAh, 50 % brightness, 25 % CPU, "Li-ion", 0 MHz).
+-->
+<resources>
+
+    <!-- ── shared ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="value_unavailable">Not available</string>
+    <string name="value_automatic">Auto</string>
+    <string name="device_scan_in_progress">The check is still running.</string>
+    <string name="device_percent_symbol">%</string>
+
+    <!-- ── devicestatusscan ─────────────────────────────────────────────────────────────────── -->
+    <string name="device_status_scan_title">Device check</string>
+    <!--
+      A DEVICE-STATUS caption. The competitor's reads "Checking background apps…" on its device-status
+      scan — a copy defect it ships on the wrong screen (docs/screens/18 §2.5).
+    -->
+    <string name="device_status_scan_caption">Reading this device\'s hardware details…</string>
+
+    <!-- ── devicestatusdetail ───────────────────────────────────────────────────────────────── -->
+    <string name="device_status_detail_title">Device status</string>
+    <string name="device_status_card_memory">Memory</string>
+    <string name="device_status_card_storage">Storage</string>
+    <string name="device_status_card_battery">Battery</string>
+    <string name="device_status_card_cpu">Processor</string>
+    <string name="device_status_card_display">Display</string>
+    <string name="device_status_check">Check</string>
+    <string name="device_status_row_model">Model</string>
+    <string name="device_status_row_android">Android version</string>
+    <string name="device_status_row_used">Used</string>
+    <string name="device_status_row_total">Total</string>
+    <string name="device_status_row_available">Available</string>
+    <!-- "Architecture", never "CPU Model": Build.SUPPORTED_ABIS is not a model name (§3.5). -->
+    <string name="device_status_row_architecture">Architecture</string>
+    <string name="device_status_row_cores">Cores</string>
+    <string name="device_status_row_frequency">Clock</string>
+    <string name="device_status_row_busy">Busy over the last half second</string>
+    <string name="device_status_row_resolution">Resolution</string>
+    <string name="device_status_row_density">Density</string>
+    <string name="device_status_unread">Not read yet</string>
+    <string name="device_status_value_megahertz">%1$d MHz</string>
+    <string name="device_status_value_percent">%1$d%%</string>
+    <string name="device_status_value_pixels">%1$d × %2$d px</string>
+    <string name="device_status_value_dpi">%1$d dpi</string>
+    <string name="device_status_value_bytes_of">%1$s of %2$s</string>
+
+    <!-- ── batteryscan ──────────────────────────────────────────────────────────────────────── -->
+    <!-- Its own title. The competitor calls this screen AND the detail screen "Battery Info". -->
+    <string name="battery_scan_title">Battery check</string>
+    <string name="battery_scan_caption">Reading the battery…</string>
+
+    <!-- ── batteryinfo ──────────────────────────────────────────────────────────────────────── -->
+    <string name="battery_info_title">Battery info</string>
+    <string name="battery_state_charging">Charging</string>
+    <string name="battery_state_full">Full</string>
+    <string name="battery_state_discharging">On battery</string>
+    <string name="battery_remaining_charging">Estimated time until full</string>
+    <string name="battery_remaining_discharging">Estimated time left</string>
+    <string name="battery_duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="battery_duration_minutes">%1$d min</string>
+
+    <string name="battery_check_brightness">Brightness</string>
+    <string name="battery_check_temperature">Temperature</string>
+    <string name="battery_check_voltage">Voltage</string>
+    <string name="battery_check_technology">Technology</string>
+    <string name="battery_check_capacity">Capacity</string>
+    <string name="battery_check_health">Health</string>
+
+    <string name="battery_value_celsius">%1$.1f °C</string>
+    <string name="battery_value_millivolts">%1$d mV</string>
+    <string name="battery_value_milliamp_hours">%1$d mAh</string>
+
+    <string name="battery_health_good">Good</string>
+    <string name="battery_health_overheat">Overheating</string>
+    <string name="battery_health_dead">Dead</string>
+    <string name="battery_health_over_voltage">Over voltage</string>
+    <string name="battery_health_failure">Failure reported</string>
+    <string name="battery_health_cold">Cold</string>
+    <string name="battery_health_unknown">Not reported</string>
+
+    <string name="battery_technology_li_ion">Li-ion</string>
+    <string name="battery_technology_li_poly">Li-poly</string>
+    <string name="battery_technology_nimh">NiMH</string>
+    <string name="battery_technology_nicd">NiCd</string>
+
+    <!-- ── runningappsscan ──────────────────────────────────────────────────────────────────── -->
+    <string name="running_apps_scan_title">Checking apps</string>
+    <string name="running_apps_scan_caption">Listing the apps you can stop…</string>
+
+    <!-- ──  runningapps ─────────────────────────────────────────────────────────────────────── -->
+    <!--
+      Named for what the list can deliver. The competitor calls it "Running Apps" and shows installed
+      packages; the name is a claim its data does not support (docs/screens/18 §6.4).
+    -->
+    <string name="running_apps_title">Apps you can stop</string>
+    <string name="running_apps_section">Apps you can stop</string>
+    <string name="running_apps_memory_label">Device memory</string>
+    <string name="running_apps_stop">Stop</string>
+    <string name="running_apps_stopped">Stopped</string>
+    <string name="running_apps_skip">Done</string>
+    <string name="running_apps_empty">There are no third-party apps here that Android will let this app hand to Settings.</string>
+
+    <!-- The instruction sheet, shown BEFORE the trip to Settings (§7). -->
+    <string name="running_apps_instructions_title">Stopping an app</string>
+    <string name="running_apps_instructions_body">Android only lets you stop an app from its own Settings page. This opens that page — tap <b>Force stop</b> there, then come back.</string>
+    <string name="running_apps_instructions_note">This app cannot stop another app itself, and it will only mark one as stopped if Android reports it that way when you return.</string>
+    <string name="running_apps_instructions_open">Open settings</string>
+    <string name="running_apps_instructions_cancel">Not now</string>
+    <string name="running_apps_instructions_illustration">An illustration of the Force stop button on the system app page</string>
+
+    <!--
+      PENDING OWNER DECISION 3 — docs/screens/18 §0.1 / system-architecture §10.1 P1, UNSETTLED.
+      This copy describes what the list IS and what usage access WOULD add. It does not claim the app
+      reads usage statistics, because it does not: PACKAGE_USAGE_STATS is declared in no manifest.
+    -->
+    <string name="running_apps_usage_access_title">This list shows installed apps</string>
+    <string name="running_apps_usage_access_body">Android does not let an app see which apps are running without usage access. Without it, this list is the third-party apps on this device that Android reports as not already stopped.</string>
+    <string name="running_apps_usage_access_grant">Open usage access settings</string>
+    <string name="running_apps_usage_access_dismiss">Continue without it</string>
+
+</resources>

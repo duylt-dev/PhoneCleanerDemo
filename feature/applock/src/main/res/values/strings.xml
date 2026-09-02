@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:applock. Shared chrome copy (Back, Cancel, Try again, the AppError messages, the
+  PIN pad's content descriptions) stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5) — absolute, and a CI grep over strings.xml enforces it. Nothing below
+  makes a performance, memory or security claim, and none of it carries a percentage. The banned
+  wording is listed in LLM.md §5 and is deliberately not repeated here so this comment cannot itself
+  trip the grep.
+
+  Two strings do real work and are worth naming:
+    * app_lock_clear_body — it says, BEFORE the action runs, that the locked-app list goes with the
+      PIN. Clearing is the only honest answer to a forgotten PIN once the PIN is irreversibly
+      hashed (docs/screens/16-app-lock.md §2.5, §4.5), and a confirmation that hides half of what it
+      does is not a confirmation.
+    * lock_screen_prompt — the target app's own label is substituted in. The competitor never sets
+      its title, so the user is asked for a PIN by an unlabelled screen (§3.5).
+-->
+<resources>
+
+    <string name="app_lock_title">App lock</string>
+    <string name="app_lock_settings_action">App lock settings</string>
+
+    <!-- ── applock home ──────────────────────────────────────────────────────────────────────── -->
+    <string name="app_lock_scanning">Reading the list of apps…</string>
+    <string name="app_lock_tab_all">All</string>
+    <string name="app_lock_tab_locked">Locked</string>
+    <string name="app_lock_tab_locked_count">Locked (%1$d)</string>
+    <string name="app_lock_empty_all">No apps to show.</string>
+    <string name="app_lock_empty_locked">No app is locked yet. Pick one from the All tab.</string>
+    <string name="app_lock_row_locked">Locked</string>
+    <string name="app_lock_row_unlocked">Not locked</string>
+
+    <string name="app_lock_unlock_title">Stop asking for a PIN before %1$s opens?</string>
+    <string name="app_lock_unlock_body">%1$s will open without a PIN until you lock it again.</string>
+    <string name="app_lock_unlock_confirm">Unlock</string>
+
+    <string name="app_lock_permission_title">Two settings are needed first</string>
+    <string name="app_lock_permission_body">To ask for a PIN before another app opens, this app needs to see which app is in the foreground, and to draw the PIN screen over it. Both are granted in system settings, one at a time.</string>
+    <string name="app_lock_permission_usage">Allow usage access</string>
+    <string name="app_lock_permission_overlay">Allow drawing over other apps</string>
+    <string name="app_lock_permission_granted">Granted</string>
+
+    <!-- ── pin ───────────────────────────────────────────────────────────────────────────────── -->
+    <string name="pin_title_set">Set a PIN</string>
+    <string name="pin_title_change">Change PIN</string>
+    <string name="pin_title_verify">Enter your PIN</string>
+    <string name="pin_prompt_verify_old">Enter your current PIN</string>
+    <string name="pin_prompt_enter">Enter a 4-digit PIN</string>
+    <string name="pin_prompt_confirm">Enter it again</string>
+    <string name="pin_prompt_unlock">Enter your PIN</string>
+    <string name="pin_error_wrong">That PIN is not right.</string>
+    <string name="pin_error_mismatch">The two entries did not match. Start again.</string>
+    <string name="pin_step_indicator">Step %1$d of 2</string>
+    <string name="pin_lockout_notice">Too many attempts. Try again in %1$s.</string>
+    <string name="pin_lockout_seconds">%1$d s</string>
+
+    <!-- ── lockscreen ────────────────────────────────────────────────────────────────────────── -->
+    <string name="lock_screen_prompt">%1$s is locked</string>
+
+    <!-- ── settings ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="app_lock_settings_title">App lock settings</string>
+    <string name="app_lock_enabled_title">App lock</string>
+    <string name="app_lock_enabled_subtitle">Ask for a PIN before a locked app opens.</string>
+    <string name="app_lock_new_app_title">Newly installed apps</string>
+    <string name="app_lock_new_app_subtitle">Offer to lock an app after you install it.</string>
+    <string name="app_lock_change_pin_title">Change PIN</string>
+    <string name="app_lock_change_pin_subtitle">You will be asked for the current PIN first.</string>
+    <string name="app_lock_clear_title">Clear app lock</string>
+    <string name="app_lock_clear_body">This removes the PIN and empties the list of locked apps. Both go together, and neither can be recovered.</string>
+    <string name="app_lock_clear_confirm">Clear</string>
+
+    <!-- Read by TalkBack as the switch's stateDescription. The competitor's ImageView toggle has
+         no state at all in the accessibility tree. -->
+    <string name="app_lock_state_on">On</string>
+    <string name="app_lock_state_off">Off</string>
+
+</resources>

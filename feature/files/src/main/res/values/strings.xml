@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:files. Shared chrome copy (Back, Delete, Cancel, Try again, Select all, the
+  AppError messages, the twenty feature titles) stays in :core:ui and is referenced from there.
+
+  WORDING BAN (LLM.md §1, §5) — absolute, and a CI grep over strings.xml enforces it. No string below
+  makes a performance, security or memory claim, and none carries a percentage figure. Every screen
+  here reports BYTES, measured, and says what it could not reach.
+
+  Two rules the competitor breaks and these strings do not:
+    * every count goes through a <plurals>. The competitor appends an English "s" and ships
+      "Delete <n> videos (12.3MB )" — with a literal trailing space — to all 17 of its locales.
+    * a coverage or truncation statement is never omitted. A scan that could not see everything says
+      so (docs/system-architecture.md §8.4).
+-->
+<resources>
+
+    <!-- ── shared across the six tools ───────────────────────────────────────────────────────── -->
+    <string name="files_finishing">Finishing…</string>
+    <string name="files_removing">Removing…</string>
+    <string name="files_scanning">Looking through storage…</string>
+    <string name="files_scanning_count">Looked at %1$d files</string>
+    <string name="files_scan_truncated">The scan ran out of time and stopped early. What it found so far is listed below.</string>
+    <string name="files_coverage_partial">This scan could read %1$d storage locations. Others were not readable.</string>
+    <string name="files_coverage_grant_more">Choose a folder to include</string>
+    <string name="files_delete_failed">%1$d could not be removed.</string>
+    <string name="files_nothing_removed">Nothing was removed.</string>
+
+    <string name="files_confirm_delete_title">Remove the selected files?</string>
+    <plurals name="files_confirm_delete_body">
+        <item quantity="one">%1$d file will be removed from this device. This cannot be undone.</item>
+        <item quantity="other">%1$d files will be removed from this device. This cannot be undone.</item>
+    </plurals>
+
+    <!-- ── bigfiles ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="big_files_title">Large files</string>
+    <string name="big_files_empty">No files larger than 10 MB were found in the locations that could be read.</string>
+
+    <!-- ── duplicates ────────────────────────────────────────────────────────────────────────── -->
+    <string name="duplicates_title">Duplicate files</string>
+    <string name="duplicates_empty">No files were stored more than once in the locations that could be read.</string>
+    <string name="duplicates_deselect_all">Deselect all</string>
+    <string name="duplicates_select_older">Select older copies</string>
+    <string name="duplicates_hashing">Compared %1$d of %2$d files</string>
+    <plurals name="duplicates_group_header">
+        <item quantity="one">%1$d copy, %2$s each</item>
+        <item quantity="other">%1$d copies, %2$s each</item>
+    </plurals>
+    <string name="duplicates_newest">Newest copy</string>
+    <string name="duplicates_preview_open">Open</string>
+    <string name="duplicates_reclaimable">%1$s can be recovered by keeping one copy of each</string>
+
+    <!-- ── video ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="video_title">Videos</string>
+    <string name="video_empty">No videos were found in the locations that could be read.</string>
+
+    <!-- ── audio ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="audio_title">Audio</string>
+    <string name="audio_empty">No audio files were found in the locations that could be read.</string>
+
+    <!-- ── media permission, shared by video and audio ───────────────────────────────────────── -->
+    <string name="media_permission_denied">This list needs permission to read media on this device.</string>
+    <string name="media_permission_grant">Allow access</string>
+    <string name="media_partial_access">Only the items you selected are listed. You can add more.</string>
+    <string name="media_sort_newest">Newest</string>
+    <string name="media_sort_largest">Largest</string>
+    <string name="media_sort_name">Name</string>
+
+    <!-- ── appmanager ────────────────────────────────────────────────────────────────────────── -->
+    <string name="app_manager_title">App manager</string>
+    <string name="app_manager_empty">No apps were listed.</string>
+    <string name="app_manager_size_unknown">—</string>
+    <string name="app_manager_last_used_unknown">No usage data</string>
+    <string name="app_manager_totals">%1$s across %2$d apps</string>
+    <string name="app_manager_sort_size">Size</string>
+    <string name="app_manager_sort_installed">Installed</string>
+    <string name="app_manager_sort_last_used">Last used</string>
+    <string name="app_manager_usage_access_body">Last-used dates need one extra permission, granted by hand in Settings. Everything else on this screen works without it.</string>
+    <string name="app_manager_usage_access_grant">Open Settings</string>
+    <string name="app_manager_install_date_unknown">Install date not available</string>
+    <string name="app_manager_uninstall_action">Uninstall</string>
+    <string name="app_manager_uninstall_progress">%1$d of %2$d</string>
+    <string name="app_manager_sizing_progress">Measured %1$d of %2$d apps</string>
+    <string name="app_manager_confirm_title">Uninstall the selected apps?</string>
+    <plurals name="app_manager_confirm_body">
+        <item quantity="one">Android will ask you about %1$d app, one at a time.</item>
+        <item quantity="other">Android will ask you about %1$d apps, one at a time.</item>
+    </plurals>
+    <plurals name="app_manager_removed">
+        <item quantity="one">%1$d app was uninstalled.</item>
+        <item quantity="other">%1$d apps were uninstalled.</item>
+    </plurals>
+
+    <!-- ── whatsapp ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="whatsapp_title">WhatsApp cleaner</string>
+    <string name="whatsapp_not_installed">WhatsApp is not installed on this device.</string>
+    <string name="whatsapp_empty">No WhatsApp media was found in the locations that could be read.</string>
+    <string name="whatsapp_clean_action">Remove</string>
+    <string name="whatsapp_grant_legacy_root">Include the older WhatsApp folder</string>
+    <string name="whatsapp_confirm_title">Remove the selected WhatsApp media?</string>
+    <plurals name="whatsapp_confirm_body">
+        <item quantity="one">%1$d file will be removed from this device. This cannot be undone.</item>
+        <item quantity="other">%1$d files will be removed from this device. This cannot be undone.</item>
+    </plurals>
+    <string name="whatsapp_stop_title">Stop removing?</string>
+    <plurals name="whatsapp_stop_body">
+        <item quantity="one">%1$d file has already been removed and stays removed. The rest are left alone.</item>
+        <item quantity="other">%1$d files have already been removed and stay removed. The rest are left alone.</item>
+    </plurals>
+    <string name="whatsapp_stop_confirm">Stop</string>
+    <plurals name="whatsapp_bucket_count">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+    <string name="whatsapp_bucket_junk">Sent and temporary files</string>
+    <string name="whatsapp_bucket_video">Videos</string>
+    <string name="whatsapp_bucket_image">Images</string>
+    <string name="whatsapp_bucket_voice">Voice messages</string>
+    <string name="whatsapp_bucket_audio">Audio</string>
+    <string name="whatsapp_bucket_document">Documents</string>
+
+</resources>
