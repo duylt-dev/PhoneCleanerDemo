@@ -11,16 +11,16 @@ import java.io.IOException
  * ratio converges within hours of boot and then never moves again — the number on screen is a
  * constant dressed as a measurement. It also substitutes **`25`** whenever the parse fails.
  *
- * Here two samples are taken [SAMPLE_GAP] apart and the busy share of the interval is reported.
- * Either read failing yields `null`, which the UI renders as a dash.
+ * Here two samples are taken `SAMPLE_GAP_MILLIS` apart — the constant belongs to
+ * `AndroidDeviceMetricsRepository`, which owns the pair — and the busy share of the interval is
+ * reported. Either read failing yields `null`.
  *
- * On many current builds `/proc/stat` is unreadable to a normal app; `null` is then the permanent and
- * correct answer.
+ * > **MEASURED, 2026-09-03, `RF8Y60B9NCZ` (SM-A165F, Android 16): `/proc/stat` is `EACCES` from the
+ * > app's own process.** So on this device this class returns `null` every time and
+ * > [CpuIdleSampler] is what actually produces the number. It is kept, and still tried first,
+ * > because it is the exact figure on any build whose policy allows the read.
  */
 internal object ProcStatSampler {
-
-    /** ~500 ms, per §3.5 — long enough for the counters to move, short enough to hide behind a scan. */
-    const val SAMPLE_GAP_MILLIS = 500L
 
     /** Total and idle jiffies from the aggregate `cpu ` line. */
     data class Sample(val total: Long, val idle: Long)

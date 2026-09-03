@@ -96,11 +96,23 @@ internal fun ColumnCpuRows(cpu: CpuInfo?) {
         )
         // A DELTA between two /proc/stat samples. The competitor's number is a lifetime ratio that
         // stops moving hours after boot, and `25` whenever the parse fails.
+        //
+        // Idle is `100 - used`, derived here rather than carried on CpuInfo: /proc/stat's idle column
+        // is the same subtraction one field earlier, so a second nullable would be a second chance
+        // for the two rows to contradict each other. They are one reading shown two ways, and when
+        // the reading is missing BOTH rows say so.
         LabelValueRow(
             icon = null,
-            label = stringResource(R.string.device_status_row_busy),
+            label = stringResource(R.string.device_status_row_cpu_used),
             value = cpu?.busyPercent
                 ?.let { stringResource(R.string.device_status_value_percent, it) }
+                ?: if (cpu == null) unread else unavailable,
+        )
+        LabelValueRow(
+            icon = null,
+            label = stringResource(R.string.device_status_row_cpu_idle),
+            value = cpu?.busyPercent
+                ?.let { stringResource(R.string.device_status_value_percent, 100 - it) }
                 ?: if (cpu == null) unread else unavailable,
         )
     }

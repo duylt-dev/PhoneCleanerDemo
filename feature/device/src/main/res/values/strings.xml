@@ -47,7 +47,10 @@
     <string name="device_status_row_architecture">Architecture</string>
     <string name="device_status_row_cores">Cores</string>
     <string name="device_status_row_frequency">Clock</string>
-    <string name="device_status_row_busy">Busy over the last half second</string>
+    <!-- The CPU pair. Both are the same /proc/stat delta over the last half second; idle is
+         100 - used, so the two never disagree. -->
+    <string name="device_status_row_cpu_used">Used</string>
+    <string name="device_status_row_cpu_idle">Idle</string>
     <string name="device_status_row_resolution">Resolution</string>
     <string name="device_status_row_density">Density</string>
     <string name="device_status_unread">Not read yet</string>

@@ -43,7 +43,10 @@
     <string name="device_status_row_architecture">Kiến trúc</string>
     <string name="device_status_row_cores">Số nhân</string>
     <string name="device_status_row_frequency">Xung nhịp</string>
-    <string name="device_status_row_busy">Mức bận trong nửa giây vừa qua</string>
+    <!-- Cặp CPU. Cả hai đều là delta /proc/stat trong nửa giây vừa qua; nhàn rỗi = 100 - đã dùng,
+         nên hai dòng không bao giờ mâu thuẫn. -->
+    <string name="device_status_row_cpu_used">Đã dùng</string>
+    <string name="device_status_row_cpu_idle">Nhàn rỗi</string>
     <string name="device_status_row_resolution">Độ phân giải</string>
     <string name="device_status_row_density">Mật độ điểm ảnh</string>
     <string name="device_status_unread">Chưa đọc</string>
