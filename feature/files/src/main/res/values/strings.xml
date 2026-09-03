@@ -71,6 +71,13 @@
     <string name="app_manager_empty">No apps were listed.</string>
     <string name="app_manager_size_unknown">—</string>
     <string name="app_manager_last_used_unknown">No usage data</string>
+    <string name="app_manager_installed_on">Installed: %1$s</string>
+    <string name="app_manager_last_used_on">Recently used: %1$s</string>
+    <!-- %1$d is LoadInstalledAppsUseCase.USAGE_WINDOW_DAYS, the same number the query uses. -->
+    <plurals name="app_manager_last_used_never">
+        <item quantity="one">Not used in the last %1$d day</item>
+        <item quantity="other">Not used in the last %1$d days</item>
+    </plurals>
     <string name="app_manager_totals">%1$s across %2$d apps</string>
     <string name="app_manager_sort_size">Size</string>
     <string name="app_manager_sort_installed">Installed</string>

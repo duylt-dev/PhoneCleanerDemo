@@ -123,8 +123,9 @@
 
     <!--
       PENDING OWNER DECISION 3 — docs/screens/18 §0.1 / system-architecture §10.1 P1, UNSETTLED.
-      This copy describes what the list IS and what usage access WOULD add. It does not claim the app
-      reads usage statistics, because it does not: PACKAGE_USAGE_STATS is declared in no manifest.
+      This copy describes what the list IS and what usage access WOULD add. It does not claim this
+      screen reads usage statistics, because it does not — the permission is declared for App
+      Manager's Last used column, and nothing in this cluster reads a usage statistic.
     -->
     <string name="running_apps_usage_access_title">This list shows installed apps</string>
     <string name="running_apps_usage_access_body">Android does not let an app see which apps are running without usage access. Without it, this list is the third-party apps on this device that Android reports as not already stopped.</string>

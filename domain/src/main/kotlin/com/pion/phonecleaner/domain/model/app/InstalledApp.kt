@@ -43,4 +43,14 @@ data class InstalledApp(
      * assumes either outcome.
      */
     val lastUsedAtMillis: Long = 0L,
+    /**
+     * `PackageInfo.firstInstallTime`, `0` when it could not be read.
+     *
+     * It is a DATE and it is read from a date field. The competitor has no install-time field at all:
+     * its row formats [apkBytes] through a `yyyy-MM-dd` formatter and labels the result *"installation
+     * time"*, so a 25 MB APK renders as a 1970 date (`docs/screens/14` §5.5). `0` here means the
+     * `PackageManager` lookup failed, never "installed at the epoch"; a caller must render it as
+     * unknown rather than as a date.
+     */
+    val firstInstallAtMillis: Long = 0L,
 )

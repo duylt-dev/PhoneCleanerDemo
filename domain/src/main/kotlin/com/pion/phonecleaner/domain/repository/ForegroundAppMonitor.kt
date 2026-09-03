@@ -20,13 +20,14 @@ import kotlinx.coroutines.flow.Flow
  *
  * ### Two pending owner decisions run through this type — neither is resolved here
  *
- * **(3) `PACKAGE_USAGE_STATS`.** The monitor cannot resolve a foreground package without it, and
- * `:data`'s manifest deliberately declares no such permission on a decision's behalf. For App Lock
- * the appendix treats the grant as required and models it as something the user gives from inside
- * the App Lock flow (`docs/screens/16-app-lock.md` §1.1's `hasUsageStatsPermission`); for the
- * running-apps screen the *same* permission is pending decision 3. **That tension is reported, not
- * resolved**: nothing here assumes an outcome, and [start] is a no-op that keeps saying so while the
- * grant is missing.
+ * **(3) `PACKAGE_USAGE_STATS`.** The monitor cannot resolve a foreground package without it.
+ * `:data`'s manifest now declares the permission — for App Manager's *Last used* column, and because
+ * the system's Usage Access page lists only apps that declare it — so the grant is reachable rather
+ * than impossible. **Declared is not granted, and the tension is still reported, not resolved**: App
+ * Lock's appendix treats the grant as required and models it as something the user gives from inside
+ * the App Lock flow (`docs/screens/16-app-lock.md` §1.1's `hasUsageStatsPermission`), the
+ * running-apps screen's own gate is still pending decision 3, and [start] stays a no-op that keeps
+ * saying so while the grant is missing.
  *
  * **(4) Reboot survival.** There is no `BootCompletedReceiver` and `RECEIVE_BOOT_COMPLETED` is not
  * declared, so App Lock stops at every process death and after every reboot until the user next

@@ -19,6 +19,7 @@ import com.pion.phonecleaner.core.ui.component.state.EmptyState
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.files.R
 import com.pion.phonecleaner.feature.files.appmanager.component.AppRow
 import com.pion.phonecleaner.feature.files.appmanager.component.SortChipRow
@@ -42,7 +43,7 @@ internal fun AppManagerScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().screenInsetsPadding()) {
             Column(Modifier.fillMaxSize()) {
                 PageHeader(
                     title = stringResource(R.string.app_manager_title),
@@ -133,6 +134,9 @@ private fun AppList(
             AppRow(
                 app = app,
                 selected = app.packageName in state.selectedPackages,
+                // The row cannot read `0` correctly without it: no grant means "not measured",
+                // the grant means "not opened inside the window". A `Boolean` keeps the row skippable.
+                usageAccessGranted = state.usageAccessGranted,
                 onIntent = onIntent,
             )
         }

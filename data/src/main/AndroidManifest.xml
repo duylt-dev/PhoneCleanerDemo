@@ -17,15 +17,17 @@
     would not reach Android/data or Android/obb on API 30+, which is where the catalogue most wants
     to look (§8.2). It belongs only in a build whose store declaration covers it, and never as the
     only path.
-  * PACKAGE_USAGE_STATS, SYSTEM_ALERT_WINDOW, RECEIVE_BOOT_COMPLETED, POST_NOTIFICATIONS —
-    each sits behind a pending owner decision (running-apps, App Lock, out-of-app assertiveness).
-    Nothing here declares a permission on a decision's behalf.
+  * SYSTEM_ALERT_WINDOW, RECEIVE_BOOT_COMPLETED, POST_NOTIFICATIONS — each sits behind a pending
+    owner decision (App Lock overlay, out-of-app assertiveness). Nothing here declares a permission
+    on a decision's behalf. PACKAGE_USAGE_STATS was on this list and no longer is; its own block
+    below states exactly what that line settles and what it leaves open.
   * QUERY_ALL_PACKAGES — no code in this module enumerates packages. It belongs to whichever module
     writes InstalledAppsRepository / AppPermissionScanRepository.
   * ACCESS_MEDIA_LOCATION — MediaStoreQuery reads no EXIF location; the photo cluster declares it if
     its own code does.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
       Read access for MediaStoreQuery / DefaultMediaStoreRepository — strategy 3 of §8.3.
@@ -48,6 +50,31 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+
+    <!--
+      Read by `PackageManagerInstalledAppsRepository.lastUsedByPackage`
+      (`UsageStatsManager.queryUsageStats`) and checked by `AndroidPermissionRepository.appOpAllowed`
+      and `ForegroundAppResolver.hasUsageAccess` — code in THIS module, which is the rule every other
+      line here follows.
+
+      IT MUST BE DECLARED EVEN THOUGH NO DIALOG ASKS FOR IT. The user gives this grant by hand on the
+      system Usage Access page, and that page lists ONLY apps whose manifest declares the permission.
+      Without this line App Manager's "Open settings" button opened a page the app could never appear
+      on: the grant was unreachable, `isGranted(UsageStats)` read false on every device, and the
+      screen's rationale card pointed at a dead end.
+
+      SCOPE. This closes the App Manager half of pending owner decision 3 — the *Last used* column and
+      its sort chip, where `docs/screens/14` §5 already makes the grant optional and opens the screen
+      without it. It settles nothing about the running-apps screen: that fork
+      (`docs/system-architecture.md` §10.1 P1) is still open, nothing in `:feature:device` reads a
+      usage statistic, and declaring the permission does not make it do so.
+
+      tools:ignore="ProtectedPermissions" — the protection level is signature|privileged|appop and
+      lint reads the first two without the third. `appop` is precisely what makes it user-grantable.
+    -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
     <!--
       POST_NOTIFICATIONS is deliberately ABSENT. It sits behind a pending owner decision

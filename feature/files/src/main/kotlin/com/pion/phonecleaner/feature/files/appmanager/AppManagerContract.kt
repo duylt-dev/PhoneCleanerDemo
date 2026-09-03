@@ -89,8 +89,15 @@ data class AppManagerState(
 
     val showEmptyState: Boolean get() = phase == ToolPhase.Ready && apps.isEmpty()
 
+    /**
+     * Whether `PACKAGE_USAGE_STATS` is actually granted. A row needs it to read a `0` last-used stamp:
+     * without the grant `0` means "never measured", with it `0` means "not opened inside the window",
+     * and those are two different sentences.
+     */
+    val usageAccessGranted: Boolean get() = usageAccess == UsageAccess.Granted
+
     /** The *Last used* chip is disabled without the grant, because every value would read `0`. */
-    val lastUsedSortEnabled: Boolean get() = usageAccess == UsageAccess.Granted
+    val lastUsedSortEnabled: Boolean get() = usageAccessGranted
 }
 
 sealed interface AppManagerIntent : UiIntent {

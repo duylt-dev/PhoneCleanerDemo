@@ -24,12 +24,13 @@ import com.pion.phonecleaner.feature.device.R
  *
  * | If the owner picks | What changes |
  * |---|---|
- * | **A** — keep `PACKAGE_USAGE_STATS` and make the list real | `PackageManagerRunningAppsRepository.stoppableApps()` swaps to `UsageStatsManager.queryEvents`, the permission is declared, and this card becomes a precondition instead of a rationale. No contract, ViewModel or screen changes |
+ * | **A** — keep `PACKAGE_USAGE_STATS` and make the list real | `PackageManagerRunningAppsRepository.stoppableApps()` swaps to `UsageStatsManager.queryEvents` — the permission is already declared — and this card becomes a precondition instead of a rationale. No contract, ViewModel or screen changes |
  * | **B** — drop the gate | this file and one `when` arm are deleted |
  *
- * **The permission is declared in no manifest** while the decision is open, and nothing in this app
- * reads usage statistics. `Settings.ACTION_USAGE_ACCESS_SETTINGS` opens without a declaration —
- * only *reading* the stats needs one — so the grant action below is honest today and stays honest
+ * **This screen reads no usage statistics** while the decision is open. `:data` declares
+ * `PACKAGE_USAGE_STATS` for App Manager's *Last used* column (`docs/screens/14` §5), which is what
+ * makes this app appear on the system page at all — that page lists only apps that declare it — but
+ * a grant given from here changes nothing on this screen until option A lands. The card is honest
  * either way.
  *
  * The copy says what the list **is** and what usage access **would** add. It does not say the app

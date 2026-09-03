@@ -42,8 +42,9 @@ data class RunningAppsState(
      *
      * Two things it does **not** do. It does not gate the list — under today's design the list is
      * the `PackageManager` enumeration and needs nothing — and it does not claim we read usage
-     * statistics, because we do not: the permission is declared in no manifest, and
-     * `Settings.ACTION_USAGE_ACCESS_SETTINGS` can be opened without declaring it.
+     * statistics on this screen, because we do not. The permission is declared for App Manager's
+     * *Last used* column, so a grant given from here is real but changes nothing here until option A
+     * lands.
      */
     val usageAccess: UsageAccessState = UsageAccessState.Unknown,
     /** "Continue without it". Not persisted: a session-scoped dismissal, so nothing is remembered. */

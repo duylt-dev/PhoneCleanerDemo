@@ -127,11 +127,13 @@ internal class AndroidPermissionRepository(
      * Special access granted through Settings is an **app-op**, not a runtime permission, so
      * `checkSelfPermission` cannot see it.
      *
-     * PENDING OWNER DECISION (3) — whether the app asks the user to grant `PACKAGE_USAGE_STATS` by
-     * hand. The manifest deliberately does not declare it, and without that declaration this reads
-     * `false` on every device: a feature that needs usage access degrades **visibly** rather than
-     * silently claiming to have been checked. Nothing here decides the question. When it is decided,
-     * the manifest line is the change and this predicate already reports the answer.
+     * `PACKAGE_USAGE_STATS` **is** declared (`:data`'s manifest, with the reason in place). It has to
+     * be: the system's Usage Access page lists only apps that declare it, so before the declaration
+     * the grant was unreachable and this predicate read `false` on every device. Declared is not
+     * granted — the user gives this one by hand — and a feature that needs it still degrades
+     * **visibly** while they have not. The declaration serves App Manager's *Last used* column
+     * (`docs/screens/14` §5); whether the running-apps screen gates on the same grant is still an
+     * open owner decision (`docs/system-architecture.md` §10.1 P1).
      */
     private fun appOpAllowed(op: String): Boolean {
         val ops = context.getSystemService(AppOpsManager::class.java) ?: return false

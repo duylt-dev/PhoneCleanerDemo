@@ -121,8 +121,8 @@ fun SplashRoute(
  *
  * **PENDING OWNER DECISION 4 — how assertive the app is outside itself.** `POST_NOTIFICATIONS` is
  * declared in **no** manifest in this project: `:data`'s says so in as many words, listing it beside
- * `PACKAGE_USAGE_STATS`, `SYSTEM_ALERT_WINDOW` and `RECEIVE_BOOT_COMPLETED` as permissions that "sit
- * behind a pending owner decision. Nothing here declares a permission on a decision's behalf."
+ * `SYSTEM_ALERT_WINDOW` and `RECEIVE_BOOT_COMPLETED` as permissions that "sit behind a pending owner
+ * decision. Nothing here declares a permission on a decision's behalf."
  * Until that decision lands the launcher below resolves as an immediate denial, which is the
  * conservative outcome and blocks nothing: the flow settles and continues.
  *

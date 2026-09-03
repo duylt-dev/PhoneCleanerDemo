@@ -47,13 +47,11 @@ class LoadInstalledAppsUseCase(
                         label = app.label,
                         uid = app.uid,
                         apkBytes = app.apkBytes,
-                        // UNKNOWN — `InstalledApp` carries no install timestamp, and it is the
-                        // shared port's model, which this cluster may not extend. `PackageInfo
-                        // .firstInstallTime` is read by the implementation of that port or not at
-                        // all; until it is, the row renders "install date unknown" rather than a
-                        // fabricated one. Looked for: an install-time field on `InstalledApp` in the
-                        // shared API digest, and a second accessor on `InstalledAppsRepository`.
-                        firstInstallEpochMillis = 0L,
+                        // `PackageInfo.firstInstallTime`, read by the port's implementation in the
+                        // same pass that reads the label. It stays `0` only when that lookup failed,
+                        // and the row renders "install date unknown" for that case rather than a
+                        // fabricated date.
+                        firstInstallEpochMillis = app.firstInstallAtMillis,
                         lastUsedEpochMillis = app.lastUsedAtMillis,
                     )
                 }.toImmutableList(),
@@ -66,11 +64,18 @@ class LoadInstalledAppsUseCase(
         /**
          * How far back the "last used" query looks.
          *
-         * UNKNOWN — no source states a window. What §5.5 states is the defect: the competitor queries
-         * **720 days** while its own copy says *"Not Used For One Year"*, so the number in the string
-         * and the number in the query are two numbers maintained by hand. There is one number here,
-         * and every piece of copy that mentions a period is formatted from it.
+         * §5.5 states the defect this replaces: the competitor queries **720 days** while its own copy
+         * says *"Not Used For One Year"*, so the number in the string and the number in the query are
+         * two numbers maintained by hand. There is one number here, and every piece of copy that
+         * mentions a period is formatted from it — `app_manager_last_used_never` takes it as an
+         * argument rather than spelling a period out in prose.
+         *
+         * A year, not the 30 days this used to be. 30 days is shorter than the interval at which most
+         * of a phone's apps are opened at all, so the overwhelmingly common row read "not used" — a
+         * statement about the window, which the user cannot see, dressed as a statement about the app.
+         * `UsageStatsManager` retains yearly buckets for about two years, so a year is inside what the
+         * platform can actually answer; asking for more would return a window the data does not cover.
          */
-        const val USAGE_WINDOW_DAYS: Long = 30L
+        const val USAGE_WINDOW_DAYS: Long = 365L
     }
 }

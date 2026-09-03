@@ -33,12 +33,12 @@ internal class ForegroundAppResolver(private val context: Context) {
     /**
      * Whether `PACKAGE_USAGE_STATS` is granted.
      *
-     * PENDING OWNER DECISION (3) — `:data`'s manifest deliberately declares no
-     * `<uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />`, because the same
-     * grant is an open question for the running-apps screen. Until it is declared and granted this
-     * returns `false` and the monitor idles instead of throwing; App Lock's appendix treats the
-     * grant as required and models it as something the user gives from inside the App Lock flow,
-     * and that tension is reported rather than resolved here.
+     * `:data`'s manifest declares `<uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />`,
+     * so the grant is reachable — the system's Usage Access page lists only apps that declare it.
+     * Declared is not granted: the user gives this one by hand, and until they do this returns
+     * `false` and the monitor idles instead of throwing. App Lock's appendix models the grant as
+     * something the user gives from inside the App Lock flow; the declaration does not change that
+     * flow, it only makes the page it sends them to able to show this app.
      */
     fun hasUsageAccess(): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager

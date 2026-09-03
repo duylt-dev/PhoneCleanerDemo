@@ -54,8 +54,7 @@ fun AppManagerRoute(
 
     CollectEffects(viewModel.effects) { effect ->
         when (effect) {
-            AppManagerEffect.OpenUsageAccessSettings ->
-                openSettings(context, Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            AppManagerEffect.OpenUsageAccessSettings -> openUsageAccessSettings(context)
 
             is AppManagerEffect.RequestUninstall -> {
                 val intent = Intent(Intent.ACTION_DELETE, packageUri(effect.packageName))
@@ -90,20 +89,41 @@ fun AppManagerRoute(
 private fun packageUri(packageName: String): Uri = Uri.fromParts("package", packageName, null)
 
 /**
+ * This app's own row on the system Usage Access page, with the plain list as the fallback.
+ *
+ * Two things have to be true for the card's button to lead anywhere, and only one of them lives
+ * here. `:data`'s manifest declares `PACKAGE_USAGE_STATS` — that page lists ONLY apps that declare
+ * it, so without the declaration this launch opened a page the app could never appear on. The
+ * `package:` URI is the second: it opens this app's own toggle instead of a list to scroll.
+ *
+ * The fallback is not defensive noise. A device whose Settings has no per-app usage-access activity
+ * matches nothing — the list filter declares no `data` — so the launch throws and the list, which
+ * every device has, is opened instead. Resolved to
+ * `com.android.settings.Settings$AppUsageAccessSettingsActivity` on SM-A165F / Android 16.
+ */
+private fun openUsageAccessSettings(context: Context) {
+    val list = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+    val own = Intent(list).setData(packageUri(context.packageName))
+    if (!openSettings(context, own)) openSettings(context, list)
+}
+
+/**
  * A device with no activity for the intent is a normal outcome, not a crash: the exception is caught
- * here, in the platform layer that raised it.
+ * here, in the platform layer that raised it. Returns whether the screen actually opened, which is
+ * what lets [openUsageAccessSettings] fall back instead of leaving the user on a tap that did
+ * nothing.
  *
  * UNKNOWN — no appendix states what this screen should say when Settings cannot be opened.
  * Looked for: `docs/screens/14-file-tools-and-app-manager.md` §5.3/§5.5 and the shared
  * `ErrorMessages` table in `:core:ui`. Doing nothing invents no string.
  */
-private fun openSettings(context: Context, intent: Intent) {
-    try {
-        context.startActivity(intent)
-    } catch (notFound: ActivityNotFoundException) {
-        @Suppress("UNUSED_EXPRESSION")
-        notFound
-    }
+private fun openSettings(context: Context, intent: Intent): Boolean = try {
+    context.startActivity(intent)
+    true
+} catch (notFound: ActivityNotFoundException) {
+    @Suppress("UNUSED_EXPRESSION")
+    notFound
+    false
 }
 
 /**

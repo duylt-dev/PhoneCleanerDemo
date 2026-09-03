@@ -24,9 +24,10 @@ import com.pion.phonecleaner.feature.network.R
  * Activity over the system Settings app 500 ms after handing the user to it — a background activity
  * start restricted since Android 10 and largely blocked on 14 (§1.5 D1).
  *
- * PENDING OWNER DECISION 3 — whether the app asks for `PACKAGE_USAGE_STATS` at all. The manifest does
- * not declare it, so this card is the screen's real steady state until that is settled. Nothing here
- * assumes an outcome: the button opens the system page, and `ON_START` re-reads the grant either way.
+ * PENDING OWNER DECISION 3 — whether *this* screen asks for `PACKAGE_USAGE_STATS`. The manifest now
+ * declares it (for App Manager's *Last used* column), so the button reaches a page this app appears
+ * on instead of a page it could not. Declared is not granted, so this card is still the screen's real
+ * steady state; `ON_START` re-reads the grant either way and nothing here assumes an outcome.
  */
 @Composable
 internal fun UsageAccessCard(

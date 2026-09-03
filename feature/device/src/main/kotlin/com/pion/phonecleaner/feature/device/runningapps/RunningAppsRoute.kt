@@ -64,9 +64,10 @@ fun RunningAppsRoute(
                 ),
             )
 
-            // PENDING OWNER DECISION 3 (§0.1) — this opens the system screen; it does not read
-            // usage statistics, and PACKAGE_USAGE_STATS is declared in no manifest. Launching this
-            // intent needs no declaration.
+            // PENDING OWNER DECISION 3 (§0.1) — this opens the system screen; nothing in this
+            // cluster reads a usage statistic. :data declares PACKAGE_USAGE_STATS for App Manager's
+            // Last used column, so a user who follows this button now finds the app on that page;
+            // whether THIS screen should gate on the grant is still the open question.
             RunningAppsEffect.OpenUsageAccessSettings ->
                 openSettings(context, Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
 

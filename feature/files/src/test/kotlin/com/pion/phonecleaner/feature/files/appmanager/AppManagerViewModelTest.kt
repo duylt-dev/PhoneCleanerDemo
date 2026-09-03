@@ -173,12 +173,60 @@ internal class AppManagerViewModelTest {
             }
         }
 
+    /**
+     * Both dates survive the port -> use case -> row hop as themselves. They used to not: the row's
+     * install date was hard-coded to `0` in the use case, so every row rendered "install date not
+     * available" no matter what the platform reported.
+     */
+    @Test
+    fun `the install and last-used timestamps reach the row`() = mainDispatcher.runVmTest {
+        installedApps.apps = listOf(
+            app("one", apkBytes = 10L, lastUsedAtMillis = 1_700L, firstInstallAtMillis = 900L),
+            app("two", apkBytes = 20L),
+        ).toImmutableList()
+        val vm = viewModel()
+
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+
+        val one = vm.state.value.apps.first { it.packageName == "one" }
+        assertEquals(900L, one.firstInstallEpochMillis)
+        assertEquals(1_700L, one.lastUsedEpochMillis)
+
+        // `0` is carried through as `0`, never as a date the row would then render.
+        val two = vm.state.value.apps.first { it.packageName == "two" }
+        assertEquals(0L, two.firstInstallEpochMillis)
+        assertEquals(0L, two.lastUsedEpochMillis)
+    }
+
+    /** The row needs the grant to know which of the two meanings a `0` last-used stamp carries. */
+    @Test
+    fun `granting usage access flips the flag the row reads`() = mainDispatcher.runVmTest {
+        val vm = viewModel()
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+        assertFalse(vm.state.value.usageAccessGranted)
+
+        permissions.granted.value = persistentSetOf(AppPermission.UsageStats)
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+
+        assertTrue(vm.state.value.usageAccessGranted)
+    }
+
     private companion object {
-        fun app(packageName: String, apkBytes: Long) = InstalledApp(
+        fun app(
+            packageName: String,
+            apkBytes: Long,
+            lastUsedAtMillis: Long = 0L,
+            firstInstallAtMillis: Long = 0L,
+        ) = InstalledApp(
             packageName = packageName,
             label = packageName,
             uid = packageName.hashCode(),
             apkBytes = apkBytes,
+            lastUsedAtMillis = lastUsedAtMillis,
+            firstInstallAtMillis = firstInstallAtMillis,
         )
     }
 }
