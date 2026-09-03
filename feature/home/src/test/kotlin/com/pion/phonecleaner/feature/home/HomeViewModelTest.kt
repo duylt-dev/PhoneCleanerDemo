@@ -1,6 +1,7 @@
 package com.pion.phonecleaner.feature.home
 
 import androidx.lifecycle.SavedStateHandle
+import com.pion.phonecleaner.domain.catalog.FeatureAvailability
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.permission.AppPermission
 import kotlinx.collections.immutable.persistentSetOf
@@ -15,6 +16,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -41,7 +43,7 @@ class HomeViewModelTest {
         val fixture = homeFixture()
         val effects = fixture.collectEffects(this)
         // Antivirus is the one entry point with a pre-flight; it is covered in HomeDialogsTest.
-        val ungated = FeatureId.entries.filter { it != FeatureId.Antivirus }
+        val ungated = openable.filter { it != FeatureId.Antivirus }
 
         ungated.forEach { fixture.viewModel.onIntent(HomeIntent.FeatureTapped(it)) }
         advanceUntilIdle()
@@ -53,13 +55,54 @@ class HomeViewModelTest {
     fun `the analytics id of a feature tap is that feature's own id`() = runTest(dispatcher) {
         val fixture = homeFixture()
 
-        FeatureId.entries.forEach { fixture.viewModel.onIntent(HomeIntent.FeatureTapped(it)) }
+        openable.forEach { fixture.viewModel.onIntent(HomeIntent.FeatureTapped(it)) }
         advanceUntilIdle()
 
         // The destination and the id are one enum constant, so they cannot be edited apart.
-        assertEquals(FeatureId.entries.toList(), fixture.analytics.featureOpens)
-        assertEquals(FeatureId.entries.toList(), fixture.featureUsage.marked)
+        assertEquals(openable, fixture.analytics.featureOpens)
+        assertEquals(openable, fixture.featureUsage.marked)
     }
+
+    /**
+     * The lock is in the reducer, so a tap that reaches it anyway — a stale composition, a deep link,
+     * an accepted exit offer — still goes nowhere. Not tracked and not marked used either: a feature
+     * that could not be opened was not opened, and counting it would put a figure in the usage ledger
+     * that no screen ever rendered (`FeatureAvailability`).
+     */
+    @Test
+    fun `a coming-soon feature navigates nowhere and is not counted`() = runTest(dispatcher) {
+        val fixture = homeFixture()
+        val effects = fixture.collectEffects(this)
+
+        FeatureAvailability.comingSoon.forEach {
+            fixture.viewModel.onIntent(HomeIntent.FeatureTapped(it))
+        }
+        advanceUntilIdle()
+
+        assertEquals(emptyList<HomeEffect>(), effects)
+        assertEquals(emptyList<FeatureId>(), fixture.analytics.featureOpens)
+        assertEquals(emptyList<FeatureId>(), fixture.featureUsage.marked)
+    }
+
+    /** A deep link is the one route into a feature that never passes a tile it could disable. */
+    @Test
+    fun `a deep link to a coming-soon feature navigates nowhere`() = runTest(dispatcher) {
+        val fixture = homeFixture(
+            savedState = SavedStateHandle(
+                mapOf(HomeArgs.FEATURE to FeatureId.NetworkTest.name),
+            ),
+        )
+        val effects = fixture.collectEffects(this)
+
+        fixture.viewModel.onIntent(HomeIntent.ScreenStarted)
+        advanceUntilIdle()
+
+        assertEquals(emptyList<HomeEffect>(), effects)
+    }
+
+    /** The features `FeatureAvailability` locks, in enum order. */
+    private val openable: List<FeatureId> =
+        FeatureId.entries.filter(FeatureAvailability::isAvailable)
 
     @Test
     fun `a gated feature asks for one permission and does not navigate`() = runTest(dispatcher) {
@@ -155,5 +198,19 @@ class HomeViewModelTest {
         assertEquals(laidOut.size, laidOut.toSet().size) // no feature drawn twice
         assertEquals(FeatureId.entries.size - 1, laidOut.size) // the hero is not a tile
         assertEquals(FeatureId.entries.toSet(), laidOut.toSet() + HomeSections.heroFeature)
+    }
+
+    /**
+     * A deferred feature stays ON the page, locked — it is not removed. The state carries the lock so
+     * the grid draws it and this test can read it without composing anything.
+     */
+    @Test
+    fun `the layout locks exactly the coming-soon features and hides none of them`() {
+        val tiles = HomeSections.build().flatMap { it.tiles }
+        val locked = tiles.filter { it.isComingSoon }.map { it.feature }.toSet()
+
+        assertEquals(FeatureAvailability.comingSoon - HomeSections.heroFeature, locked)
+        // The hero is not a tile, so its own lock is the one State derives.
+        assertTrue(HomeState().isHeroComingSoon)
     }
 }

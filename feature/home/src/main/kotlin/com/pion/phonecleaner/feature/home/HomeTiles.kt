@@ -38,6 +38,12 @@ data class HomeTile(
     val feature: FeatureId,
     val badge: TileBadge = TileBadge.None,
     val pill: String? = null,
+    /**
+     * The tile is drawn and cannot be entered — `FeatureAvailability.comingSoon`, read once in
+     * [HomeSections.build] rather than at render, so what the grid draws and what the reducer allows
+     * are the same fact and a test can pin both.
+     */
+    val isComingSoon: Boolean = false,
 )
 
 /** A titled run of tiles. `titleRes == null` is the untitled card grid at the top of the page. */

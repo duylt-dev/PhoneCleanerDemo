@@ -42,6 +42,12 @@
     <string name="home_junk_none">No junk files were found in the folders that could be read</string>
     <string name="home_junk_measured">%1$s of junk files found</string>
     <string name="home_junk_checking">Checking…</string>
+    <!--
+      The hero's line when the junk clean itself is not ready (FeatureAvailability). It reports the
+      state of the app, not the state of the device, so it replaces the junk line rather than sitting
+      beside it: a figure and "not ready yet" on the same card contradict each other.
+    -->
+    <string name="home_junk_coming_soon">Junk cleaning is not ready in this version yet</string>
 
     <string name="home_safety_check_due">A safety check has not been run today</string>
 
@@ -54,6 +60,12 @@
     <!-- A rendering rule, not a datum: the count above which a badge stops being exact. -->
     <string name="home_badge_overflow">99+</string>
     <string name="home_badge_attention">Needs attention</string>
+    <!--
+      Drawn on a tile the release cannot carry out (FeatureAvailability). It names a state of the
+      app, never a promise about a date, and the tile it sits on is not clickable — so the label and
+      the behaviour say the same thing.
+    -->
+    <string name="home_tile_coming_soon">Coming soon</string>
 
     <!-- ── notification banner ───────────────────────────────────────────────────────────────── -->
     <string name="home_notification_banner_title">Turn on notifications</string>

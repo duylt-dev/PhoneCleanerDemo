@@ -36,6 +36,9 @@ import com.pion.phonecleaner.core.ui.R as CoreUiR
  * The ring's percentage is storage occupancy. It is the one percentage this app shows, and it is a
  * measurement of how full the volume is, never a claim about the device
  * (`docs/screens/11-home.md` §4.2).
+ *
+ * The ring and the two figures are measurements of the volume and stay live even when the clean
+ * itself is `FeatureAvailability.comingSoon`: what is deferred is the action, not the reading.
  */
 @Composable
 internal fun CleanHeroCard(
@@ -43,6 +46,7 @@ internal fun CleanHeroCard(
     junkPill: JunkPill,
     needsSecurityScanToday: Boolean,
     isBusy: Boolean,
+    isComingSoon: Boolean,
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -80,7 +84,7 @@ internal fun CleanHeroCard(
                 }
             }
             Text(
-                text = junkLine(junkPill, isBusy),
+                text = junkLine(junkPill, isBusy, isComingSoon),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -88,9 +92,14 @@ internal fun CleanHeroCard(
                 Button(
                     onClick = { onIntent(HomeIntent.CleanTapped) },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !isBusy,
+                    enabled = !isBusy && !isComingSoon,
                 ) {
-                    Text(stringResource(CoreUiR.string.feature_cta_clean))
+                    Text(
+                        stringResource(
+                            if (isComingSoon) R.string.home_tile_coming_soon
+                            else CoreUiR.string.feature_cta_clean,
+                        ),
+                    )
                 }
             }
         }
@@ -98,14 +107,20 @@ internal fun CleanHeroCard(
 }
 
 /**
- * Three named states, resolved once here from a modelled type.
+ * Three named states, resolved once here from a modelled type — four, once the clean itself may be
+ * unavailable.
  *
  * The competitor infers the same three from two booleans and a `-1` sentinel *at render time*
  * (`N1()` :750-770), which is why "we have not looked yet" and "there is nothing here" render
  * identically on its card (delta 13).
+ *
+ * [isComingSoon] is read **before** the pill and not beside it: a cached figure plus "not ready yet"
+ * are two statements about the same card that contradict each other, and the honest one is the one
+ * about what the button will do.
  */
 @Composable
-private fun junkLine(pill: JunkPill, isBusy: Boolean): String {
+private fun junkLine(pill: JunkPill, isBusy: Boolean, isComingSoon: Boolean): String {
+    if (isComingSoon) return stringResource(R.string.home_junk_coming_soon)
     if (isBusy) return stringResource(R.string.home_junk_checking)
     val format = rememberByteFormat()
     return when (pill) {

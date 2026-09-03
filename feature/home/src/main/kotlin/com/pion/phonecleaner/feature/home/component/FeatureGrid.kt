@@ -73,7 +73,7 @@ internal fun FeatureGrid(
 }
 
 /**
- * The one live figure on this screen.
+ * The value line: the one live figure on this screen, or the reason a tile is locked.
  *
  * `null` renders `"--"` and never a zero: `TrafficStats.getTotalRxBytes()` returns `-1` on devices
  * without the counters, and the competitor's `-1` reaches the card as a figure (delta 4). The
@@ -88,6 +88,9 @@ private fun tileValue(
     downloadBytesPerSecond: Long?,
     format: ByteFormat,
 ): String? = when {
+    // First, and deliberately: a tile that cannot be entered must not also show a figure, whatever
+    // else would have filled this slot.
+    tile.isComingSoon -> stringResource(R.string.home_tile_coming_soon)
     tile.feature != FeatureId.NetworkTraffic -> tile.pill
     downloadBytesPerSecond == null -> stringResource(R.string.home_value_unknown)
     else -> format.rate(downloadBytesPerSecond).toString()

@@ -5,6 +5,7 @@ import com.pion.phonecleaner.core.common.error.AppError
 import com.pion.phonecleaner.core.mvi.UiEffect
 import com.pion.phonecleaner.core.mvi.UiIntent
 import com.pion.phonecleaner.core.mvi.UiState
+import com.pion.phonecleaner.domain.catalog.FeatureAvailability
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.model.settings.LegalDocument
@@ -90,6 +91,14 @@ data class HomeState(
 ) : UiState {
     /** Derived, never stored: two fields that can disagree eventually will. */
     val isExitDialogShowing: Boolean get() = dialog is HomeDialog.ExitOffer
+
+    /**
+     * The hero button is the one entry point that is not a tile, so it cannot read `HomeTile`
+     * (`HomeSections.heroFeature`). Derived rather than stored for the same reason as above: the
+     * layout and the lock would be two fields saying one thing.
+     */
+    val isHeroComingSoon: Boolean
+        get() = !FeatureAvailability.isAvailable(HomeSections.heroFeature)
 
     val isBusy: Boolean get() = isJunkEstimating
 }

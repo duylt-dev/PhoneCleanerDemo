@@ -24,6 +24,10 @@ import com.pion.phonecleaner.feature.home.TileBadge
  * The title is resolved by `stringResource` at render, never captured into a `String` once per
  * process the way `ae.i2` does — that is what leaves every feature name in the previous language
  * after the in-app picker changes it.
+ *
+ * A tile whose feature is `FeatureAvailability.comingSoon` is drawn and disabled, never hidden. The
+ * lock is not load-bearing on its own — `HomeViewModel.openFeature` refuses the same feature — so a
+ * tile that somehow raised the intent still goes nowhere (`docs/screens/11-home.md` §1.3).
  */
 @Composable
 internal fun FeatureCard(
@@ -40,7 +44,10 @@ internal fun FeatureCard(
             onClick = { onIntent(HomeIntent.FeatureTapped(tile.feature)) },
             modifier = Modifier.fillMaxWidth(),
             badge = badgeText(tile.badge),
+            // The "Coming soon" line arrives through `value`, resolved in FeatureGrid.tileValue:
+            // one slot, so a locked tile and a live rate can never both claim it.
             value = value,
+            enabled = !tile.isComingSoon,
         )
         if (tile.badge is TileBadge.Dot) {
             AttentionDot(

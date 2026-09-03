@@ -1,9 +1,11 @@
 package com.pion.phonecleaner.feature.home
 
+import com.pion.phonecleaner.domain.catalog.FeatureAvailability
+import com.pion.phonecleaner.domain.model.feature.FeatureId
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * The three decisions home makes for itself, as pure functions the reducer calls.
+ * The four decisions home makes for itself, as pure functions the reducer calls.
  *
  * They are here rather than inside `HomeViewModel` because each is a rule with a stated reason, and
  * a rule kept in a `when` arm is a rule nobody tests. Everything *business* about the junk estimate
@@ -56,3 +58,19 @@ internal val JUNK_ESTIMATE_TIMEOUT = 10.seconds
  */
 internal fun HomeState.shouldOfferNotificationSheet(): Boolean =
     showNotificationBanner && !hasOfferedNotificationSheet && !arrivedFromNotification
+
+/**
+ * What an answered exit offer resolves to: the feature to open, or `null` to leave.
+ *
+ * The check on `FeatureAvailability` is not redundant with the one in `HomeViewModel.openFeature`,
+ * and the difference is the whole reason this is a function rather than a condition in a `when` arm.
+ * That gate returns silently, which is right for a tap on a locked tile and wrong here: this arm must
+ * raise **exactly one** effect, so a silent return would leave a BACK press doing nothing at all.
+ * Resolving the two answers to one nullable value makes "never both, never zero" structural.
+ *
+ * `FeatureUsageRepository.recommend()` already filters the locked features out of what it offers, so
+ * a locked feature reaches this function only from a dialog raised before the release deferred it —
+ * which a process that lived across an update can genuinely hold.
+ */
+internal fun HomeDialog.ExitOffer.openedFeature(accepted: Boolean): FeatureId? =
+    feature.takeIf { accepted && FeatureAvailability.isAvailable(it) }

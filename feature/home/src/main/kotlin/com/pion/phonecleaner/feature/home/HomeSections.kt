@@ -1,5 +1,6 @@
 package com.pion.phonecleaner.feature.home
 
+import com.pion.phonecleaner.domain.catalog.FeatureAvailability
 import com.pion.phonecleaner.domain.catalog.FeatureCatalog
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.permission.AppPermission
@@ -72,12 +73,13 @@ internal object HomeSections {
     /**
      * Features that exist but deliberately have no tile on this page.
      *
-     * PENDING OWNER DECISIONS 2 and 3 — whether the speed test ships (`FeatureId.NetworkTest`) and
-     * whether running apps requires a hand-granted `PACKAGE_USAGE_STATS` (`FeatureId.RunningApps`).
-     * Neither is decided here: the list is **empty**, so today every feature is on the page exactly
-     * as the competitor arranged it. If a decision removes one, its row moves out of the run above
-     * and into this set, and the completeness check below keeps passing — which is the point of
-     * having the escape hatch rather than a `check` that must be weakened to make a decision.
+     * Still **empty**, and it is not where a deferred feature goes. PENDING OWNER DECISIONS 1, 2 and
+     * 3 leave four entry points inert, and the owner's answer was to keep every one of them drawn and
+     * locked rather than removed — `FeatureAvailability.comingSoon` carries that list and [toTiles]
+     * reads it. This set stays for the other case: a decision that says a feature is not on this page
+     * at all. Its row would move out of the run above and into here, and the completeness check below
+     * would keep passing — which is the point of having the escape hatch rather than a `check` that
+     * must be weakened to make a decision.
      */
     private val notOnHome: Set<FeatureId> = emptySet()
 
@@ -113,6 +115,17 @@ internal object HomeSections {
             HomeSection(R.string.home_section_security, TileStyle.Icon, securityFeatures.toTiles(badges)),
         )
 
+    /**
+     * `isComingSoon` is resolved **here**, not in the tile composable, for the reason every other
+     * fact on this page is: the grid draws state, and a test that reads `HomeState.sections` must be
+     * able to see a locked tile without composing anything.
+     */
     private fun List<FeatureId>.toTiles(badges: Map<FeatureId, TileBadge>): ImmutableList<HomeTile> =
-        map { HomeTile(feature = it, badge = badges[it] ?: TileBadge.None) }.toImmutableList()
+        map {
+            HomeTile(
+                feature = it,
+                badge = badges[it] ?: TileBadge.None,
+                isComingSoon = !FeatureAvailability.isAvailable(it),
+            )
+        }.toImmutableList()
 }

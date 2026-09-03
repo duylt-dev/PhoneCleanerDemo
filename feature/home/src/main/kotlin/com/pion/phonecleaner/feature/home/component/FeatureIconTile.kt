@@ -33,6 +33,11 @@ import com.pion.phonecleaner.feature.home.TileBadge
  *
  * Same data as [FeatureCard], different shape: no card, no aspect ratio, no value line. The two
  * sections that use it are the eight "save space" entry points and the three privacy ones.
+ *
+ * Having no value line is why a locked tile grows a caption here and reuses the value slot there:
+ * [FeatureAvailability]'s "Coming soon" has to be readable on both shapes, and inventing a second
+ * value line on this one would be a layout no source draws. The click is disabled and the glyph
+ * drops to the muted content colour — a token, not a call-site alpha (MVI §11).
  */
 @Composable
 internal fun FeatureIconTile(
@@ -44,7 +49,9 @@ internal fun FeatureIconTile(
     Column(
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
-            .clickable { onIntent(HomeIntent.FeatureTapped(tile.feature)) }
+            .clickable(enabled = !tile.isComingSoon) {
+                onIntent(HomeIntent.FeatureTapped(tile.feature))
+            }
             .padding(vertical = Spacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -54,7 +61,11 @@ internal fun FeatureIconTile(
                 imageVector = descriptor.icon,
                 contentDescription = null, // decorative: the label below is the accessible name
                 modifier = Modifier.size(TileIconSize),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = if (tile.isComingSoon) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
             )
             TileBadgeOverlay(tile.badge, Modifier.align(Alignment.TopEnd))
         }
@@ -66,6 +77,17 @@ internal fun FeatureIconTile(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
+        if (tile.isComingSoon) {
+            Text(
+                text = stringResource(R.string.home_tile_coming_soon),
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 

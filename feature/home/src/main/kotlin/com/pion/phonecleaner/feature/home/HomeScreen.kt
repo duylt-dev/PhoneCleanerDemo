@@ -49,6 +49,7 @@ internal fun HomeScreen(
                 junkPill = state.junkPill,
                 needsSecurityScanToday = state.needsSecurityScanToday,
                 isBusy = state.isBusy,
+                isComingSoon = state.isHeroComingSoon,
                 onIntent = onIntent,
             )
         }
