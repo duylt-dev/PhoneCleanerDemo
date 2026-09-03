@@ -26,6 +26,5 @@
 
     <string name="clean_result_lifetime">%1$s recovered since you installed this app</string>
     <string name="clean_result_done">Done</string>
-    <string name="clean_result_suggestions_title">Other things you can look at</string>
 
 </resources>

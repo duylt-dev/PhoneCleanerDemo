@@ -6,9 +6,6 @@ import com.pion.phonecleaner.core.mvi.UiIntent
 import com.pion.phonecleaner.core.mvi.UiState
 import com.pion.phonecleaner.domain.model.cleanup.CleanupOutcome
 import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
-import com.pion.phonecleaner.domain.model.feature.FeatureId
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 
 /**
  * The contract of the ONE result route that serves fifteen features
@@ -28,7 +25,7 @@ enum class ResultPhase {
     /** The count-up runs. The composable owns the animation and reports back with an Intent. */
     Counting,
 
-    /** The headline, the lifetime total and the suggestions are on screen. */
+    /** The headline and the lifetime total are on screen. */
     Revealed,
 }
 
@@ -43,12 +40,7 @@ data class CleanResultState(
      * lifetime counter by re-parsing the formatted display string this screen produced.
      */
     val lifetimeFreedBytes: Long = 0L,
-
-    /** Features the user has not opened lately, minus the one that just ran. */
-    val suggestions: ImmutableList<FeatureId> = persistentListOf(),
 ) : UiState {
-
-    val feature: FeatureId get() = summary.feature
 
     val freedBytes: Long get() = summary.freedBytes
 
@@ -73,13 +65,11 @@ data class CleanResultState(
 sealed interface CleanResultIntent : UiIntent {
     /** The composable owns the count-up and says when it is done. */
     data object CountingAnimationFinished : CleanResultIntent
-    data class SuggestionTapped(val feature: FeatureId) : CleanResultIntent
     data object DonePressed : CleanResultIntent
     data object BackPressed : CleanResultIntent
 }
 
 sealed interface CleanResultEffect : UiEffect {
-    data class NavigateToFeature(val feature: FeatureId) : CleanResultEffect
 
     /** `popUpTo(Home) { inclusive = false }` — what `finish()` did (`LLM.md` §7.1). */
     data object NavigateHome : CleanResultEffect

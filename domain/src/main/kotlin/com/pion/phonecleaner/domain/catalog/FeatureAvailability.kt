@@ -28,8 +28,9 @@ import kotlinx.collections.immutable.persistentSetOf
  * | [FeatureId.NetworkTest] | 2 | `UnconfiguredSpeedTestRepository` — no socket, no bytes, no figure | a procured byte source, or the decision to delete the two speed-test screens |
  * | [FeatureId.RunningApps] | 3 | a screen that renders, but only once the user finds `PACKAGE_USAGE_STATS` in Settings unaided | whether the app asks for that grant |
  *
- * Removing a row is the whole change: the tile unlocks, the hero button re-enables, the exit offer and
- * the clean-result suggestions may name it again, and nothing else moves.
+ * Removing a row is the whole change: the tile unlocks, the hero button re-enables, the exit offer may
+ * name it again, and nothing else moves. (The clean-result screen was a fourth reader until
+ * 2026-09-03, when its suggestion list was removed by owner decision — it now names no feature at all.)
  *
  * **This is not the same statement as `HomeSections.notOnHome`.** That set removes a tile from the
  * page; this one keeps the tile drawn and locked. A feature that vanishes teaches the user it was

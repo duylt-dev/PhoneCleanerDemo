@@ -24,6 +24,5 @@
 
     <string name="clean_result_lifetime">Đã thu hồi %1$s kể từ khi bạn cài ứng dụng này</string>
     <string name="clean_result_done">Xong</string>
-    <string name="clean_result_suggestions_title">Những mục khác bạn có thể xem</string>
 
 </resources>
