@@ -25,6 +25,7 @@ import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.network.R
 import com.pion.phonecleaner.feature.network.traffic.component.TrafficFilterRow
 import com.pion.phonecleaner.feature.network.traffic.component.TrafficPeriodSelector
@@ -46,7 +47,7 @@ internal fun NetworkTrafficScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.traffic_title),
                 onBack = { onIntent(NetworkTrafficIntent.BackPressed) },

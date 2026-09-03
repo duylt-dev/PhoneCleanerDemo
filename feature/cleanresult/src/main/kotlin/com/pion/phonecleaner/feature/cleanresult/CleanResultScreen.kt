@@ -26,6 +26,7 @@ import com.pion.phonecleaner.core.ui.format.rememberByteFormat
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.cleanup.CleanupOutcome
 import com.pion.phonecleaner.feature.cleanresult.component.CountingHeadline
 
@@ -42,7 +43,7 @@ internal fun CleanResultScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.clean_result_title),
                 onBack = { onIntent(CleanResultIntent.BackPressed) },

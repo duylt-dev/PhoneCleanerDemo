@@ -26,6 +26,7 @@ import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.component.tile.LabelValueRow
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.device.R
 import com.pion.phonecleaner.feature.device.component.MetricCard
 
@@ -56,7 +57,7 @@ internal fun DeviceStatusDetailScreen(
     }
 
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.device_status_detail_title),
                 onBack = { onIntent(DeviceStatusDetailIntent.BackPressed) },

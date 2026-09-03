@@ -21,6 +21,7 @@ import com.pion.phonecleaner.core.ui.component.header.PageHeader
 import com.pion.phonecleaner.core.ui.format.rememberByteFormat
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.network.R
 
 /**
@@ -40,7 +41,7 @@ internal fun SpeedTestResultScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.speed_test_title),
                 onBack = { onIntent(SpeedTestResultIntent.BackPressed) },

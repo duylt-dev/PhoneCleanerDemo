@@ -15,6 +15,7 @@ import com.pion.phonecleaner.core.ui.component.list.SectionHeader
 import com.pion.phonecleaner.core.ui.component.state.EmptyState
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.settings.R
 import com.pion.phonecleaner.feature.settings.permissioncentre.component.GrantedRow
 import com.pion.phonecleaner.feature.settings.permissioncentre.component.PermissionCardItem
@@ -38,7 +39,7 @@ internal fun PermissionCentreScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.settings_permissions_title),
                 onBack = { onIntent(PermissionCentreIntent.BackPressed) },

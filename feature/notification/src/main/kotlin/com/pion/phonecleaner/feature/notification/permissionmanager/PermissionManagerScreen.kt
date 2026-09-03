@@ -21,6 +21,7 @@ import com.pion.phonecleaner.core.ui.component.header.PageHeader
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.component.state.LoadingOverlay
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.notification.R
 import com.pion.phonecleaner.feature.notification.permissionmanager.component.AppPermissionDetail
 import com.pion.phonecleaner.feature.notification.permissionmanager.component.AppsTab
@@ -44,7 +45,7 @@ internal fun PermissionManagerScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().screenInsetsPadding()) {
             Column(Modifier.fillMaxSize()) {
                 PageHeader(
                     title = stringResource(R.string.permission_manager_title),

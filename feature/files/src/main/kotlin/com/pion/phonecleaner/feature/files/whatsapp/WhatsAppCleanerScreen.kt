@@ -22,6 +22,7 @@ import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.files.R
 import com.pion.phonecleaner.feature.files.component.ConfirmDialogHost
 import com.pion.phonecleaner.feature.files.component.ToolBanner
@@ -43,7 +44,7 @@ internal fun WhatsAppCleanerScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().screenInsetsPadding()) {
             Column(Modifier.fillMaxSize()) {
                 PageHeader(
                     title = stringResource(R.string.whatsapp_title),

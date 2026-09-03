@@ -23,6 +23,7 @@ import com.pion.phonecleaner.core.ui.component.header.PageHeader
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.device.BatteryCheck
 import com.pion.phonecleaner.domain.model.device.BatterySnapshot
 import com.pion.phonecleaner.feature.device.R
@@ -48,7 +49,7 @@ internal fun BatteryInfoScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.battery_info_title),
                 onBack = { onIntent(BatteryInfoIntent.BackPressed) },
