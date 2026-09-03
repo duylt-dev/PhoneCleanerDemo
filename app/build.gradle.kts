@@ -21,6 +21,14 @@ android {
 
     buildTypes {
         release {
+            // Signed with the DEBUG key, deliberately. No release keystore exists in this repo and
+            // no owner decision names one; this variant is built to be installed on the test device
+            // (SM-A165F), not uploaded to Play — Play rejects the Android debug certificate outright.
+            // Keeping the same signer as the debug build is also what lets an install land on top of
+            // one without an uninstall, so a run's DataStore state survives the swap.
+            // Replace this in the same commit a real keystore lands. LLM.md §10.4.
+            signingConfig = signingConfigs.getByName("debug")
+
             optimization {
                 // UNRESOLVED — LLM.md §10.4. Anything reflective (Room, kotlinx.serialization, the
                 // TrustLook SDK) needs its keep rules written in the same commit that enables this.
