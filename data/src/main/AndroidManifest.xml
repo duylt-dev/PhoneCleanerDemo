@@ -21,8 +21,6 @@
     owner decision (App Lock overlay, out-of-app assertiveness). Nothing here declares a permission
     on a decision's behalf. PACKAGE_USAGE_STATS was on this list and no longer is; its own block
     below states exactly what that line settles and what it leaves open.
-  * QUERY_ALL_PACKAGES — no code in this module enumerates packages. It belongs to whichever module
-    writes InstalledAppsRepository / AppPermissionScanRepository.
   * ACCESS_MEDIA_LOCATION — MediaStoreQuery reads no EXIF location; the photo cluster declares it if
     its own code does.
 -->
@@ -75,6 +73,47 @@
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+
+    <!--
+      PACKAGE VISIBILITY — without these two declarations App Manager lists TWO rows.
+
+      `targetSdk` is 36, so the API 30 filtering applies in full: `PackageManager` answers
+      `getInstalledPackages` and `queryIntentActivities` with only the packages this app is allowed
+      to see, and says nothing about the rest. It is not an error and not an empty list — it is a
+      shorter list, which is why `PackageManagerInstalledAppsRepository.enumerate` cannot detect it
+      and no `SecurityException` arm fires. Measured on device RF8Y60B9NCZ (SM-A165F, Android 16):
+      `dumpsys package com.pion.phonecleaner` reported `system apps queryable: false` with empty
+      forceQueryable and package-name query lists, and the screen showed 2 apps where
+      `pm list packages -3` counts 72. The competitor shows 71 on the same device — 72 minus itself —
+      and it gets there with exactly the two declarations below (`decompiler/app-src/AndroidManifest.xml:107`
+      and its `<queries>` block).
+
+      BOTH are declared, because they cover different halves of the list and fail differently.
+
+      `<queries>` is the half that needs no store justification. ACTION_MAIN + CATEGORY_LAUNCHER is
+      the literal query `launchablePackages()` runs, so without it `includeWithoutLauncher = false`
+      — the Permission Manager's enumeration — returns near-nothing on its own terms. Bare ACTION_MAIN
+      widens that to apps whose entry activity carries no LAUNCHER category.
+
+      QUERY_ALL_PACKAGES is the half that does. It is the only thing that reveals a user-installed
+      package with no MAIN activity at all, which is precisely what `includeWithoutLauncher = true`
+      — the App Manager — asks for; a keyboard, a plugin or a work-profile companion is invisible
+      without it. Play treats it as sensitive and requires a declared use case; a device cleaner with
+      an uninstall manager is one of the permitted ones. If it is ever stripped from a build, the
+      `<queries>` block above still carries the launchable majority, so the screen degrades to
+      "most apps" rather than back to two.
+    -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
 
     <!--
       POST_NOTIFICATIONS is deliberately ABSENT. It sits behind a pending owner decision
