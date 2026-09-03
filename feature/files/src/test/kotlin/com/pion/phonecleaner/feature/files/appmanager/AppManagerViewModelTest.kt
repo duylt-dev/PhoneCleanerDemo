@@ -153,6 +153,40 @@ internal class AppManagerViewModelTest {
             assertEquals(ToolPhase.Ready, vm.state.value.phase)
         }
 
+    /**
+     * Confirming our dialog and then declining Android's is a **cancel**, not a finished run. The
+     * screen stays where it is: navigating to the shared result screen would render `NothingFound`
+     * — *"Nothing was found to remove"* — over a list where the apps were found and are still there.
+     */
+    @Test
+    fun `declining every system dialog does not reach the result screen`() =
+        mainDispatcher.runVmTest {
+            val vm = viewModel()
+            vm.onIntent(AppManagerIntent.ScreenStarted)
+            settle()
+            vm.onIntent(AppManagerIntent.CompletionAnimationFinished)
+            vm.onIntent(AppManagerIntent.RowToggled("one"))
+
+            vm.effects.test {
+                vm.onIntent(AppManagerIntent.UninstallPressed)
+                vm.onIntent(AppManagerIntent.UninstallConfirmed)
+                settle()
+                assertEquals(AppManagerEffect.RequestUninstall("one"), awaitItem())
+
+                // The user backed out of the system sheet: `one` is still installed.
+                vm.onIntent(AppManagerIntent.UninstallReturned("one"))
+                settle()
+
+                expectNoEvents()
+            }
+
+            // The run is over and the row is still both listed and ticked, so the retry is one tap.
+            assertNull(vm.state.value.uninstalling)
+            assertEquals(ToolPhase.Ready, vm.state.value.phase)
+            assertEquals(listOf("one", "two"), vm.state.value.apps.map { it.packageName })
+            assertEquals(persistentSetOf("one"), vm.state.value.selectedPackages)
+        }
+
     /** The rationale is shown BEFORE the user is handed out to Settings (§5.5). */
     @Test
     fun `the grant press opens a rationale first and Settings only on continue`() =
