@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:photo. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale. The compressor reports the size it MEASURED;
+  no string below carries a performance percentage.
+
+  PLURALS — Vietnamese has ONE CLDR plural category, `other`. Every count still goes through
+  <plurals>, which is the rule; the English file's `one` bodies simply have no counterpart here.
+-->
+<resources>
+
+    <!-- ── shared across the cluster ─────────────────────────────────────────────────────────── -->
+    <string name="photo_scanning">Đang đọc ảnh của bạn…</string>
+    <string name="photo_scan_progress">%1$d trên %2$d</string>
+    <string name="photo_scan_finished">Đã xong</string>
+    <string name="photo_keep_badge">Giữ lại</string>
+    <string name="photo_open_preview">Mở</string>
+    <string name="photo_action_continue">Tiếp tục</string>
+    <string name="photo_action_stop">Dừng</string>
+
+    <string name="photo_consent_pending">Android đang yêu cầu bạn xác nhận việc xóa này.</string>
+    <string name="photo_consent_declined">Không có gì bị xóa. Xác nhận đã bị từ chối.</string>
+
+    <plurals name="photo_failed_count">
+        <item quantity="other">Không thay đổi được %1$d ảnh</item>
+    </plurals>
+
+    <!-- ── albums ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_albums_title">Hình ảnh</string>
+    <string name="photo_albums_empty">Không tìm thấy hình ảnh nào trong những thư mục đọc được.</string>
+    <plurals name="photo_album_count">
+        <item quantity="other">%1$d ảnh</item>
+    </plurals>
+
+    <!-- ── albumdetail ───────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_album_empty">Thư mục này không còn ảnh nào.</string>
+    <string name="photo_album_delete_title">Xóa những ảnh đã chọn?</string>
+    <plurals name="photo_album_delete_body">
+        <item quantity="other">%1$d ảnh sẽ bị xóa khỏi thiết bị này.</item>
+    </plurals>
+    <plurals name="photo_delete_failed">
+        <item quantity="other">Không xóa được %1$d ảnh</item>
+    </plurals>
+
+    <!-- ── similar ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_similar_title">Ảnh giống nhau</string>
+    <string name="photo_similar_empty">Không tìm thấy ảnh nào trông giống nhau.</string>
+    <string name="photo_similar_hashing">Đang so sánh ảnh…</string>
+    <string name="photo_similar_group_cleanup">Giữ lại một ảnh</string>
+    <plurals name="photo_similar_skipped">
+        <item quantity="other">Không đọc được %1$d ảnh nên đã bỏ qua</item>
+    </plurals>
+
+    <!-- ── preview ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_preview_title">Ảnh</string>
+    <string name="photo_preview_counter">%1$d/%2$d</string>
+    <string name="photo_preview_select">Chọn ảnh này</string>
+    <string name="photo_preview_deselect">Bỏ chọn ảnh này</string>
+
+    <!-- ── compressor ────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_compressor_title">Nén ảnh</string>
+    <string name="photo_compressor_intro">Lưu một bản sao nhẹ hơn của những ảnh bạn chọn. Dung lượng đo được trên một mẫu ảnh của chính bạn sẽ hiện bên dưới khi danh sách sẵn sàng.</string>
+    <string name="photo_compressor_start">Bắt đầu</string>
+    <string name="photo_compressor_empty">Không tìm thấy ảnh nào đủ lớn để đáng mã hóa lại.</string>
+    <string name="photo_compressor_estimate_before">Hiện tại</string>
+    <string name="photo_compressor_estimate_after">Sau khi nén</string>
+    <plurals name="photo_compressor_estimate_sample">
+        <item quantity="other">Đo trên %1$d ảnh của bạn</item>
+    </plurals>
+
+    <!-- ── compressrun ───────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_compress_run_title">Đang nén</string>
+    <string name="photo_compress_run_action">Nén tất cả</string>
+    <string name="photo_compress_confirm_title">Nén những ảnh bạn đã chọn?</string>
+    <plurals name="photo_compress_confirm_body">
+        <item quantity="other">%1$d ảnh sẽ được thay bằng bản sao nhẹ hơn.</item>
+    </plurals>
+    <string name="photo_compress_stop_title">Dừng nén?</string>
+    <string name="photo_compress_stop_body">Những ảnh đã nén vẫn ở trạng thái đã nén. Phần còn lại được giữ nguyên.</string>
+    <string name="photo_compress_saved">Đã tiết kiệm %1$s cho tới lúc này</string>
+    <string name="photo_session_lost">Lựa chọn đó không còn khả dụng. Hãy chọn lại ảnh.</string>
+
+    <!-- ── privacy ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_privacy_title">Thẻ vị trí trong ảnh</string>
+    <string name="photo_privacy_reassurance">Chỉ thẻ vị trí bị xóa. Bản thân tấm ảnh vẫn ở nguyên chỗ cũ, giữ nguyên tên, và không được gửi đi đâu cả.</string>
+    <string name="photo_privacy_empty">Không có ảnh nào trong số đọc được mang thẻ vị trí.</string>
+    <string name="photo_privacy_action">Xóa vị trí</string>
+    <string name="photo_privacy_confirm_title">Xóa thẻ vị trí?</string>
+    <plurals name="photo_privacy_confirm_body">
+        <item quantity="other">Thẻ vị trí sẽ bị xóa khỏi %1$d ảnh.</item>
+    </plurals>
+    <string name="photo_privacy_stop_title">Dừng lại?</string>
+    <string name="photo_privacy_stop_body">Những ảnh đã xóa thẻ vẫn ở trạng thái đã xóa. Phần còn lại được giữ nguyên.</string>
+
+</resources>

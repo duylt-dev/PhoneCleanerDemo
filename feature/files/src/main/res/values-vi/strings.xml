@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:files. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale: no performance, security or memory claim and
+  no percentage figure. Every screen here reports BYTES, measured, and says what it could not reach.
+
+  The two rules the English file names hold in this locale too: every count goes through <plurals>,
+  and a coverage or truncation statement is never omitted.
+
+  PLURALS — Vietnamese has ONE CLDR plural category, `other`.
+-->
+<resources>
+
+    <!-- ── shared across the six tools ───────────────────────────────────────────────────────── -->
+    <string name="files_finishing">Đang hoàn tất…</string>
+    <string name="files_removing">Đang xóa…</string>
+    <string name="files_scanning">Đang tìm trong bộ nhớ…</string>
+    <string name="files_scanning_count">Đã xem qua %1$d tệp</string>
+    <string name="files_scan_truncated">Lượt quét đã hết thời gian và dừng sớm. Những gì tìm được cho tới lúc đó được liệt kê bên dưới.</string>
+    <string name="files_coverage_partial">Lượt quét này đọc được %1$d vị trí lưu trữ. Những vị trí khác không đọc được.</string>
+    <string name="files_coverage_grant_more">Chọn một thư mục để đưa vào</string>
+    <string name="files_delete_failed">Không xóa được %1$d mục.</string>
+    <string name="files_nothing_removed">Không có gì bị xóa.</string>
+
+    <string name="files_confirm_delete_title">Xóa những tệp đã chọn?</string>
+    <plurals name="files_confirm_delete_body">
+        <item quantity="other">%1$d tệp sẽ bị xóa khỏi thiết bị này. Việc này không thể hoàn tác.</item>
+    </plurals>
+
+    <!-- ── bigfiles ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="big_files_title">Tệp dung lượng lớn</string>
+    <string name="big_files_empty">Không tìm thấy tệp nào lớn hơn 10 MB trong những vị trí đọc được.</string>
+
+    <!-- ── duplicates ────────────────────────────────────────────────────────────────────────── -->
+    <string name="duplicates_title">Tệp trùng lặp</string>
+    <string name="duplicates_empty">Không có tệp nào được lưu nhiều hơn một lần trong những vị trí đọc được.</string>
+    <string name="duplicates_deselect_all">Bỏ chọn tất cả</string>
+    <string name="duplicates_select_older">Chọn các bản cũ hơn</string>
+    <string name="duplicates_hashing">Đã so sánh %1$d trên %2$d tệp</string>
+    <plurals name="duplicates_group_header">
+        <item quantity="other">%1$d bản sao, mỗi bản %2$s</item>
+    </plurals>
+    <string name="duplicates_newest">Bản mới nhất</string>
+    <string name="duplicates_preview_open">Mở</string>
+    <string name="duplicates_reclaimable">Có thể thu hồi %1$s nếu chỉ giữ lại một bản của mỗi tệp</string>
+
+    <!-- ── video ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="video_title">Video</string>
+    <string name="video_empty">Không tìm thấy video nào trong những vị trí đọc được.</string>
+
+    <!-- ── audio ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="audio_title">Âm thanh</string>
+    <string name="audio_empty">Không tìm thấy tệp âm thanh nào trong những vị trí đọc được.</string>
+
+    <!-- ── media permission, shared by video and audio ───────────────────────────────────────── -->
+    <string name="media_permission_denied">Danh sách này cần quyền đọc nội dung nghe nhìn trên thiết bị.</string>
+    <string name="media_permission_grant">Cho phép truy cập</string>
+    <string name="media_partial_access">Chỉ những mục bạn đã chọn được liệt kê. Bạn có thể thêm nữa.</string>
+    <string name="media_sort_newest">Mới nhất</string>
+    <string name="media_sort_largest">Lớn nhất</string>
+    <string name="media_sort_name">Tên</string>
+
+    <!-- ── appmanager ────────────────────────────────────────────────────────────────────────── -->
+    <string name="app_manager_title">Quản lý ứng dụng</string>
+    <string name="app_manager_empty">Không có ứng dụng nào được liệt kê.</string>
+    <string name="app_manager_size_unknown">—</string>
+    <string name="app_manager_last_used_unknown">Không có dữ liệu sử dụng</string>
+    <string name="app_manager_installed_on">Thời gian cài đặt: %1$s</string>
+    <string name="app_manager_last_used_on">Đã sử dụng gần đây: %1$s</string>
+    <plurals name="app_manager_last_used_never">
+        <item quantity="other">Không sử dụng trong %1$d ngày qua</item>
+    </plurals>
+    <string name="app_manager_totals">%1$s trên %2$d ứng dụng</string>
+    <string name="app_manager_sort_size">Dung lượng</string>
+    <string name="app_manager_sort_installed">Ngày cài</string>
+    <string name="app_manager_sort_last_used">Dùng lần cuối</string>
+    <string name="app_manager_usage_access_body">Ngày dùng lần cuối cần thêm một quyền, được cấp thủ công trong phần Cài đặt. Mọi thứ khác trên màn hình này vẫn hoạt động khi không có quyền đó.</string>
+    <string name="app_manager_usage_access_grant">Mở Cài đặt</string>
+    <string name="app_manager_install_date_unknown">Không có ngày cài đặt</string>
+    <string name="app_manager_uninstall_action">Gỡ cài đặt</string>
+    <string name="app_manager_uninstall_progress">%1$d trên %2$d</string>
+    <string name="app_manager_sizing_progress">Đã đo %1$d trên %2$d ứng dụng</string>
+    <string name="app_manager_confirm_title">Gỡ cài đặt những ứng dụng đã chọn?</string>
+    <plurals name="app_manager_confirm_body">
+        <item quantity="other">Android sẽ hỏi bạn về %1$d ứng dụng, lần lượt từng ứng dụng một.</item>
+    </plurals>
+    <plurals name="app_manager_removed">
+        <item quantity="other">Đã gỡ cài đặt %1$d ứng dụng.</item>
+    </plurals>
+
+    <!-- ── whatsapp ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="whatsapp_title">Dọn WhatsApp</string>
+    <string name="whatsapp_not_installed">WhatsApp chưa được cài trên thiết bị này.</string>
+    <string name="whatsapp_empty">Không tìm thấy nội dung WhatsApp nào trong những vị trí đọc được.</string>
+    <string name="whatsapp_clean_action">Xóa</string>
+    <string name="whatsapp_grant_legacy_root">Đưa cả thư mục WhatsApp cũ vào</string>
+    <string name="whatsapp_confirm_title">Xóa những nội dung WhatsApp đã chọn?</string>
+    <plurals name="whatsapp_confirm_body">
+        <item quantity="other">%1$d tệp sẽ bị xóa khỏi thiết bị này. Việc này không thể hoàn tác.</item>
+    </plurals>
+    <string name="whatsapp_stop_title">Dừng xóa?</string>
+    <plurals name="whatsapp_stop_body">
+        <item quantity="other">%1$d tệp đã bị xóa và vẫn ở trạng thái đã xóa. Phần còn lại được giữ nguyên.</item>
+    </plurals>
+    <string name="whatsapp_stop_confirm">Dừng</string>
+    <plurals name="whatsapp_bucket_count">
+        <item quantity="other">%1$d tệp</item>
+    </plurals>
+    <string name="whatsapp_bucket_junk">Tệp đã gửi và tệp tạm</string>
+    <string name="whatsapp_bucket_video">Video</string>
+    <string name="whatsapp_bucket_image">Hình ảnh</string>
+    <string name="whatsapp_bucket_voice">Tin nhắn thoại</string>
+    <string name="whatsapp_bucket_audio">Âm thanh</string>
+    <string name="whatsapp_bucket_document">Tài liệu</string>
+
+</resources>

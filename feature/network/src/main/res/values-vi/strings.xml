@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:network. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale, and this is the cluster it bites hardest in:
+  the competitor's speed test is where its performance claims live. Every string below reports a
+  MEASURED number with its unit, or says plainly that nothing was measured. None of them claims the
+  phone will be faster, carries a percentage figure, or describes a connection as good, bad, fast or
+  slow.
+
+  The speed-test strings say "không đo được gì" rather than showing a zero: the byte source for a real
+  measurement is an open owner decision (docs/screens/19-network-and-speed-test.md §2, §5 item 1), and
+  a fabricated figure is exactly what this screen must not ship — in any language.
+-->
+<resources>
+
+    <!-- ── traffic ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="traffic_title">Lưu lượng mạng</string>
+    <string name="traffic_reading">Đang đọc dữ liệu đã sử dụng…</string>
+    <string name="traffic_empty">Không ứng dụng nào ghi nhận việc dùng dữ liệu trong khoảng thời gian này.</string>
+    <string name="traffic_done">OK</string>
+
+    <string name="traffic_period_this_month">Tháng này</string>
+    <string name="traffic_period_30_days">30 ngày</string>
+    <string name="traffic_period_24_hours">24 giờ</string>
+
+    <string name="traffic_connection_label">Kết nối</string>
+    <string name="traffic_connection_all">Mọi kết nối</string>
+    <string name="traffic_connection_mobile">Dữ liệu di động</string>
+    <string name="traffic_connection_wifi">Wi-Fi</string>
+
+    <string name="traffic_total_mobile">Dữ liệu di động</string>
+    <string name="traffic_total_wifi">Wi-Fi</string>
+    <string name="traffic_totals_caption">Tổng số Android ghi nhận cho mọi ứng dụng trong khoảng thời gian này.</string>
+
+    <!-- The row action opens the system App info page and nothing else: no public API stops another
+         app. -->
+    <string name="traffic_app_info">Thông tin ứng dụng</string>
+    <string name="traffic_app_info_opened">Đã mở trong phần Cài đặt</string>
+    <string name="traffic_row_description">%1$s đã dùng %2$s</string>
+
+    <string name="traffic_usage_access_title">Cần quyền truy cập dữ liệu sử dụng</string>
+    <string name="traffic_usage_access_body">Android chỉ báo cáo mỗi ứng dụng đã dùng bao nhiêu dữ liệu cho những ứng dụng đã được cấp quyền truy cập dữ liệu sử dụng. Khi không có quyền đó, màn hình này không có gì để đọc.</string>
+    <string name="traffic_usage_access_action">Mở cài đặt truy cập dữ liệu sử dụng</string>
+
+    <!-- ── speedtest ─────────────────────────────────────────────────────────────────────────
+      PENDING OWNER DECISION 2: the byte source for a real measurement is not settled, so the shipped
+      repository measures nothing and the screen says so. There is no "0 B/s" anywhere here — a zero
+      is a figure, and no figure was measured.
+    -->
+    <string name="speed_test_title">Kiểm tra kết nối</string>
+    <string name="speed_test_running">Đang đo…</string>
+    <string name="speed_test_stage_download">Tải xuống</string>
+    <string name="speed_test_stage_upload">Tải lên</string>
+    <string name="speed_test_start">Bắt đầu</string>
+    <string name="speed_test_not_measured_title">Không đo được gì</string>
+    <string name="speed_test_not_measured_body">Bản dựng này chưa thiết lập nguồn đo, nên không thể báo cáo con số tải xuống hay tải lên nào ở đây.</string>
+    <string name="speed_test_dial_description">%1$s, %2$d trên 100</string>
+    <string name="speed_test_dial_description_rate">%1$s, %2$d trên 100, %3$s</string>
+
+    <string name="speed_test_abandon_title">Dừng bài kiểm tra?</string>
+    <string name="speed_test_abandon_body">Phép đo đang chạy sẽ bị hủy bỏ.</string>
+    <string name="speed_test_abandon_confirm">Dừng</string>
+    <string name="speed_test_abandon_dismiss">Tiếp tục đo</string>
+
+    <!-- ── speedtestresult ───────────────────────────────────────────────────────────────────── -->
+    <string name="speed_result_download">Tải xuống</string>
+    <string name="speed_result_upload">Tải lên</string>
+    <string name="speed_result_run_again">Chạy lại</string>
+    <string name="speed_result_done">Xong</string>
+    <string name="speed_result_not_measured">Không có phép đo nào được ghi nhận cho lần chạy này.</string>
+
+</resources>

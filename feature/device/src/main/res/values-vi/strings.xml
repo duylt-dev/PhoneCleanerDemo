@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:device. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale, and this cluster is where it bites hardest:
+  the competitor's device and battery screens are exactly where its performance claims live. Not one
+  string below says the app will speed anything up, free memory, extend battery life, or improve
+  anything by any percentage. Every string here either NAMES a reading or REPORTS one with its unit.
+
+  The second rule holds too: no state carries a formatted string, so every %1$s below is filled at
+  render time by rememberByteFormat() or a stringResource — never by a ViewModel.
+
+  The third: a value that could not be read says so. value_unavailable is used wherever the
+  competitor substitutes a constant.
+-->
+<resources>
+
+    <!-- ── shared ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="value_unavailable">Không có dữ liệu</string>
+    <string name="value_automatic">Tự động</string>
+    <string name="device_scan_in_progress">Lượt kiểm tra vẫn đang chạy.</string>
+    <string name="device_percent_symbol">%</string>
+
+    <!-- ── devicestatusscan ─────────────────────────────────────────────────────────────────── -->
+    <string name="device_status_scan_title">Kiểm tra thiết bị</string>
+    <!-- A DEVICE-STATUS caption: it names what this screen reads, nothing else. -->
+    <string name="device_status_scan_caption">Đang đọc thông tin phần cứng của thiết bị này…</string>
+
+    <!-- ── devicestatusdetail ───────────────────────────────────────────────────────────────── -->
+    <string name="device_status_detail_title">Trạng thái thiết bị</string>
+    <string name="device_status_card_memory">Bộ nhớ trong</string>
+    <string name="device_status_card_storage">Bộ nhớ lưu trữ</string>
+    <string name="device_status_card_battery">Pin</string>
+    <string name="device_status_card_cpu">Bộ xử lý</string>
+    <string name="device_status_card_display">Màn hình</string>
+    <string name="device_status_check">Kiểm tra</string>
+    <string name="device_status_row_model">Kiểu máy</string>
+    <string name="device_status_row_android">Phiên bản Android</string>
+    <string name="device_status_row_used">Đã dùng</string>
+    <string name="device_status_row_total">Tổng cộng</string>
+    <string name="device_status_row_available">Còn khả dụng</string>
+    <!-- "Kiến trúc", never a model name: Build.SUPPORTED_ABIS is not a model name. -->
+    <string name="device_status_row_architecture">Kiến trúc</string>
+    <string name="device_status_row_cores">Số nhân</string>
+    <string name="device_status_row_frequency">Xung nhịp</string>
+    <string name="device_status_row_busy">Mức bận trong nửa giây vừa qua</string>
+    <string name="device_status_row_resolution">Độ phân giải</string>
+    <string name="device_status_row_density">Mật độ điểm ảnh</string>
+    <string name="device_status_unread">Chưa đọc</string>
+    <string name="device_status_value_megahertz">%1$d MHz</string>
+    <string name="device_status_value_percent">%1$d%%</string>
+    <string name="device_status_value_pixels">%1$d × %2$d px</string>
+    <string name="device_status_value_dpi">%1$d dpi</string>
+    <string name="device_status_value_bytes_of">%1$s trên %2$s</string>
+
+    <!-- ── batteryscan ──────────────────────────────────────────────────────────────────────── -->
+    <string name="battery_scan_title">Kiểm tra pin</string>
+    <string name="battery_scan_caption">Đang đọc thông tin pin…</string>
+
+    <!-- ── batteryinfo ──────────────────────────────────────────────────────────────────────── -->
+    <string name="battery_info_title">Thông tin pin</string>
+    <string name="battery_state_charging">Đang sạc</string>
+    <string name="battery_state_full">Đã đầy</string>
+    <string name="battery_state_discharging">Đang dùng pin</string>
+    <string name="battery_remaining_charging">Thời gian sạc đầy ước tính</string>
+    <string name="battery_remaining_discharging">Thời gian còn lại ước tính</string>
+    <string name="battery_duration_hours_minutes">%1$d giờ %2$d phút</string>
+    <string name="battery_duration_minutes">%1$d phút</string>
+
+    <string name="battery_check_brightness">Độ sáng</string>
+    <string name="battery_check_temperature">Nhiệt độ</string>
+    <string name="battery_check_voltage">Điện áp</string>
+    <string name="battery_check_technology">Công nghệ</string>
+    <string name="battery_check_capacity">Dung lượng</string>
+    <string name="battery_check_health">Tình trạng</string>
+
+    <string name="battery_value_celsius">%1$.1f °C</string>
+    <string name="battery_value_millivolts">%1$d mV</string>
+    <string name="battery_value_milliamp_hours">%1$d mAh</string>
+
+    <string name="battery_health_good">Tốt</string>
+    <string name="battery_health_overheat">Quá nóng</string>
+    <string name="battery_health_dead">Đã hỏng</string>
+    <string name="battery_health_over_voltage">Quá điện áp</string>
+    <string name="battery_health_failure">Có báo lỗi</string>
+    <string name="battery_health_cold">Quá lạnh</string>
+    <string name="battery_health_unknown">Không được báo cáo</string>
+
+    <string name="battery_technology_li_ion">Li-ion</string>
+    <string name="battery_technology_li_poly">Li-poly</string>
+    <string name="battery_technology_nimh">NiMH</string>
+    <string name="battery_technology_nicd">NiCd</string>
+
+    <!-- ── runningappsscan ──────────────────────────────────────────────────────────────────── -->
+    <string name="running_apps_scan_title">Đang kiểm tra ứng dụng</string>
+    <string name="running_apps_scan_caption">Đang liệt kê những ứng dụng bạn có thể dừng…</string>
+
+    <!-- ──  runningapps ─────────────────────────────────────────────────────────────────────── -->
+    <!-- Named for what the list can deliver, not for what it would be nice to claim. -->
+    <string name="running_apps_title">Ứng dụng bạn có thể dừng</string>
+    <string name="running_apps_section">Ứng dụng bạn có thể dừng</string>
+    <string name="running_apps_memory_label">Bộ nhớ thiết bị</string>
+    <string name="running_apps_stop">Dừng</string>
+    <string name="running_apps_stopped">Đã dừng</string>
+    <string name="running_apps_skip">Xong</string>
+    <string name="running_apps_empty">Ở đây không có ứng dụng bên thứ ba nào mà Android cho phép ứng dụng này chuyển sang phần Cài đặt.</string>
+
+    <!-- The instruction sheet, shown BEFORE the trip to Settings. The bold span names the system
+         button the user must tap, so it stays a <b> around the button's own label. -->
+    <string name="running_apps_instructions_title">Dừng một ứng dụng</string>
+    <string name="running_apps_instructions_body">Android chỉ cho phép bạn dừng một ứng dụng từ chính trang Cài đặt của ứng dụng đó. Thao tác này mở trang đó — hãy chạm <b>Buộc dừng</b> ở đó, rồi quay lại.</string>
+    <string name="running_apps_instructions_note">Ứng dụng này không thể tự dừng một ứng dụng khác, và nó chỉ đánh dấu một ứng dụng là đã dừng nếu Android báo như vậy khi bạn quay lại.</string>
+    <string name="running_apps_instructions_open">Mở cài đặt</string>
+    <string name="running_apps_instructions_cancel">Để sau</string>
+    <string name="running_apps_instructions_illustration">Hình minh họa nút Buộc dừng trên trang ứng dụng của hệ thống</string>
+
+    <!--
+      PENDING OWNER DECISION 3 — docs/screens/18 §0.1, UNSETTLED. This copy describes what the list IS
+      and what usage access WOULD add. It does not claim this screen reads usage statistics, because
+      it does not — the permission is declared for App Manager's Last used column, and nothing in
+      this cluster reads a usage statistic.
+    -->
+    <string name="running_apps_usage_access_title">Danh sách này hiển thị các ứng dụng đã cài</string>
+    <string name="running_apps_usage_access_body">Android không cho phép một ứng dụng biết những ứng dụng nào đang chạy nếu không có quyền truy cập dữ liệu sử dụng. Khi không có quyền đó, danh sách này là các ứng dụng bên thứ ba trên thiết bị mà Android báo là chưa bị dừng.</string>
+    <string name="running_apps_usage_access_grant">Mở cài đặt truy cập dữ liệu sử dụng</string>
+    <string name="running_apps_usage_access_dismiss">Tiếp tục mà không cần quyền đó</string>
+
+</resources>

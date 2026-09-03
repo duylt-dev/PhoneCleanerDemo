@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :core:ui. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale, not only English: nothing below claims to
+  remove a virus, block a scam, speed a phone up or free memory, and no string carries a performance
+  percentage. The security feature keeps the owner's framing, "kiểm tra an toàn ứng dụng".
+
+  PLURALS — Vietnamese has ONE CLDR plural category, `other`. A `one` item here would never be
+  selected and lint flags it (UnusedQuantity), so the plural bodies below carry `other` alone. The
+  count still goes through <plurals> rather than a hand-built string, which is the rule the English
+  file states.
+-->
+<resources>
+
+    <!-- ── shared actions and chrome ─────────────────────────────────────────────────────────── -->
+    <string name="action_back">Quay lại</string>
+    <string name="action_delete">Xóa</string>
+    <string name="action_cancel">Hủy</string>
+    <string name="action_retry">Thử lại</string>
+    <string name="action_select_all">Chọn tất cả</string>
+    <string name="action_clear_selection">Bỏ chọn</string>
+    <string name="state_loading">Đang xử lý…</string>
+
+    <plurals name="selection_count">
+        <item quantity="other">Đã chọn %1$d mục</item>
+    </plurals>
+
+    <!-- ── AppError -> copy ──────────────────────────────────────────────────────────────────── -->
+    <string name="error_permission_denied">Việc này cần một quyền chưa được cấp.</string>
+    <string name="error_no_network">Hiện không có kết nối.</string>
+    <string name="error_not_found">Mục đó không còn ở đây nữa.</string>
+    <string name="error_storage">Không đọc được bộ nhớ.</string>
+    <string name="error_unexpected">Đã có lỗi xảy ra.</string>
+
+    <!-- ── PIN pad content descriptions ──────────────────────────────────────────────────────── -->
+    <string name="pin_backspace">Xóa chữ số cuối</string>
+    <string name="pin_dots_state">Đã nhập %1$d trên %2$d chữ số</string>
+
+    <!-- ── the exit-dialog call to action ────────────────────────────────────────────────────── -->
+    <string name="feature_cta_clean">Dọn ngay</string>
+    <string name="feature_cta_review">Xem ngay</string>
+    <string name="feature_cta_check">Kiểm tra ngay</string>
+    <string name="feature_cta_open">Mở</string>
+
+    <!-- ── the twenty features ───────────────────────────────────────────────────────────────── -->
+    <string name="feature_junk_clean_title">Tệp rác</string>
+    <string name="feature_junk_clean_description">Tìm các tệp bộ nhớ đệm và tệp còn sót lại mà bạn có thể xóa.</string>
+    <string name="feature_big_files_title">Tệp dung lượng lớn</string>
+    <string name="feature_big_files_description">Tìm những tệp lớn nhất đang lưu trên thiết bị này.</string>
+    <string name="feature_app_manager_title">Quản lý ứng dụng</string>
+    <string name="feature_app_manager_description">Xem các ứng dụng đã cài và gỡ những ứng dụng bạn không còn dùng.</string>
+    <string name="feature_antivirus_title">Kiểm tra an toàn ứng dụng</string>
+    <string name="feature_antivirus_description">Chạy một lượt kiểm tra an toàn với các ứng dụng đã cài trên thiết bị này.</string>
+    <string name="feature_image_manager_title">Hình ảnh</string>
+    <string name="feature_image_manager_description">Duyệt hình ảnh theo thư mục và xóa những ảnh bạn không cần.</string>
+    <string name="feature_video_manager_title">Video</string>
+    <string name="feature_video_manager_description">Duyệt video theo dung lượng và xóa những video bạn không cần.</string>
+    <string name="feature_audio_manager_title">Âm thanh</string>
+    <string name="feature_audio_manager_description">Duyệt các tệp âm thanh và xóa những tệp bạn không cần.</string>
+    <string name="feature_notification_cleaner_title">Dọn thông báo</string>
+    <string name="feature_notification_cleaner_description">Gom các thông báo đến vào một danh sách thay vì để trên thanh trạng thái.</string>
+    <string name="feature_similar_photos_title">Ảnh giống nhau</string>
+    <string name="feature_similar_photos_description">Nhóm những ảnh trông giống nhau để bạn giữ lại tấm mình muốn.</string>
+    <string name="feature_photo_compressor_title">Nén ảnh</string>
+    <string name="feature_photo_compressor_description">Lưu một bản sao nhẹ hơn của ảnh.</string>
+    <string name="feature_permission_manager_title">Quản lý quyền</string>
+    <string name="feature_permission_manager_description">Xem ứng dụng nào đang giữ quyền nào.</string>
+    <string name="feature_photo_privacy_title">Album riêng tư</string>
+    <string name="feature_photo_privacy_description">Chuyển ảnh vào một album chỉ mở được với bạn.</string>
+    <string name="feature_duplicate_files_title">Tệp trùng lặp</string>
+    <string name="feature_duplicate_files_description">Tìm những tệp được lưu nhiều hơn một lần.</string>
+    <string name="feature_app_lock_title">Khóa ứng dụng</string>
+    <string name="feature_app_lock_description">Hỏi mã PIN trước khi một ứng dụng bạn chọn được mở.</string>
+    <string name="feature_whatsapp_cleaner_title">Dọn WhatsApp</string>
+    <string name="feature_whatsapp_cleaner_description">Xem lại phần nội dung WhatsApp đã lưu vào thiết bị này.</string>
+    <string name="feature_battery_info_title">Thông tin pin</string>
+    <string name="feature_battery_info_description">Xem mức pin, nhiệt độ và trạng thái sạc.</string>
+    <string name="feature_running_apps_title">Ứng dụng đang chạy</string>
+    <string name="feature_running_apps_description">Xem những ứng dụng nào đang chạy ngay lúc này.</string>
+    <string name="feature_device_status_title">Trạng thái thiết bị</string>
+    <string name="feature_device_status_description">Xem bộ nhớ lưu trữ, bộ nhớ trong và thông tin phần cứng.</string>
+    <string name="feature_network_traffic_title">Lưu lượng mạng</string>
+    <string name="feature_network_traffic_description">Xem mỗi ứng dụng đã dùng bao nhiêu dữ liệu.</string>
+    <string name="feature_network_test_title">Kiểm tra kết nối</string>
+    <string name="feature_network_test_description">Đo kết nối mà thiết bị này đang dùng.</string>
+
+</resources>

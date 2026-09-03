@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:onboarding. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §5) carries into every locale: no performance, memory or security claim, and no
+  percentage figure.
+
+  onboarding_consent_body stays ONE format string with two placeholders. Vietnamese puts "và" between
+  the two links exactly as English does, so the order of %1$s and %2$s is unchanged — but it is a
+  format string precisely so a locale that needs a different order can have one.
+-->
+<resources>
+
+    <!-- ── splash ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="onboarding_consent_body">Tôi đồng ý với %1$s và %2$s.</string>
+    <string name="onboarding_consent_terms">Điều khoản dịch vụ</string>
+    <string name="onboarding_consent_privacy">Chính sách quyền riêng tư</string>
+
+    <string name="onboarding_splash_continue">Tiếp tục</string>
+    <string name="onboarding_splash_policies_required">Vui lòng chấp nhận Điều khoản dịch vụ và Chính sách quyền riêng tư để tiếp tục.</string>
+    <string name="onboarding_splash_progress">Đang khởi động…</string>
+
+    <!-- ── devicecheck ───────────────────────────────────────────────────────────────────────── -->
+    <string name="onboarding_device_check_title">Về thiết bị này</string>
+    <string name="onboarding_device_check_note">Đang đọc một vài thông tin về thiết bị này. Không có gì được quét và không có gì bị thay đổi.</string>
+
+    <string name="onboarding_device_field_device">Thiết bị</string>
+    <string name="onboarding_device_field_os">Phiên bản hệ thống</string>
+    <string name="onboarding_device_field_resolution">Độ phân giải màn hình</string>
+    <string name="onboarding_device_field_density">Mật độ điểm ảnh</string>
+    <string name="onboarding_device_field_storage">Bộ nhớ đã dùng</string>
+
+    <string name="onboarding_device_value_resolution">%1$d × %2$d</string>
+    <string name="onboarding_device_value_density">%1$d dpi</string>
+    <string name="onboarding_device_value_storage">%1$s trên %2$s</string>
+    <string name="onboarding_device_value_pending">—</string>
+
+    <string name="onboarding_device_check_cta">Bắt đầu</string>
+    <string name="onboarding_device_check_cta_countdown">Bắt đầu (%1$d)</string>
+
+    <string name="onboarding_device_row_loading">Đang đọc</string>
+    <string name="onboarding_device_row_done">Đã đọc</string>
+
+</resources>
