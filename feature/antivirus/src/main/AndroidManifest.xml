@@ -17,11 +17,42 @@
     * QUERY_ALL_PACKAGES — this module enumerates no packages. The result rows' icons come from
       AppIconLoader and fall back when a package is not visible; a permission a store listing has to
       justify is not declared to improve an icon.
-    * REQUEST_DELETE_PACKAGES — the uninstall goes through Intent.ACTION_DELETE, which is the system
-      dialog and needs no permission. ACTION_UNINSTALL_PACKAGE, which would, is not used.
+    * DELETE_PACKAGES — it satisfies the same gate REQUEST_DELETE_PACKAGES below does, and its
+      protection level is signature|privileged, so no installable build of this app can hold it.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--
+      `AntivirusResultRoute` launches Intent.ACTION_DELETE for a flagged row (docs/screens/15 §2.5),
+      so this module declares the permission that intent needs, on the same "only what code in THIS
+      module calls" rule as the line above.
+
+      THIS LINE USED TO SAY THE OPPOSITE — that ACTION_DELETE "is the system dialog and needs no
+      permission" — and that claim is what broke both uninstall call sites in this app. The framework
+      documents the requirement only against ACTION_UNINSTALL_PACKAGE, but the real gate is inside
+      the system uninstaller, applies to ACTION_DELETE just the same, and keys off targetSdk (36):
+
+          // com.android.packageinstaller.UninstallerActivity, decompiled from
+          // /system/priv-app/GooglePackageInstaller/ on RF8Y60B9NCZ (SM-A165F, Android 16)
+          if (getMaxTargetSdkVersionForUid(uid) >= 28
+              && checkPermission("android.permission.REQUEST_DELETE_PACKAGES", 0, uid) != 0
+              && checkPermission("android.permission.DELETE_PACKAGES", 0, uid) != 0) {
+              setResult(1); finish(); return;
+          }
+
+      It fails silently and nothing throws: the intent resolves, the uninstaller starts, forwards to
+      its bottom sheet, and that activity finishes inside onCreate before drawing. The launcher still
+      returns, so the row's in-flight flag is lowered and the screen looks like it asked and was
+      refused. Measured on RF8Y60B9NCZ, uid 10038 being this app:
+
+          E UninstallRepository: Uid 10038 does not have
+              android.permission.REQUEST_DELETE_PACKAGES or android.permission.DELETE_PACKAGES
+
+      Normal (install-time) permission: no runtime dialog, and unlike QUERY_ALL_PACKAGES no Play
+      declaration form. :feature:files declares it too, for AppManagerRoute's own ACTION_DELETE.
+    -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
 </manifest>

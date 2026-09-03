@@ -57,8 +57,7 @@ fun AppManagerRoute(
             AppManagerEffect.OpenUsageAccessSettings -> openUsageAccessSettings(context)
 
             is AppManagerEffect.RequestUninstall -> {
-                val intent = Intent(Intent.ACTION_DELETE, packageUri(effect.packageName))
-                if (!uninstallLauncher.launchSafely(intent)) {
+                if (!uninstallLauncher.launchSafely(uninstallIntent(effect.packageName))) {
                     onIntent(AppManagerIntent.UninstallReturned(effect.packageName))
                 }
             }
@@ -87,6 +86,25 @@ fun AppManagerRoute(
 }
 
 private fun packageUri(packageName: String): Uri = Uri.fromParts("package", packageName, null)
+
+/**
+ * The system uninstall request for ONE package.
+ *
+ * Two things have to be true for this intent to show anything, and only one of them lives here.
+ * `:feature:files`' manifest declares `REQUEST_DELETE_PACKAGES` — the system uninstaller refuses an
+ * `ACTION_DELETE` from a `targetSdk >= 28` caller that does not hold it, and it refuses it by
+ * finishing inside `onCreate`: no exception, no dialog, no result extras, just a tap that did
+ * nothing while this screen counted the package as declined. That manifest states the measurement.
+ *
+ * `EXTRA_RETURN_RESULT` is the second. It asks the uninstaller to hand the outcome back through the
+ * launcher rather than announce it itself; without it the system posts its own "Uninstalled" toast
+ * per package, so a five-app queue stacks five toasts over our progress bar and then over the
+ * clean-result screen. The result code it returns is still not read — see the launcher above, the
+ * re-query is the truth — but the toast is suppressed either way.
+ */
+private fun uninstallIntent(packageName: String): Intent =
+    Intent(Intent.ACTION_DELETE, packageUri(packageName))
+        .putExtra(Intent.EXTRA_RETURN_RESULT, true)
 
 /**
  * This app's own row on the system Usage Access page, with the plain list as the fallback.

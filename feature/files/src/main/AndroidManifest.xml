@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  :feature:files declares exactly one permission, and only because code in THIS module launches the
+  intent behind it: `AppManagerRoute` fires `Intent.ACTION_DELETE` once per selected package
+  (docs/screens/14-file-tools-and-app-manager.md §5.2). Same rule the :data manifest states — only
+  what code in this module actually calls.
+
+  REQUEST_DELETE_PACKAGES IS NOT OPTIONAL FOR ACTION_DELETE. The framework documents the requirement
+  only against ACTION_UNINSTALL_PACKAGE, which is why this line was originally left out as
+  unnecessary; the real gate lives inside the system uninstaller, applies to ACTION_DELETE just the
+  same, and keys off targetSdk — ours is 36:
+
+      // com.android.packageinstaller.UninstallerActivity, decompiled from
+      // /system/priv-app/GooglePackageInstaller/ on RF8Y60B9NCZ (SM-A165F, Android 16)
+      if (getMaxTargetSdkVersionForUid(uid) >= 28
+          && checkPermission("android.permission.REQUEST_DELETE_PACKAGES", 0, uid) != 0
+          && checkPermission("android.permission.DELETE_PACKAGES", 0, uid) != 0) {
+          setResult(1); finish(); return;
+      }
+
+  WITHOUT THIS LINE THE UNINSTALL FAILS SILENTLY, and it fails looking exactly like a bug in our own
+  code. Nothing throws: the intent resolves, `UninstallerActivity` starts, forwards to the v2
+  bottom sheet, and that activity finishes inside `onCreate` before drawing anything. The user sees a
+  tap that did nothing. The `ActivityResultLauncher` still comes back, the re-query still answers
+  "still installed", and the queue settles every package as `declined` — so the screen reports a
+  finished run that removed nothing. Measured on RF8Y60B9NCZ, uid 10038 being this app:
+
+      E UninstallRepository: Uid 10038 does not have
+          android.permission.REQUEST_DELETE_PACKAGES or android.permission.DELETE_PACKAGES
+      I wm_finish_activity: ...v2.ui.UninstallLaunch, app-request
+
+  It is a NORMAL (install-time) permission: no runtime dialog to request, and unlike
+  QUERY_ALL_PACKAGES no Play declaration form. The competitor declares it
+  (`decompiler/app-src/AndroidManifest.xml:40`) and that declaration is the ONLY difference between
+  its working uninstall and ours — its call site (`java/vd/c.java:162`) fires the same ACTION_DELETE
+  against the same `package:` URI that `AppManagerRoute` does.
+
+  What is deliberately NOT here:
+
+  * DELETE_PACKAGES — it satisfies the same gate, and its protection level is signature|privileged,
+    so no installable build of this app can hold it. Naming it would be naming a branch the code can
+    never take.
+  * QUERY_ALL_PACKAGES and PACKAGE_USAGE_STATS — declared by :data, beside the `PackageManager` and
+    `UsageStatsManager` calls that read them. This module only renders their results.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
+</manifest>
