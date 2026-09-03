@@ -33,7 +33,7 @@ import java.io.File
  * module *can* declare it — six independently written designs declared this type's siblings, and
  * Koin resolves a duplicate `single` by silently taking whichever module loaded last (`LLM.md` §6.4).
  *
- * Three rules it exists to hold:
+ * Four rules it exists to hold:
  *
  *  * **No icon is ever enumerated.** `loadIcon` per package is what forced the competitor's
  *    hand-rolled 2-thread `ExecutorService` and its 50-entry `LruCache<Drawable>`; a row asks
@@ -41,6 +41,10 @@ import java.io.File
  *  * **`includeWithoutLauncher` is a real distinction, not a convenience.** The App Manager lists
  *    apps with no launcher activity and the Permission Manager does not. Collapsing the two
  *    enumerations without the parameter would silently give one caller the other's answer.
+ *  * **System packages are enumerated, not dropped.** Owner decision (2026-09-03) hides them from
+ *    the App Manager, and `LoadInstalledAppsUseCase` is where that happens — three other clusters
+ *    read this port and still want the whole list. This pass only *marks* them, via
+ *    `InstalledApp.isSystem`.
  *  * **The enumeration is cached in memory** and runs on `dispatchers.default`: it is CPU-bound
  *    string work over a few hundred `ApplicationInfo`s, and four clusters ask for it.
  */
@@ -116,12 +120,24 @@ internal class PackageManagerInstalledAppsRepository(
                     // not want, so it belongs to `AppStorageStatsRepository` (§4.1).
                     lastUsedAtMillis = lastUsed[info.packageName] ?: 0L,
                     firstInstallAtMillis = pkg.installTimeOrZero(),
+                    isSystem = info.isSystemPackage(),
                 )
             }
             .sortedBy { it.label.lowercase() }
             .toList()
             .toImmutableList()
     }
+
+    /**
+     * `FLAG_UPDATED_SYSTEM_APP` counts as system, not as a user install.
+     *
+     * A preinstalled browser that the store has since updated keeps `FLAG_SYSTEM` and gains this
+     * second flag; reading `FLAG_SYSTEM` alone would still call it a system app, but a device whose
+     * vendor clears `FLAG_SYSTEM` on update would not, and the App Manager would then list a row
+     * whose uninstall the platform refuses. Testing both makes the answer the same on every device.
+     */
+    private fun ApplicationInfo.isSystemPackage(): Boolean =
+        flags and (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
 
     /**
      * `firstInstallTime` is *first* install on purpose: `lastUpdateTime` moves every time the store
@@ -163,14 +179,5 @@ internal class PackageManagerInstalledAppsRepository(
 
     private companion object {
         const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
-
-        /**
-         * UNKNOWN — whether system packages belong in the list. `docs/screens/14` §5 states only the
-         * launcher-activity distinction, and no appendix mentions `FLAG_SYSTEM`. Filtering them would
-         * be a rule no source states; they are therefore listed, and the platform refuses an
-         * uninstall the user cannot perform anyway.
-         */
-        @Suppress("unused")
-        val SYSTEM_FLAG = ApplicationInfo.FLAG_SYSTEM
     }
 }

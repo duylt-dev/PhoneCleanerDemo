@@ -53,4 +53,19 @@ data class InstalledApp(
      * unknown rather than as a date.
      */
     val firstInstallAtMillis: Long = 0L,
+    /**
+     * True for a package the platform ships — `FLAG_SYSTEM`, or `FLAG_UPDATED_SYSTEM_APP` for one
+     * that shipped and was later updated by the store.
+     *
+     * OWNER DECISION (2026-09-03): the App Manager **never lists a system app**, and there is no
+     * switch that changes it — `LoadInstalledAppsUseCase` drops them. That closes the UNKNOWN the
+     * port carried: the list used to include them because no appendix stated a rule, and every such
+     * row offered an uninstall the platform then refused.
+     *
+     * The flag is on the model rather than applied inside the port because the other three callers
+     * of `InstalledAppsRepository` — app-lock, notification and network — were not part of that
+     * decision and still see the whole list. A caller that wants the App Manager's rule filters on
+     * this flag; the port never filters for it.
+     */
+    val isSystem: Boolean = false,
 )

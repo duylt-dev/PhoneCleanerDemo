@@ -21,6 +21,14 @@ import kotlinx.coroutines.flow.flow
  * Manager lists apps with no launcher activity and the Permission Manager does not — two different
  * enumerations in the competitor (`vd.c.a` and `vd.d.d`), one port with one parameter here.
  *
+ * **System apps are dropped here, and there is no setting that brings them back.** Owner decision
+ * (2026-09-03), replacing the UNKNOWN the port used to carry. A system row could only ever offer an
+ * uninstall the platform refuses, so it cost the user a scroll and a dead tap; the screen has no
+ * "show system apps" switch, and this filter takes no parameter, so no caller can ask for one. The
+ * drop happens **before** [stats] is asked, so the `StorageStatsManager` fan-out is not spent on rows
+ * nobody will see. The other three callers of the port — app-lock, notification and network — read
+ * the port directly and are unaffected.
+ *
  * A failure to enumerate is returned as a failure. There is no partial-success arm because there is
  * no partial answer: either the package list was readable or it was not.
  */
@@ -37,7 +45,7 @@ class LoadInstalledAppsUseCase(
                 return@flow
             }
 
-            is AppResult.Success -> result.value
+            is AppResult.Success -> result.value.filterNot { it.isSystem }
         }
         emit(
             InstalledAppsProgress.Enumerated(

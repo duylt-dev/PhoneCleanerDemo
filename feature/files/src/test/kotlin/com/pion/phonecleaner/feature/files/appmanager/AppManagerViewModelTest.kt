@@ -214,12 +214,34 @@ internal class AppManagerViewModelTest {
         assertTrue(vm.state.value.usageAccessGranted)
     }
 
+    /**
+     * Owner decision (2026-09-03): a system app is never listed, and no switch shows it. The port
+     * still returns them — the filter is `LoadInstalledAppsUseCase`'s, and this asserts the screen
+     * sees the filtered list, not that the port was asked for one.
+     */
+    @Test
+    fun `a system app never reaches the list and is never sized`() = mainDispatcher.runVmTest {
+        installedApps.apps = listOf(
+            app("one", 10L),
+            app("system", 30L, isSystem = true),
+        ).toImmutableList()
+        // The fan-out would report it if it were asked; the row must still be absent.
+        stats.stats = listOf(AppStorageStats("system", appBytes = 5L, dataBytes = 1L))
+        val vm = viewModel()
+
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+
+        assertEquals(listOf("one"), vm.state.value.apps.map { it.packageName })
+    }
+
     private companion object {
         fun app(
             packageName: String,
             apkBytes: Long,
             lastUsedAtMillis: Long = 0L,
             firstInstallAtMillis: Long = 0L,
+            isSystem: Boolean = false,
         ) = InstalledApp(
             packageName = packageName,
             label = packageName,
@@ -227,6 +249,7 @@ internal class AppManagerViewModelTest {
             apkBytes = apkBytes,
             lastUsedAtMillis = lastUsedAtMillis,
             firstInstallAtMillis = firstInstallAtMillis,
+            isSystem = isSystem,
         )
     }
 }
