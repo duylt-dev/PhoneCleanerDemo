@@ -3,6 +3,7 @@ package com.pion.phonecleaner.feature.device.batteryscan
 import app.cash.turbine.test
 import com.pion.phonecleaner.core.common.error.AppError
 import com.pion.phonecleaner.core.common.log.AppLogger
+import com.pion.phonecleaner.domain.model.device.BatteryCheck
 import com.pion.phonecleaner.domain.model.device.StepState
 import com.pion.phonecleaner.domain.usecase.ObserveBatteryUseCase
 import com.pion.phonecleaner.feature.device.testing.FakeAnalyticsRepository
@@ -35,17 +36,17 @@ internal class BatteryScanViewModelTest {
         log = AppLogger.NoOp,
     )
 
-    /** Six rows from the first frame, in `BatteryCheck` order, none of them added later. */
+    /** Every row from the first frame, in `BatteryCheck` order, none of them added later. */
     @Test
-    fun `all six rows exist before the timeline starts`() = mainDispatcher.runVmTest {
+    fun `all rows exist before the timeline starts`() = mainDispatcher.runVmTest {
         val vm = viewModel()
 
-        assertEquals(6, vm.state.value.rows.size)
+        assertEquals(BatteryCheck.entries.size, vm.state.value.rows.size)
         assertTrue(vm.state.value.rows.all { it.state == StepState.Idle })
         assertTrue(vm.state.value.isBackBlocked)
     }
 
-    /** §4.5's headline delta: the six steps now check the six things they name. */
+    /** §4.5's headline delta: the steps now check the things they name. */
     @Test
     fun `the reading reaches the session store and every row finishes`() =
         mainDispatcher.runVmTest {

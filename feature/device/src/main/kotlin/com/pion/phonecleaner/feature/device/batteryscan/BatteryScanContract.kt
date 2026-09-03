@@ -14,7 +14,7 @@ import kotlinx.collections.immutable.toImmutableList
 /**
  * `batteryscan` (`docs/screens/18-device-battery-and-apps.md` §4.1). Replaces `HazartarActivity`.
  *
- * **Always all six rows, always in `BatteryCheck` order.** The competitor grows its `RecyclerView`
+ * **Always every row, always in `BatteryCheck` order.** The competitor grows its `RecyclerView`
  * one row at a time, which is why its list cannot be restored after a config change; here the list is
  * fixed-size and immutable and only `state` changes.
  *

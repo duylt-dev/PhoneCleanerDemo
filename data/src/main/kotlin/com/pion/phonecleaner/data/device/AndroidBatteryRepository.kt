@@ -113,6 +113,7 @@ internal class AndroidBatteryRepository(
             rawTechnology = rawTechnology,
             chargeState = state,
             capacityMah = BatteryCapacityReader.designCapacityMah(appContext),
+            currentChargeMah = BatteryCapacityReader.currentChargeMah(appContext),
             brightnessPercent = ScreenBrightnessReader.percent(appContext),
             chargeTimeRemaining = chargeTimeRemaining(state),
         )

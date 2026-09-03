@@ -55,8 +55,9 @@ internal fun ColumnVolumeRows(totalBytes: Long?, availableBytes: Long?) {
 }
 
 /**
- * The battery card reuses the same six `BatteryCheck` cells the battery screens use, so a reading is
- * described identically wherever it appears. Only the three that fit a two-line card are shown.
+ * The battery card reuses the same `BatteryCheck` cells the battery screens use, so a reading is
+ * described identically wherever it appears. Five of the seven are shown; [BATTERY_CARD_CHECKS] says
+ * which, and why the other two are not.
  */
 @Composable
 internal fun ColumnBatteryRows(snapshot: BatterySnapshot?) {
@@ -143,10 +144,18 @@ internal fun ColumnDisplayRows(display: DisplayInfo?) {
     }
 }
 
+/**
+ * *Brightness* and *Technology* stay off this card: neither is a battery *level*, and the card's
+ * progress track is a level. The two capacity rows are last and adjacent because they read as one
+ * sentence — what is in the pack now, out of what the pack holds — and separating them turns a
+ * comparison into two unrelated numbers. All seven remain on `batteryinfo`, one tap away.
+ */
 private val BATTERY_CARD_CHECKS = listOf(
     BatteryCheck.Health,
     BatteryCheck.Temperature,
     BatteryCheck.Voltage,
+    BatteryCheck.CurrentCharge,
+    BatteryCheck.Capacity,
 )
 
 private fun batteryCardLabelRes(check: BatteryCheck): Int = when (check) {
@@ -154,6 +163,7 @@ private fun batteryCardLabelRes(check: BatteryCheck): Int = when (check) {
     BatteryCheck.Temperature -> R.string.battery_check_temperature
     BatteryCheck.Voltage -> R.string.battery_check_voltage
     BatteryCheck.Technology -> R.string.battery_check_technology
+    BatteryCheck.CurrentCharge -> R.string.battery_check_current_charge
     BatteryCheck.Capacity -> R.string.battery_check_capacity
     BatteryCheck.Health -> R.string.battery_check_health
 }

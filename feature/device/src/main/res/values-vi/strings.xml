@@ -74,7 +74,10 @@
     <string name="battery_check_temperature">Nhiệt độ</string>
     <string name="battery_check_voltage">Điện áp</string>
     <string name="battery_check_technology">Công nghệ</string>
-    <string name="battery_check_capacity">Dung lượng</string>
+    <!-- Hai số đọc riêng, không phải số này chia số kia: dung lượng hiện tại là
+         BATTERY_PROPERTY_CHARGE_COUNTER, tổng dung lượng là dung lượng thiết kế. -->
+    <string name="battery_check_current_charge">Dung lượng hiện tại</string>
+    <string name="battery_check_capacity">Tổng dung lượng</string>
     <string name="battery_check_health">Tình trạng</string>
 
     <string name="battery_value_celsius">%1$.1f °C</string>

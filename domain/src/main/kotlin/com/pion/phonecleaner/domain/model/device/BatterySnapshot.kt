@@ -23,8 +23,23 @@ data class BatterySnapshot(
     /** The OEM's own word, so [BatteryTechnology.OTHER] can render what the platform actually said. */
     val rawTechnology: String,
     val chargeState: ChargeState,
-    /** null when the OS could not report it. The competitor substitutes `4660`. */
+    /**
+     * The battery's **design** capacity — what the pack holds when full. null when the OS could not
+     * report it. The competitor substitutes `4660`.
+     */
     val capacityMah: Int?,
+    /**
+     * The charge **left right now**, in mAh: `BATTERY_PROPERTY_CHARGE_COUNTER` (µAh) ÷ 1000, null
+     * when the platform answers `Integer.MIN_VALUE` — which it is entitled to do, and many OEM
+     * kernels do.
+     *
+     * **Not `capacityMah × percent / 100`.** That is the competitor's *Current Capacity :* cell, and
+     * it is the percentage in another unit: it has no input the percentage row does not already
+     * show, and it inherits `4660` whenever the design capacity was not readable either. This field
+     * is a separate reading from a separate property, so the two rows can disagree — and when they
+     * do, the disagreement is the hardware's, not a formula's.
+     */
+    val currentChargeMah: Int?,
     /**
      * null when the brightness mode is automatic or the panel's range is not knowable. The
      * competitor computes `stored × 100 / 255`, which assumes a 0–255 panel; OEMs ship 0–1023 and

@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.milliseconds
 /**
  * `batteryscan` (`docs/screens/18-device-battery-and-apps.md` §4.2).
  *
- * **The six steps now check the six things they name.** In the competitor no battery API is touched
+ * **The steps now check the things they name.** In the competitor no battery API is touched
  * on this screen at all — 4 500 ms of theatre in front of a read that takes microseconds. The rhythm
  * is kept, because it is the brand's; the lying is not.
  *

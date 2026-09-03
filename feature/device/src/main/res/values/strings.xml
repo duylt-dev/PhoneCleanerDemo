@@ -79,7 +79,10 @@
     <string name="battery_check_temperature">Temperature</string>
     <string name="battery_check_voltage">Voltage</string>
     <string name="battery_check_technology">Technology</string>
-    <string name="battery_check_capacity">Capacity</string>
+    <!-- Two separate readings, never one divided by the other: current charge is
+         BATTERY_PROPERTY_CHARGE_COUNTER, total is the design capacity. -->
+    <string name="battery_check_current_charge">Current capacity</string>
+    <string name="battery_check_capacity">Total capacity</string>
     <string name="battery_check_health">Health</string>
 
     <string name="battery_value_celsius">%1$.1f °C</string>
