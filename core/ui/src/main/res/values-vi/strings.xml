@@ -62,6 +62,8 @@
     <string name="feature_notification_cleaner_description">Gom các thông báo đến vào một danh sách thay vì để trên thanh trạng thái.</string>
     <string name="feature_similar_photos_title">Ảnh giống nhau</string>
     <string name="feature_similar_photos_description">Nhóm những ảnh trông giống nhau để bạn giữ lại tấm mình muốn.</string>
+    <string name="feature_blurry_photos_title">Ảnh mờ</string>
+    <string name="feature_blurry_photos_description">Tìm những ảnh bị mờ, out nét để bạn xoá đi những ảnh không muốn giữ.</string>
     <string name="feature_photo_compressor_title">Nén ảnh</string>
     <string name="feature_photo_compressor_description">Lưu một bản sao nhẹ hơn của ảnh.</string>
     <string name="feature_permission_manager_title">Quản lý quyền</string>

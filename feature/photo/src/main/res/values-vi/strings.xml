@@ -52,6 +52,21 @@
         <item quantity="other">Không đọc được %1$d ảnh nên đã bỏ qua</item>
     </plurals>
 
+    <!-- ── blurry ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_blurry_title">Ảnh mờ</string>
+    <string name="photo_blurry_empty">Không tìm thấy ảnh mờ nào.</string>
+    <string name="photo_blurry_scoring">Đang kiểm tra độ nét của ảnh…</string>
+    <string name="photo_blurry_tier_very">Rất mờ</string>
+    <string name="photo_blurry_tier_slight">Hơi mờ</string>
+    <string name="photo_blurry_preselected_notice">Tất cả ảnh tìm được đã được chọn sẵn. Mở ảnh để xem kỹ trước khi xoá.</string>
+    <string name="photo_blurry_delete_title">Xoá những ảnh đã chọn?</string>
+    <plurals name="photo_blurry_delete_body">
+        <item quantity="other">Sẽ xoá %1$d ảnh. Không thể hoàn tác.</item>
+    </plurals>
+    <plurals name="photo_blurry_skipped">
+        <item quantity="other">Đã bỏ qua %1$d ảnh — quá nhỏ để đánh giá, hoặc không đọc được</item>
+    </plurals>
+
     <!-- ── preview ───────────────────────────────────────────────────────────────────────────── -->
     <string name="photo_preview_title">Ảnh</string>
     <string name="photo_preview_counter">%1$d/%2$d</string>
