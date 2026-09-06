@@ -21,6 +21,7 @@ import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
 import com.pion.phonecleaner.feature.junk.R
 import com.pion.phonecleaner.feature.junk.junkscan.JunkScanIntent
+import com.pion.phonecleaner.feature.junk.junkscan.needsAllFilesSettingsPage
 
 /**
  * The three secondary states of `junkscan`, and the ticker.
@@ -53,7 +54,17 @@ internal fun StoragePermissionPanel(
             textAlign = TextAlign.Center,
         )
         Text(
-            text = stringResource(R.string.junk_permission_body),
+            // Two bodies, because the grant has two shapes: a Settings page with a switch on API 30+,
+            // a runtime dialog below it. One string would send half of all users looking for a dialog
+            // that never appears. The predicate is the same one `JunkScanRoute` picks its launcher
+            // with, so the words and the button can never describe different flows.
+            text = stringResource(
+                if (needsAllFilesSettingsPage()) {
+                    R.string.junk_permission_body_all_files
+                } else {
+                    R.string.junk_permission_body
+                },
+            ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
