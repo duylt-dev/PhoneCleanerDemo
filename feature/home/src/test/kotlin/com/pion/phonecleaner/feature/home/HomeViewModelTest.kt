@@ -16,7 +16,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -210,7 +209,12 @@ class HomeViewModelTest {
         val locked = tiles.filter { it.isComingSoon }.map { it.feature }.toSet()
 
         assertEquals(FeatureAvailability.comingSoon - HomeSections.heroFeature, locked)
-        // The hero is not a tile, so its own lock is the one State derives.
-        assertTrue(HomeState().isHeroComingSoon)
+        // The hero is not a tile, so its own lock is the one State derives — and it is DERIVED, not
+        // pinned. Asserting `true` here passed only while the hero happened to be locked, and broke
+        // the day `JunkClean` was unlocked (2026-09-06) even though the code was correct.
+        assertEquals(
+            HomeSections.heroFeature in FeatureAvailability.comingSoon,
+            HomeState().isHeroComingSoon,
+        )
     }
 }
