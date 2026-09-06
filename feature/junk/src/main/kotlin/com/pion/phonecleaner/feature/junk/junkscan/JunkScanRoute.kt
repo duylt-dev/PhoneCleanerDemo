@@ -18,6 +18,10 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pion.phonecleaner.core.mvi.CollectEffects
 import com.pion.phonecleaner.core.ui.error.messageRes
+import com.pion.phonecleaner.core.ui.permission.allFilesSettingsIntent
+import com.pion.phonecleaner.core.ui.permission.hasFullStorageAccess
+import com.pion.phonecleaner.core.ui.permission.legacyStoragePermissions
+import com.pion.phonecleaner.core.ui.permission.needsAllFilesSettingsPage
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -34,9 +38,10 @@ import org.koin.androidx.compose.koinViewModel
  * leaves the stale card on screen. On API 30+ that re-read is the *only* reliable signal — the
  * all-files Settings page returns `RESULT_CANCELED` whether or not the grant was given.
  *
- * The gate itself is `StorageAccessGate.kt`, and it asks whether the SHARED VOLUMES are readable —
- * not whether the media grants are held. That distinction is the whole reason this screen used to
- * report a successful scan of nothing; the file's KDoc has the full account.
+ * The gate itself is `:core:ui/permission/StorageAccessGate.kt`, shared with the duplicate finder
+ * because both ask the identical question: are the SHARED VOLUMES readable? Not whether the media
+ * grants are held. That distinction is the whole reason this screen used to report a successful scan
+ * of nothing; the file's KDoc has the full account.
  */
 @Composable
 fun JunkScanRoute(

@@ -21,7 +21,7 @@ import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
 import com.pion.phonecleaner.feature.junk.R
 import com.pion.phonecleaner.feature.junk.junkscan.JunkScanIntent
-import com.pion.phonecleaner.feature.junk.junkscan.needsAllFilesSettingsPage
+import com.pion.phonecleaner.core.ui.permission.needsAllFilesSettingsPage
 
 /**
  * The three secondary states of `junkscan`, and the ticker.

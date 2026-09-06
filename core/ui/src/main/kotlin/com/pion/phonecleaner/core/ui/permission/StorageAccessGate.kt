@@ -1,4 +1,4 @@
-package com.pion.phonecleaner.feature.junk.junkscan
+package com.pion.phonecleaner.core.ui.permission
 
 import android.Manifest
 import android.content.Context
@@ -10,19 +10,23 @@ import android.os.Environment
 import android.provider.Settings
 
 /**
- * The storage gate the junk scan actually needs, kept out of `JunkScanRoute` so the Route stays a
- * composable and this stays testable platform logic.
+ * The storage gate every scan screen that reads shared storage asks, in **one** place.
+ *
+ * It lives in `:core:ui` and not in a feature module because two screens now need it — the junk scan
+ * and the duplicate finder — and `:feature:A` may never see `:feature:B` (`LLM.md` §2). A second copy
+ * would be free to drift from `AndroidStorageRootProvider.hasFullVolumeAccess`, and a gate that
+ * disagrees with the roots is precisely the defect below.
  *
  * ## What this replaces, and why it was wrong
  *
- * Until 2026-09-06 the Route asked for `READ_MEDIA_IMAGES` / `_VIDEO` / `_AUDIO`. **The junk scan
- * issues no MediaStore query.** All three passes are `File.listFiles()` over the roots
+ * Until 2026-09-06 the junk Route asked for `READ_MEDIA_IMAGES` / `_VIDEO` / `_AUDIO`. **The junk
+ * scan issues no MediaStore query.** All three passes are `File.listFiles()` over the roots
  * `StorageRootProvider` reports, and not one of those three grants adds a root to that list. So the
- * screen asked for three permissions, was told yes, reported `PermissionsResolved(true)`, scanned the
- * app's own sandbox and rendered 0 B — the worst of the three possible outcomes, because "scanned,
- * found nothing" is indistinguishable from a clean device.
+ * screen asked for three permissions, was told yes, reported success, scanned the app's own sandbox
+ * and rendered 0 B — the worst of the three possible outcomes, because "scanned, found nothing" is
+ * indistinguishable from a clean device.
  *
- * The gate now asks the same question the scanner's roots answer: **can we read the shared volumes?**
+ * The gate asks the same question the scanner's roots answer: **can we read the shared volumes?**
  *
  * ## Three API branches, because the platform has three different answers
  *
@@ -36,7 +40,7 @@ import android.provider.Settings
  * covers less. `StorageRootProvider.coveredSurfaces()` is where that is reported, and it is the
  * reason a partial result may never be drawn as "everything scanned".
  */
-internal fun hasFullStorageAccess(context: Context): Boolean =
+fun hasFullStorageAccess(context: Context): Boolean =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         Environment.isExternalStorageManager()
     } else {
@@ -49,8 +53,7 @@ internal fun hasFullStorageAccess(context: Context): Boolean =
  * `ActivityResultContract`s, and picking the wrong one is silent: `RequestMultiplePermissions` on
  * `MANAGE_EXTERNAL_STORAGE` returns denied immediately without ever showing the user anything.
  */
-internal fun needsAllFilesSettingsPage(): Boolean =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+fun needsAllFilesSettingsPage(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
 /**
  * The all-files Settings page, scoped to this app so the user lands on our row instead of a list of
@@ -61,7 +64,7 @@ internal fun needsAllFilesSettingsPage(): Boolean =
  * on the scan screen, where `LifecycleStartEffect` re-reads the gate. This mirrors
  * `:data/permission/SpecialAccessIntents.kt`, which `:feature:*` may not import (`LLM.md` §2).
  */
-internal fun allFilesSettingsIntent(context: Context): Intent = Intent(
+fun allFilesSettingsIntent(context: Context): Intent = Intent(
     Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
     Uri.fromParts("package", context.packageName, null),
 )
@@ -74,7 +77,7 @@ internal fun allFilesSettingsIntent(context: Context): Intent = Intent(
  * and on 29 requesting a permission the manifest caps below the running API returns a permanent
  * denial that the user is never shown.
  */
-internal fun legacyStoragePermissions(): Array<String> =
+fun legacyStoragePermissions(): Array<String> =
     if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
         arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
