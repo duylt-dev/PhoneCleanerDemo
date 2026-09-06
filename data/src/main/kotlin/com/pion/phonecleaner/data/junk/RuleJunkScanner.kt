@@ -1,9 +1,11 @@
 package com.pion.phonecleaner.data.junk
 
 import com.pion.phonecleaner.core.common.concurrent.DispatcherProvider
+import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.domain.model.junk.JunkCategory
 import com.pion.phonecleaner.domain.model.junk.ScanProgress
 import com.pion.phonecleaner.domain.repository.DirectorySizer
+import com.pion.phonecleaner.domain.repository.InstalledAppsRepository
 import com.pion.phonecleaner.domain.repository.JunkRuleCatalog
 import com.pion.phonecleaner.domain.repository.JunkScanner
 import com.pion.phonecleaner.domain.repository.StorageRootProvider
@@ -36,6 +38,7 @@ internal class RuleJunkScanner(
     private val roots: StorageRootProvider,
     private val sizer: DirectorySizer,
     private val scanner: StorageScanner,
+    private val installedApps: InstalledAppsRepository,
     private val dispatchers: DispatcherProvider,
 ) : JunkScanner {
 
@@ -48,7 +51,10 @@ internal class RuleJunkScanner(
 
         val categories = ArrayList<JunkCategory>(PASS_COUNT)
         finishPass(systemCachePass(catalog.systemCacheRules(), directories, sizer), categories)
-        finishPass(appResidualPass(catalog.appRules(), directories, sizer), categories)
+        finishPass(
+            appResidualPass(catalog.appRules(), directories, sizer, installedPackages()),
+            categories,
+        )
         finishPass(apkPass(readable, scanner), categories)
 
         emit(
@@ -72,6 +78,27 @@ internal class RuleJunkScanner(
         if (category != null) into += category
         emit(ScanProgress.PassFinished(category))
     }
+
+    /**
+     * The packages present right now, for pass 2's inverted rule: a residual folder is junk **only**
+     * when its app is gone (`docs/reverse-engineering/12-junk-cleaning.md` §6.3 finding 2).
+     *
+     * `includeWithoutLauncher = true` on purpose. The narrower enumeration answers "which apps can be
+     * launched", and an app with no launcher activity is still installed — treating it as absent would
+     * offer its live data for deletion. The owner decision of 2026-09-03 that hides system packages
+     * lives in `LoadInstalledAppsUseCase`, not in the port, so this list is genuinely everything.
+     *
+     * **A failure means "do not fire any rule", not "no app is installed".** `installedApps` reports
+     * `PermissionDenied` rather than an empty list precisely so this distinction can be made, and an
+     * empty set here would invert every rule at once and propose deleting the residual folders of
+     * apps that are all still installed. `null` is that third state, and [appResidualPass] skips the
+     * pass on it.
+     */
+    private suspend fun installedPackages(): Set<String>? =
+        when (val result = installedApps.installedApps(includeWithoutLauncher = true)) {
+            is AppResult.Failure -> null
+            is AppResult.Success -> result.value.mapTo(HashSet()) { it.packageName }
+        }
 
     private companion object {
         const val TREE_URI_PREFIX = "content://"

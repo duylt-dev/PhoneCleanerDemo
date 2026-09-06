@@ -49,9 +49,12 @@ import java.io.File
  * rather than told they were. The case is currently unreachable in this cluster, because a junk path
  * comes from a filesystem walk or a granted SAF tree and never from a `MediaStore` query.
  *
- * `MANAGE_EXTERNAL_STORAGE` is never assumed grantable (`docs/system-architecture.md` §8.1): nothing
- * here checks for it, and every strategy that needs no grant runs first. `requestLegacyExternalStorage`
- * is not carried over either (Delta C7).
+ * **Nothing here checks for `MANAGE_EXTERNAL_STORAGE`, and that is unchanged by its declaration on
+ * 2026-09-06.** The permission widens what the *scan* can reach; it does not change what a delete
+ * does. The filesystem branch calls `File.delete()` and reports a `SecurityException` as
+ * `Failed(path, PermissionDenied)` for that path alone, so a build without the grant degrades one row
+ * at a time instead of refusing the whole run — which is what a gate here would have done.
+ * `requestLegacyExternalStorage` is not carried over either (Delta C7).
  */
 internal class DefaultJunkDeleter(
     private val context: Context,
