@@ -23,6 +23,7 @@
 
     <string name="junk_permission_title">Cần quyền truy cập bộ nhớ</string>
     <string name="junk_permission_body">Để liệt kê những tệp có thể xóa khỏi thiết bị này, ứng dụng cần quyền đọc bộ nhớ. Ứng dụng chỉ đọc phần bạn cho phép, và không xóa bất cứ thứ gì cho tới khi bạn chọn.</string>
+    <string name="junk_permission_body_all_files">Tệp rác nằm ngoài thư mục ảnh và video, nên Android hỏi quyền này ở một trang Cài đặt riêng. Hãy bật \"Cho phép quản lý tất cả tệp\", rồi quay lại. Ứng dụng chỉ đọc — không xóa bất cứ thứ gì cho tới khi bạn chọn.</string>
     <string name="junk_permission_grant">Cho phép truy cập</string>
 
     <!-- ── junkreview ────────────────────────────────────────────────────────────────────────── -->

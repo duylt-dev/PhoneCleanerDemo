@@ -28,6 +28,13 @@
 
     <string name="junk_permission_title">Storage access is needed</string>
     <string name="junk_permission_body">To list files this device can remove, the app needs permission to read storage. It only reads what you allow, and nothing is removed until you choose it.</string>
+    <!--
+      Android 11 and later grant all-files access on a Settings page with a switch, not through a
+      dialog, so the copy has to name the switch. A single string for both branches would send half of
+      all users looking for a dialog that never appears. `StoragePermissionPanel` picks between them
+      with `needsAllFilesSettingsPage()`, the same predicate `JunkScanRoute` picks its launcher with.
+    -->
+    <string name="junk_permission_body_all_files">Junk files live outside the photo and video folders, so Android asks for this one on its own Settings page. Turn on \"Allow access to manage all files\", then come back. The app only reads — nothing is removed until you choose it.</string>
     <string name="junk_permission_grant">Allow access</string>
 
     <!-- ── junkreview ────────────────────────────────────────────────────────────────────────── -->

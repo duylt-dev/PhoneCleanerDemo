@@ -10,13 +10,6 @@
   a review risk with no feature behind it.
 
   What is deliberately NOT here:
-
-  * MANAGE_EXTERNAL_STORAGE — never assumed grantable (system-architecture §8.1, owner decision).
-    The default branch is MediaStore + the Storage Access Framework, which is what storageDataModule
-    binds. Declaring it would make the manifest state a branch the code does not take, and it still
-    would not reach Android/data or Android/obb on API 30+, which is where the catalogue most wants
-    to look (§8.2). It belongs only in a build whose store declaration covers it, and never as the
-    only path.
   * SYSTEM_ALERT_WINDOW, RECEIVE_BOOT_COMPLETED, POST_NOTIFICATIONS — each sits behind a pending
     owner decision (App Lock overlay, out-of-app assertiveness). Nothing here declares a permission
     on a decision's behalf. PACKAGE_USAGE_STATS was on this list and no longer is; its own block
@@ -48,6 +41,39 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+
+    <!--
+      ALL-FILES ACCESS. Declared by owner decision of 2026-09-06, which REVERSES the 2026-08-26 ruling
+      that this permission is never assumed grantable (system-architecture §8.1). The reversal was made
+      with the trade-off on the table, so do not re-litigate it: re-read this comment instead.
+
+      WHY IT HAD TO BE DECLARED. The junk scan is a filesystem walk, not a MediaStore query. Without
+      this grant `AndroidStorageRootProvider.readableRoots()` returns exactly three directories — the
+      app's own cacheDir, externalCacheDir and filesDir — so all three passes walked this app's own
+      sandbox and reported 0 B on a device that really holds hundreds of megabytes of stale `.apk`
+      files. That is worse than a missing feature: the screen said "scanned, nothing found".
+      A `.apk` belonging to another app is a NON-MEDIA file, so neither READ_MEDIA_* nor
+      MediaStore.Files can see it, and since Android 11 ACTION_OPEN_DOCUMENT_TREE refuses the internal
+      volume root and the Download directory. There is no third path.
+
+      WHAT IT STILL DOES NOT BUY. Android/data and Android/obb stay unreadable on API 30+ even holding
+      this permission (gioi-han-android §1) — which is where a modern app's cache actually lives, and it
+      is the single biggest bucket on any real device. An app-residual root that points there carries
+      `AppRuleRoot.scoped = true` in JunkAppResidualRules.kt and is skipped knowably; the system-cache
+      list simply has no rule for it, because there is nothing there we can size or delete.
+
+      WHAT IT COSTS. Google Play reviews MANAGE_EXTERNAL_STORAGE against the core function declared and
+      promoted on the store listing, not against the code. The declaration must be justified there
+      before this build is submitted. Below API 30 there is no such permission: on API 28 the legacy
+      read + write pair is the equivalent, and on API 29 scoped storage means there is no all-files
+      access to have — `StorageAccessChecks.allFiles()` spells out both branches.
+
+      tools:ignore="ScopedStorage" — lint flags every declaration of this permission on principle; the
+      justification is the six paragraphs above rather than a suppression with no reason beside it.
+    -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <!--
       Read by `PackageManagerInstalledAppsRepository.lastUsedByPackage`
