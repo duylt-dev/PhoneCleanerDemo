@@ -37,6 +37,16 @@ import com.pion.phonecleaner.core.ui.token.Spacing
  * @param actionLabel the primary action's own word. `null` gives "Delete". The four clusters that use
  *   this bar name the action differently — Clean, Continue, Delete, Uninstall — and a shared component
  *   that names one screen is shareable with exactly one screen (`docs/screens/21` §4.6 C3).
+ * @param enabled whether the action may be taken **now**. Defaults to `true`, which leaves the rule
+ *   at "a non-empty selection is enough" — that is what every caller meant before this parameter
+ *   existed, so none of them changed behaviour when it was added.
+ *
+ *   It exists because a non-empty selection is *not* always enough. A screen whose selection is
+ *   restored from a session store before its scan has finished shows a populated bar over a running
+ *   scan; if the button is enabled by the count alone it is drawn tappable and the screen then
+ *   swallows the tap, which is the "disabled control that lies" failure MVI §3 means by *guard
+ *   re-entrancy in the reducer, not in the UI*. A caller that has a `canDelete` on its `State`
+ *   should pass it here rather than re-deriving the rule in a click handler.
  */
 @Composable
 fun SelectionBar(
@@ -46,6 +56,7 @@ fun SelectionBar(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
+    enabled: Boolean = true,
 ) {
     val bytes = rememberByteFormat()
     Surface(
@@ -70,7 +81,7 @@ fun SelectionBar(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Button(onClick = onDelete, enabled = selectedCount > 0) {
+            Button(onClick = onDelete, enabled = enabled && selectedCount > 0) {
                 Text(actionLabel ?: stringResource(R.string.action_delete))
             }
         }

@@ -70,7 +70,8 @@ fun PhotoCell(
             modifier = Modifier.align(Alignment.TopEnd),
         )
         // The open affordance is a separate target, not a long-press: the whole cell is already
-        // the selection toggle, and `similar` is the only screen that has anywhere to open to (§1.3).
+        // the selection toggle. `similar` and `blurry` are the screens that have somewhere to open
+        // to — both hand their scan to the shared pager through a `PhotoSessionStore` (§1.3).
         if (onOpen != null) {
             Surface(
                 modifier = Modifier
