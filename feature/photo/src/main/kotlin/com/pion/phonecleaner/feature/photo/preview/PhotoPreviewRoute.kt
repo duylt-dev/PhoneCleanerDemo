@@ -28,7 +28,7 @@ fun PhotoPreviewRoute(
     CollectEffects(viewModel.effects) { effect ->
         when (effect) {
             PhotoPreviewEffect.NavigateBack -> onNavigateBack()
-            PhotoPreviewEffect.NavigateToSimilar -> onSessionLost()
+            PhotoPreviewEffect.NavigateToGrid -> onSessionLost()
         }
     }
 
