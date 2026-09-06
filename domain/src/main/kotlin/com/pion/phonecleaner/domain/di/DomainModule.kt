@@ -38,6 +38,7 @@ import com.pion.phonecleaner.domain.usecase.RunSpeedTestUseCase
 import com.pion.phonecleaner.domain.usecase.SavePinUseCase
 import com.pion.phonecleaner.domain.usecase.ScanAppPermissionsUseCase
 import com.pion.phonecleaner.domain.usecase.ScanBigFilesUseCase
+import com.pion.phonecleaner.domain.usecase.ScanBlurryPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.ScanSimilarPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.ScanWhatsAppUseCase
 import com.pion.phonecleaner.domain.usecase.SetAppLockEnabledUseCase
@@ -109,6 +110,7 @@ val domainModule = module {
     factoryOf(::SavePinUseCase)
     factoryOf(::ScanAppPermissionsUseCase)
     factoryOf(::ScanBigFilesUseCase)
+    factoryOf(::ScanBlurryPhotosUseCase)
     factoryOf(::ScanSimilarPhotosUseCase)
     factoryOf(::ScanWhatsAppUseCase)
     factoryOf(::SetAppLockEnabledUseCase)

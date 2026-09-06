@@ -3,10 +3,16 @@ package com.pion.phonecleaner.data.di
 import com.pion.phonecleaner.data.photo.AndroidExifRepository
 import com.pion.phonecleaner.data.photo.BitmapPhotoCompressor
 import com.pion.phonecleaner.data.photo.DctPerceptualHasher
+import com.pion.phonecleaner.data.photo.DefaultBlurryPhotoScanner
 import com.pion.phonecleaner.data.photo.DefaultSimilarPhotoScanner
 import com.pion.phonecleaner.data.ledger.DataStoreCompressedPhotoLedger
+import com.pion.phonecleaner.data.photo.InMemoryBlurryPhotoSessionStore
 import com.pion.phonecleaner.data.photo.InMemorySimilarPhotoSessionStore
+import com.pion.phonecleaner.data.photo.LaplacianBlurDetector
 import com.pion.phonecleaner.data.photo.MediaStorePhotoRepository
+import com.pion.phonecleaner.domain.repository.BlurDetector
+import com.pion.phonecleaner.domain.repository.BlurryPhotoScanner
+import com.pion.phonecleaner.domain.repository.BlurryPhotoSessionStore
 import com.pion.phonecleaner.domain.repository.CompressedPhotoLedger
 import com.pion.phonecleaner.domain.repository.ExifRepository
 import com.pion.phonecleaner.domain.repository.PerceptualHasher
@@ -38,5 +44,10 @@ val photoDataModule = module {
     single<PhotoCompressor> { BitmapPhotoCompressor(androidContext(), get(), get(), get()) }
     single<ExifRepository> { AndroidExifRepository(androidContext(), get(), get(), get()) }
     single<SimilarPhotoSessionStore> { InMemorySimilarPhotoSessionStore() }
+    single<BlurDetector> { LaplacianBlurDetector(androidContext()) }
+    single<BlurryPhotoScanner> { DefaultBlurryPhotoScanner(get(), get(), get()) }
+    // A SECOND session store, not a second binding of the first: the two screens can be open in the
+    // same back stack and a delete on one must not prune the other's groups (BlurryPhotoSessionStore).
+    single<BlurryPhotoSessionStore> { InMemoryBlurryPhotoSessionStore() }
     single<CompressedPhotoLedger> { DataStoreCompressedPhotoLedger(get()) }
 }
