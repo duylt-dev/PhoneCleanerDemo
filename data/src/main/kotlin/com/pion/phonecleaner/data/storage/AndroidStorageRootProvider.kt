@@ -1,9 +1,12 @@
 package com.pion.phonecleaner.data.storage
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
 import android.os.storage.StorageManager
+import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -28,10 +31,12 @@ import java.io.File
  * `/storage/emmc/` override, so a removable SD card is never scanned
  * (`docs/screens/12-junk-cleaning.md:404`).
  *
- * `MANAGE_EXTERNAL_STORAGE` is **not assumed grantable** (§8.1). What this returns when it is absent
- * *is* the default branch: our own directories (strategy 1 — no permission at all) plus every SAF
- * tree the user has granted (strategy 4). Media is reached through `MediaStoreRepository` and is not
- * a *root*, so it appears in [coveredSurfaces] and not in [readableRoots].
+ * `MANAGE_EXTERNAL_STORAGE` **is** declared as of the owner decision of 2026-09-06 (the reasoning is
+ * in `data/src/main/AndroidManifest.xml`, beside the declaration). It is still not *assumed*: the
+ * grant is checked, never presumed, and what this returns without it is exactly what it returned
+ * before — our own directories (strategy 1, no permission at all) plus every SAF tree the user has
+ * granted (strategy 4). Media is reached through `MediaStoreRepository` and is not a *root*, so it
+ * appears in [coveredSurfaces] and not in [readableRoots].
  */
 internal class AndroidStorageRootProvider(
     private val context: Context,
@@ -48,7 +53,7 @@ internal class AndroidStorageRootProvider(
         withContext(dispatchers.io) {
             buildList {
                 addAll(ownDirectories())
-                if (hasAllFilesAccess()) addAll(volumePaths())
+                if (hasFullVolumeAccess()) addAll(volumePaths())
                 addAll(validPersistedTreeUris())
             }.distinct().toImmutableList().asSuccess()
         }
@@ -71,7 +76,7 @@ internal class AndroidStorageRootProvider(
                 add(SURFACE_MEDIA_VIDEO)
                 add(SURFACE_MEDIA_AUDIO)
                 add(SURFACE_APP_CACHE)
-                if (hasAllFilesAccess()) add(SURFACE_ALL_VOLUMES)
+                if (hasFullVolumeAccess()) add(SURFACE_ALL_VOLUMES)
                 validPersistedTreeUris().forEach { add("$SURFACE_TREE_PREFIX$it") }
             }.toImmutableList().asSuccess()
         }
@@ -118,19 +123,47 @@ internal class AndroidStorageRootProvider(
             .map(File::getAbsolutePath)
 
     /**
-     * Every mounted volume. Only ever called behind [hasAllFilesAccess], which is already API 30+,
-     * but the version check is repeated here because `StorageVolume.directory` is itself API 30 and
-     * a guard two functions away is a guard the next reader deletes.
+     * Every mounted volume. `StorageManager` is what makes a removable card a root as well as
+     * internal storage — the competitor caches `Environment.getExternalStorageDirectory()` in a
+     * static forever and never scans an SD card at all (`java/xc/z.java:20-29`).
+     *
+     * `StorageVolume.directory` is API 30, so below it the single-volume call is the only answer
+     * there is; it is also the fallback when the enumeration throws on an odd vendor ROM.
      */
     private fun volumePaths(): List<String> {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return emptyList()
-        val manager = context.getSystemService(StorageManager::class.java) ?: return emptyList()
-        return runCatching { manager.storageVolumes.mapNotNull { it.directory?.absolutePath } }
-            .getOrElse { listOfNotNull(Environment.getExternalStorageDirectory()?.absolutePath) }
+        val manager = context.getSystemService(StorageManager::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && manager != null) {
+            runCatching { manager.storageVolumes.mapNotNull { it.directory?.absolutePath } }
+                .getOrNull()
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { return it }
+        }
+        return listOfNotNull(Environment.getExternalStorageDirectory()?.absolutePath)
     }
 
-    private fun hasAllFilesAccess(): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()
+    /**
+     * Whether the shared volumes are readable — **three platform answers, not one**, and the junk
+     * scan's `StorageAccessGate` asks the identical question so the gate and the roots can never
+     * disagree about what a scan will see.
+     *
+     *  * **API 30+** — `MANAGE_EXTERNAL_STORAGE`, given on a Settings page. `Android/data` and
+     *    `Android/obb` stay unreadable even so (`gioi-han-android-phone-cleaner` §1).
+     *  * **API 28** — `READ_EXTERNAL_STORAGE` is genuinely full read access: API 28 predates scoped
+     *    storage, which is why `minSdk` staying at 28 costs nothing here. Before 2026-09-06 this
+     *    method answered `false` on 28 outright, so a legacy device got the empty-roots branch even
+     *    holding a grant that covered the whole volume.
+     *  * **API 29** — `false`, and deliberately. Scoped storage is enforced with `targetSdk` 36 and
+     *    `WRITE_EXTERNAL_STORAGE` is capped at 28 in the manifest, so there is no all-files access to
+     *    hold. A scan there covers media and our own directories, and [coveredSurfaces] says so.
+     */
+    private fun hasFullVolumeAccess(): Boolean = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> Environment.isExternalStorageManager()
+        Build.VERSION.SDK_INT <= Build.VERSION_CODES.P ->
+            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
+
+        else -> false
+    }
 
     internal companion object {
         const val SURFACE_MEDIA_IMAGES = "media:images"
