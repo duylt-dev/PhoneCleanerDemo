@@ -6,6 +6,7 @@ import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.junk.JunkScanMode
 import com.pion.phonecleaner.domain.model.launch.LaunchSource
+import com.pion.phonecleaner.domain.model.photo.PhotoSessionSource
 import com.pion.phonecleaner.domain.model.settings.LegalDocument
 import com.pion.phonecleaner.feature.notification.permissionmanager.PermissionTab
 import kotlinx.serialization.Serializable
@@ -85,9 +86,24 @@ sealed interface Route {
     @Serializable
     data object SimilarPhotos : Route
 
-    /** `groupKey` / `startIndex` match `PhotoPreviewViewModel.GROUP_KEY_ARG` / `START_INDEX_ARG`. */
+    /** The blurry-photo grid. No argument: the scan is started by the screen and kept in its store. */
     @Serializable
-    data class PhotoPreview(val groupKey: String, val startIndex: Int) : Route
+    data object BlurryPhotos : Route
+
+    /**
+     * `groupKey` / `startIndex` / `source` match `PhotoPreviewViewModel.GROUP_KEY_ARG` /
+     * `START_INDEX_ARG` / `SOURCE_ARG`.
+     *
+     * `source` has **no default**: the pager reads whichever session store it names, and the two
+     * grids keep separate ones. A default would let a new caller open the pager over the wrong
+     * session and see a "session lost" screen instead of a compile error.
+     */
+    @Serializable
+    data class PhotoPreview(
+        val groupKey: String,
+        val startIndex: Int,
+        val source: PhotoSessionSource,
+    ) : Route
 
     @Serializable
     data object PhotoCompressor : Route
