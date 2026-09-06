@@ -12,6 +12,7 @@ import com.pion.phonecleaner.domain.model.photo.PhotoGroup
 import com.pion.phonecleaner.domain.model.photo.PhotoId
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
+import com.pion.phonecleaner.domain.repository.CompressedPhotoLedger
 import com.pion.phonecleaner.domain.repository.FeatureUsageRepository
 import com.pion.phonecleaner.domain.repository.PhotoCompressor
 import com.pion.phonecleaner.domain.repository.PhotoRepository
@@ -108,6 +109,21 @@ internal class FakePhotoCompressor(
     ): AppResult<CompressionEstimate> {
         estimatedIds = ids
         return estimate
+    }
+}
+
+/**
+ * The ledger of already re-encoded photos, in memory. Seed [ids] to stand for a previous run.
+ */
+internal class FakeCompressedPhotoLedger(
+    ids: Set<PhotoId> = emptySet(),
+) : CompressedPhotoLedger {
+    val ids: MutableSet<PhotoId> = ids.toMutableSet()
+
+    override suspend fun compressedIds(): Set<PhotoId> = ids.toSet()
+
+    override suspend fun record(id: PhotoId) {
+        ids += id
     }
 }
 

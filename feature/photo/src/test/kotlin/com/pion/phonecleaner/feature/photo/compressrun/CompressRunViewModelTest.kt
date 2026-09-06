@@ -7,6 +7,7 @@ import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.photo.CompressStep
 import com.pion.phonecleaner.domain.model.photo.PhotoId
 import com.pion.phonecleaner.domain.usecase.CompressPhotosUseCase
+import com.pion.phonecleaner.feature.photo.testing.FakeCompressedPhotoLedger
 import com.pion.phonecleaner.feature.photo.testing.FakePhotoCompressor
 import com.pion.phonecleaner.feature.photo.testing.FakePhotoRepository
 import com.pion.phonecleaner.feature.photo.testing.MainDispatcherRule
@@ -27,10 +28,11 @@ class CompressRunViewModelTest {
     private val repository = FakePhotoRepository(library = listOf(photo(1), photo(2), photo(3)))
     private val compressor = FakePhotoCompressor()
     private val analytics = RecordingAnalytics()
+    private val ledger = FakeCompressedPhotoLedger()
 
     private fun viewModel(vararg ids: Long) = CompressRunViewModel(
         savedStateHandle = SavedStateHandle(mapOf("photoIds" to ids.toList())),
-        compressPhotos = CompressPhotosUseCase(compressor),
+        compressPhotos = CompressPhotosUseCase(compressor, ledger),
         photos = repository,
         analytics = analytics,
     )
@@ -56,6 +58,24 @@ class CompressRunViewModelTest {
         vm.onIntent(CompressRunIntent.ScreenStarted)
 
         assertEquals(listOf(PhotoId(3), PhotoId(1), PhotoId(2)), vm.state.value.photos.map { it.id })
+    }
+
+    @Test
+    fun `only the photos actually rewritten are recorded as compressed`() = main.runVmTest {
+        compressor.steps = listOf(
+            CompressStep(1, 3, PhotoId(1), beforeBytes = 1_000L, afterBytes = 400L, failed = false),
+            // Failed: nothing was written, so nothing is recorded.
+            CompressStep(2, 3, PhotoId(2), beforeBytes = 2_000L, afterBytes = 0L, failed = true),
+            // Skipped: the re-encode was not smaller, so the file is untouched and still its own size.
+            CompressStep(3, 3, PhotoId(3), beforeBytes = 3_000L, afterBytes = 3_000L, failed = false),
+        )
+        val vm = viewModel(1L, 2L, 3L)
+        vm.onIntent(CompressRunIntent.ScreenStarted)
+        vm.onIntent(CompressRunIntent.CompressAllPressed)
+        vm.onIntent(CompressRunIntent.CompressConfirmed)
+
+        // This is what keeps photo 1 on the picker's list once it has dropped under the size filter.
+        assertEquals(setOf(PhotoId(1)), ledger.ids)
     }
 
     @Test

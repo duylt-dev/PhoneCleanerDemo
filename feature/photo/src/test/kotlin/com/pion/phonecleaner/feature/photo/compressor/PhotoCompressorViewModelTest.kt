@@ -10,6 +10,7 @@ import com.pion.phonecleaner.domain.usecase.LoadCompressiblePhotosUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
 import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.domain.model.feature.FeatureId
+import com.pion.phonecleaner.feature.photo.testing.FakeCompressedPhotoLedger
 import com.pion.phonecleaner.feature.photo.testing.FakePhotoCompressor
 import com.pion.phonecleaner.feature.photo.testing.FakePhotoRepository
 import com.pion.phonecleaner.feature.photo.testing.MainDispatcherRule
@@ -40,10 +41,11 @@ class PhotoCompressorViewModelTest {
     private val compressor = FakePhotoCompressor()
     private val analytics = RecordingAnalytics()
     private val usage = RecordingFeatureUsage()
+    private val ledger = FakeCompressedPhotoLedger()
 
     private fun viewModel() = PhotoCompressorViewModel(
         savedStateHandle = SavedStateHandle(),
-        loadCompressiblePhotos = LoadCompressiblePhotosUseCase(repository),
+        loadCompressiblePhotos = LoadCompressiblePhotosUseCase(repository, ledger),
         estimateSavings = EstimateCompressionUseCase(compressor),
         markFeatureUsed = MarkFeatureUsedUseCase(usage),
         analytics = analytics,
@@ -74,6 +76,36 @@ class PhotoCompressorViewModelTest {
 
         val offered = vm.state.value.groups.flatMap { it.photos }.map { it.id }
         assertEquals(setOf(PhotoId(1), PhotoId(2)), offered.toSet())
+    }
+
+    @Test
+    fun `a photo this app has already compressed stays on the list below the minimum size`() =
+        main.runVmTest {
+            // Photo 3 is 1 KB — far under MIN_COMPRESSIBLE_BYTES — because a previous run shrank it.
+            // Hiding it would delete from the list exactly the photo the user just worked on.
+            ledger.ids += PhotoId(3)
+            val vm = viewModel()
+
+            vm.onIntent(PhotoCompressorIntent.StartPressed)
+
+            val offered = vm.state.value.groups.flatMap { it.photos }.map { it.id }
+            assertEquals(setOf(PhotoId(1), PhotoId(2), PhotoId(3)), offered.toSet())
+        }
+
+    @Test
+    fun `an already compressed photo is an ordinary selectable row`() = main.runVmTest {
+        ledger.ids += PhotoId(3)
+        val vm = viewModel()
+        vm.onIntent(PhotoCompressorIntent.StartPressed)
+        vm.onIntent(PhotoCompressorIntent.CompletionAnimationFinished)
+
+        vm.onIntent(PhotoCompressorIntent.PhotoToggled(PhotoId(3)))
+        assertTrue(PhotoId(3) in vm.state.value.selectedIds)
+        assertTrue(vm.state.value.canContinue)
+
+        // And Select All takes it too — it is not a second class of row.
+        vm.onIntent(PhotoCompressorIntent.SelectAllToggled)
+        assertEquals(3, vm.state.value.selectedCount)
     }
 
     @Test
