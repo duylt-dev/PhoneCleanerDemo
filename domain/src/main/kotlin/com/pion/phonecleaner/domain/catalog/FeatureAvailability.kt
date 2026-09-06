@@ -23,10 +23,14 @@ import kotlinx.collections.immutable.persistentSetOf
  *
  * | Feature | Decision | What it reaches today | What closes it |
  * |---|---|---|---|
- * | [FeatureId.JunkClean] | 1 | `EmptyJunkRuleCatalog` — the system-cache and app-residual passes evaluate zero candidates | the catalogue fork: `AssetJunkRuleCatalog` or `KotlinJunkRuleCatalog` |
- * | [FeatureId.WhatsAppCleaner] | 1 | `EmptyWhatsAppRoots` — six buckets, no paths, always the empty state | the same fork: a roots table bound in `filesDataModule` |
+ * | [FeatureId.WhatsAppCleaner] | 1 | `EmptyWhatsAppRoots` — six buckets, no paths, always the empty state | a roots table bound in `filesDataModule` |
  * | [FeatureId.NetworkTest] | 2 | `UnconfiguredSpeedTestRepository` — no socket, no bytes, no figure | a procured byte source, or the decision to delete the two speed-test screens |
  * | [FeatureId.RunningApps] | 3 | a screen that renders, but only once the user finds `PACKAGE_USAGE_STATS` in Settings unaided | whether the app asks for that grant |
+ *
+ * **`JunkClean` was the fourth row and was removed on 2026-09-06**, when decision 1 was settled for the
+ * junk cluster (`KotlinJunkRuleCatalog`, our own rules) and `MANAGE_EXTERNAL_STORAGE` was declared, so
+ * the scan reaches real roots and real rules. `WhatsAppCleaner` still reads `EmptyWhatsAppRoots` and
+ * stays locked: the two shared decision 1 and no longer share an answer.
  *
  * Removing a row is the whole change: the tile unlocks, the hero button re-enables, the exit offer may
  * name it again, and nothing else moves. (The clean-result screen was a fourth reader until
@@ -43,7 +47,6 @@ object FeatureAvailability {
      * raises a navigation, and by the usage ledger before it recommends one.
      */
     val comingSoon: ImmutableSet<FeatureId> = persistentSetOf(
-        FeatureId.JunkClean,
         FeatureId.WhatsAppCleaner,
         FeatureId.NetworkTest,
         FeatureId.RunningApps,
