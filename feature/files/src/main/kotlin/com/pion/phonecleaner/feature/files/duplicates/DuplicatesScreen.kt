@@ -27,8 +27,10 @@ import com.pion.phonecleaner.feature.files.component.ConfirmDialogHost
 import com.pion.phonecleaner.feature.files.component.ToolBanner
 import com.pion.phonecleaner.feature.files.component.ToolOverlay
 import com.pion.phonecleaner.feature.files.component.TruncationBanner
+import com.pion.phonecleaner.feature.files.duplicates.component.DuplicateFilterChips
 import com.pion.phonecleaner.feature.files.duplicates.component.DuplicateGroupHeader
 import com.pion.phonecleaner.feature.files.duplicates.component.DuplicatePreviewSheet
+import com.pion.phonecleaner.feature.files.duplicates.component.DuplicatesPermissionPanel
 import com.pion.phonecleaner.feature.files.duplicates.component.DuplicateRow
 
 /**
@@ -52,6 +54,12 @@ internal fun DuplicatesScreen(
                     actionLabel = stringResource(R.string.duplicates_deselect_all),
                     onAction = { onIntent(DuplicatesIntent.DeselectAllPressed) },
                 )
+                // Denial is the whole screen: a filter row and a selection bar over an empty list
+                // would invite taps that cannot do anything until the grant exists.
+                if (state.showPermissionPanel) {
+                    DuplicatesPermissionPanel(onIntent)
+                    return@Column
+                }
                 TruncationBanner(state.scanTruncated)
                 if (state.failedCount > 0) {
                     ToolBanner(stringResource(R.string.files_delete_failed, state.failedCount))
@@ -59,10 +67,11 @@ internal fun DuplicatesScreen(
                 state.error?.let { error ->
                     ErrorCard(
                         error = error,
-                        onRetry = { onIntent(DuplicatesIntent.ScreenStarted) },
+                        onRetry = { onIntent(DuplicatesIntent.RetryPressed) },
                         modifier = Modifier.padding(horizontal = ScreenGutter),
                     )
                 }
+                DuplicateFilterChips(state.availableKinds, state.filter, onIntent)
                 if (state.showEmptyState) {
                     EmptyState(message = stringResource(R.string.duplicates_empty))
                 } else {
@@ -81,11 +90,14 @@ internal fun DuplicatesScreen(
             ToolOverlay(
                 phase = state.phase,
                 onCompletionFinished = { onIntent(DuplicatesIntent.CompletionAnimationFinished) },
-                scanningLabel = stringResource(
-                    R.string.duplicates_hashing,
-                    state.hashed,
-                    state.candidates,
-                ),
+                // Two labels, because the scan has two halves and the walk is the long one: with
+                // all-files access the corpus is every volume, so "compared 0 of 0" would sit on
+                // screen for most of a minute and read as hung.
+                scanningLabel = if (state.candidates == 0) {
+                    stringResource(R.string.duplicates_collecting, state.collected)
+                } else {
+                    stringResource(R.string.duplicates_hashing, state.hashed, state.candidates)
+                },
                 onCancel = if (state.phase == ToolPhase.Scanning) {
                     { onIntent(DuplicatesIntent.BackPressed) }
                 } else {
@@ -134,7 +146,7 @@ private fun DuplicateGroupList(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(bottom = PageSpacing.listBottom),
     ) {
-        state.groups.forEach { group ->
+        state.visibleGroups.forEach { group ->
             stickyHeader(key = "h:${group.md5}", contentType = GroupHeaderType) {
                 DuplicateGroupHeader(
                     copies = group.files.size,

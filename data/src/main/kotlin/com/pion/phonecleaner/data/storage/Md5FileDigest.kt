@@ -28,16 +28,20 @@ import java.security.MessageDigest
  *
  * `ensureActive()` runs once per buffer, so cancelling a duplicate scan stops mid-file instead of
  * finishing a 4 GB read nobody is waiting for.
+ *
+ * `maxBytes` is the head-digest window of `docs/screens/14-file-tools-and-app-manager.md` §2.2. The
+ * read stops at the limit, so a 4 GiB video costs one 64 KiB read in the pass that only has to prove
+ * two same-size files differ.
  */
 internal class Md5FileDigest(
     private val context: Context,
     private val dispatchers: DispatcherProvider,
 ) : FileDigest {
 
-    override suspend fun digest(file: ScannedFile): AppResult<String> =
+    override suspend fun digest(file: ScannedFile, maxBytes: Long): AppResult<String> =
         withContext(dispatchers.io) {
             try {
-                open(file)?.use { hex(it).asSuccess() }
+                open(file)?.use { hex(it, maxBytes).asSuccess() }
                     ?: AppError.NotFound(file.path).asFailure()
             } catch (e: IOException) {
                 AppError.Storage(path = file.path, cause = e.message).asFailure()
@@ -60,14 +64,22 @@ internal class Md5FileDigest(
             context.contentResolver.openInputStream(Uri.parse(origin.contentUri))
     }
 
-    private suspend fun hex(stream: InputStream): String {
+    /**
+     * Reads at most [maxBytes]. The last buffer is clamped rather than truncated after the fact, so
+     * two files that differ only past the limit still produce the same head digest — which is the
+     * point of the head pass, and why its result may never be treated as a full-content identity.
+     */
+    private suspend fun hex(stream: InputStream, maxBytes: Long): String {
         val digest = MessageDigest.getInstance(ALGORITHM)
         val buffer = ByteArray(BUFFER_BYTES)
-        while (true) {
+        var remaining = maxBytes
+        while (remaining > 0) {
             currentCoroutineContext().ensureActive()
-            val read = stream.read(buffer)
+            val want = minOf(remaining, BUFFER_BYTES.toLong()).toInt()
+            val read = stream.read(buffer, 0, want)
             if (read <= 0) break
             digest.update(buffer, 0, read)
+            remaining -= read
         }
         return digest.digest().joinToString(separator = "") { byte -> "%02x".format(byte) }
     }

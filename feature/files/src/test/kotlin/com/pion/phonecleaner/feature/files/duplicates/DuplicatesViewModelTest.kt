@@ -58,7 +58,7 @@ internal class DuplicatesViewModelTest {
         finder.emissions = listOf(DuplicateScanProgress.Finished(persistentListOf(group())))
         val vm = viewModel()
 
-        vm.onIntent(DuplicatesIntent.ScreenStarted)
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
         settle()
 
         assertEquals(setOf("b", "c"), vm.state.value.selectedIds.toSet())
@@ -74,7 +74,7 @@ internal class DuplicatesViewModelTest {
         )
         val vm = viewModel()
 
-        vm.onIntent(DuplicatesIntent.ScreenStarted)
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
         settle()
 
         assertTrue(vm.state.value.scanTruncated)
@@ -87,7 +87,7 @@ internal class DuplicatesViewModelTest {
         mainDispatcher.runVmTest {
             finder.emissions = listOf(DuplicateScanProgress.Finished(persistentListOf(group())))
             val vm = viewModel()
-            vm.onIntent(DuplicatesIntent.ScreenStarted)
+            vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
             settle()
 
             vm.onIntent(DuplicatesIntent.DeselectAllPressed)
@@ -103,7 +103,7 @@ internal class DuplicatesViewModelTest {
         mainDispatcher.runVmTest {
             finder.emissions = listOf(DuplicateScanProgress.Finished(persistentListOf(group())))
             val vm = viewModel()
-            vm.onIntent(DuplicatesIntent.ScreenStarted)
+            vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
             settle()
             vm.onIntent(DuplicatesIntent.CompletionAnimationFinished)
 
@@ -134,7 +134,7 @@ internal class DuplicatesViewModelTest {
                 ),
             )
             val vm = viewModel()
-            vm.onIntent(DuplicatesIntent.ScreenStarted)
+            vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
             settle()
             vm.onIntent(DuplicatesIntent.CompletionAnimationFinished)
 
@@ -161,11 +161,77 @@ internal class DuplicatesViewModelTest {
         }
         val vm = viewModel(savedState)
 
-        vm.onIntent(DuplicatesIntent.ScreenStarted)
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
         settle()
 
         assertEquals(setOf("b"), vm.state.value.selectedIds.toSet())
     }
+
+    /** Denial is a state with a panel, not a scan of the app's own sandbox reported as success. */
+    @Test
+    fun `a denied gate shows the panel and starts no scan`() = mainDispatcher.runVmTest {
+        finder.emissions = listOf(DuplicateScanProgress.Finished(persistentListOf(group())))
+        val vm = viewModel()
+
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = false))
+        settle()
+
+        assertTrue(vm.state.value.showPermissionPanel)
+        assertEquals(ToolPhase.Idle, vm.state.value.phase)
+        assertTrue(vm.state.value.groups.isEmpty())
+    }
+
+    /** Granting in Settings and returning is the funnel: the same intent re-enters and scans. */
+    @Test
+    fun `a grant after a denial starts the scan`() = mainDispatcher.runVmTest {
+        finder.emissions = listOf(DuplicateScanProgress.Finished(persistentListOf(group())))
+        val vm = viewModel()
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = false))
+        settle()
+
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
+        settle()
+
+        assertFalse(vm.state.value.showPermissionPanel)
+        assertEquals(1, vm.state.value.groups.size)
+    }
+
+    /**
+     * A 90-second full-volume digest may not restart because the user came back from a preview.
+     * The finder is asked exactly once per grant transition.
+     */
+    @Test
+    fun `a second ON_START while granted does not rescan`() = mainDispatcher.runVmTest {
+        finder.emissions = listOf(DuplicateScanProgress.Finished(persistentListOf(group())))
+        val vm = viewModel()
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
+        settle()
+        vm.onIntent(DuplicatesIntent.CompletionAnimationFinished)
+
+        vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
+        settle()
+
+        assertEquals(1, finder.calls)
+        assertEquals(ToolPhase.Ready, vm.state.value.phase)
+    }
+
+    /** The filter narrows the VIEW; the selection it does not touch is still what gets deleted. */
+    @Test
+    fun `a type filter hides other kinds and leaves the selection alone`() =
+        mainDispatcher.runVmTest {
+            finder.emissions = listOf(
+                DuplicateScanProgress.Finished(persistentListOf(group(), videoGroup())),
+            )
+            val vm = viewModel()
+            vm.onIntent(DuplicatesIntent.StorageAccessResolved(granted = true))
+            settle()
+
+            vm.onIntent(DuplicatesIntent.FilterSelected(FileKind.Video))
+
+            assertEquals(listOf(FileKind.Video), vm.state.value.visibleGroups.map { it.kind })
+            assertEquals(setOf("b", "c", "w"), vm.state.value.selectedIds.toSet())
+            assertEquals(setOf(FileKind.Image, FileKind.Video), vm.state.value.availableKinds.toSet())
+        }
 
     private companion object {
         const val FileBytes = 1_024L
@@ -184,6 +250,15 @@ internal class DuplicatesViewModelTest {
             md5 = "digest",
             files = listOf(file("a", 300L), file("b", 200L), file("c", 100L)).toImmutableList(),
             newestId = "a",
+        )
+
+        fun videoGroup() = DuplicateGroup(
+            md5 = "video-digest",
+            files = listOf(
+                file("v", 300L).copy(kind = FileKind.Video),
+                file("w", 100L).copy(kind = FileKind.Video),
+            ).toImmutableList(),
+            newestId = "v",
         )
     }
 }

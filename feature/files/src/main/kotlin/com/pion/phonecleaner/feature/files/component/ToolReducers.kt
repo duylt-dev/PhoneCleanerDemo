@@ -5,9 +5,11 @@ import com.pion.phonecleaner.domain.model.cleanup.CleanupOutcome
 import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.file.FileOrigin
+import com.pion.phonecleaner.domain.model.file.ScannedFile
 
 /**
- * The two pieces every one of the six tools builds identically. One copy, so the confirm wording and
+ * The pieces every one of the six tools builds identically. One copy, so the confirm wording and
  * the summary shape cannot drift between six screens — which is exactly what happened to the
  * competitor's two `when (goTag)` blocks.
  */
@@ -32,3 +34,14 @@ internal fun cleanupSummaryFor(
     itemCount = outcome.ids.size,
     outcome = if (outcome.ids.isEmpty()) CleanupOutcome.NothingFound else CleanupOutcome.Cleaned,
 )
+
+/**
+ * What an "Open" action hands to an external viewer: the `content://` URI the scan resolved where
+ * there is one, and the absolute path otherwise.
+ *
+ * The branch is here rather than in a ViewModel because both walk branches produce rows now — the
+ * duplicate finder yields `PlainFile` when it walked a volume and `MediaStoreEntry` when it queried
+ * a collection, and a screen that assumed either one would open nothing on half of all devices.
+ */
+internal fun previewUriOf(file: ScannedFile): String =
+    (file.origin as? FileOrigin.MediaStoreEntry)?.contentUri ?: file.path

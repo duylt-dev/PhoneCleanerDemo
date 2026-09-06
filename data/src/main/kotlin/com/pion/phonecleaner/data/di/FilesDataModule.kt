@@ -59,5 +59,8 @@ val filesDataModule = module {
 
     single<WhatsAppScanner> { DefaultWhatsAppScanner(get(), get(), get(), get()) }
 
-    single<DuplicateFinder> { Md5DuplicateFinder(get(), get(), get(), get()) }
+    // MediaStoreRepository, StorageScanner, StorageRootProvider, PermissionRepository, FileDigest,
+    // DispatcherProvider — six primitives it composes and none it re-implements. All six are
+    // declared elsewhere; this line binds the engine, not its parts.
+    single<DuplicateFinder> { Md5DuplicateFinder(get(), get(), get(), get(), get(), get()) }
 }

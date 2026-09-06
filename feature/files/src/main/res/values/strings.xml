@@ -42,6 +42,17 @@
     <string name="duplicates_deselect_all">Deselect all</string>
     <string name="duplicates_select_older">Select older copies</string>
     <string name="duplicates_hashing">Compared %1$d of %2$d files</string>
+    <string name="duplicates_collecting">Looking through your files… %1$d found</string>
+    <string name="duplicates_filter_all">All</string>
+    <string name="duplicates_filter_image">Photos</string>
+    <string name="duplicates_filter_video">Videos</string>
+    <string name="duplicates_filter_audio">Audio</string>
+    <string name="duplicates_filter_apk">Installers</string>
+    <string name="duplicates_filter_other">Other files</string>
+    <string name="duplicates_permission_title">Storage access is needed</string>
+    <string name="duplicates_permission_body">To compare files stored more than once, the app needs permission to read storage. It only reads what you allow, and nothing is removed until you choose it.</string>
+    <string name="duplicates_permission_body_all_files">A copy of a file can sit anywhere, not just in the photo and video folders, so Android asks for this one on its own Settings page. Turn on \"Allow access to manage all files\", then come back. The app only reads — nothing is removed until you choose it.</string>
+    <string name="duplicates_permission_grant">Allow access</string>
     <plurals name="duplicates_group_header">
         <item quantity="one">%1$d copy, %2$s each</item>
         <item quantity="other">%1$d copies, %2$s each</item>

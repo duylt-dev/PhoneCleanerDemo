@@ -3,6 +3,7 @@ package com.pion.phonecleaner.feature.files.duplicates
 import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
 import com.pion.phonecleaner.domain.model.file.DuplicateGroup
+import com.pion.phonecleaner.domain.model.file.DuplicateScanProgress
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
@@ -15,6 +16,36 @@ import kotlinx.collections.immutable.toImmutableSet
  * Split out of the ViewModel so neither file exceeds the size rule (`LLM.md` §4) and so the
  * reducers are testable without constructing a ViewModel at all.
  */
+
+/**
+ * A fresh scan clears every number the previous one left, including `error` and `failedCount` —
+ * both are re-entry guards, and a stale one makes a running scan look like a failed one.
+ *
+ * `filter` deliberately survives: the user narrowed the list to Images, and a rescan that silently
+ * widened it back would look like the filter had been ignored.
+ */
+internal fun DuplicatesState.withScanStarted(): DuplicatesState = copy(
+    phase = ToolPhase.Scanning,
+    hashed = 0,
+    candidates = 0,
+    collected = 0,
+    scanTruncated = false,
+    failedCount = 0,
+    error = null,
+)
+
+/** The whole progress fold, so the ViewModel names no arm of it. */
+internal fun DuplicatesState.withScanProgress(
+    progress: DuplicateScanProgress,
+    restoredSelection: ImmutableSet<String>,
+): DuplicatesState = when (progress) {
+    is DuplicateScanProgress.Collecting -> copy(collected = progress.found)
+    is DuplicateScanProgress.Hashing ->
+        copy(hashed = progress.hashed, candidates = progress.candidates)
+
+    is DuplicateScanProgress.Finished ->
+        withScanFinished(progress.groups, progress.truncated, restoredSelection)
+}
 
 /**
  * The pre-selection happens **here**, when the groups arrive — not inside a hashing loop writing
