@@ -51,12 +51,21 @@ internal object HomeSections {
         FeatureId.NetworkTest,
     )
 
-    /** `x1()` rows 1–3 — the "save space" icon tiles. */
+    /**
+     * `x1()` rows 1–3 — the "save space" icon tiles.
+     *
+     * [FeatureId.BlurryPhotos] is the one entry here with no counterpart in `x1()`: the competitor
+     * has no sharpness heuristic at all (`docs/reverse-engineering/13-photo-and-media.md:544`). It is
+     * placed next to [FeatureId.SimilarPhotos] because the two answer the same question — *which of
+     * my photos is not worth keeping* — and a reader who opened one is the reader looking for the
+     * other.
+     */
     private val saveSpaceFeatures = persistentListOf(
         FeatureId.BigFiles,
         FeatureId.DuplicateFiles,
         FeatureId.WhatsAppCleaner,
         FeatureId.SimilarPhotos,
+        FeatureId.BlurryPhotos,
         FeatureId.PhotoCompressor,
         FeatureId.ImageManager,
         FeatureId.VideoManager,

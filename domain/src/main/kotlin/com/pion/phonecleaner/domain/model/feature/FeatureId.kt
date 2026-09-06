@@ -3,7 +3,8 @@ package com.pion.phonecleaner.domain.model.feature
 import kotlinx.serialization.Serializable
 
 /**
- * The one feature enum. Twenty constants, verbatim from the competitor's own tables.
+ * The one feature enum. Twenty-one constants: twenty verbatim from the competitor's own tables, and
+ * [BlurryPhotos], which is this app's own and is marked as such below.
  *
  * The competitor kept these three facts in three unrelated places — a descriptor array index, a
  * `goTag` int on the router, and a deep-link `action_id` — and they had to be edited together by hand.
@@ -44,7 +45,27 @@ enum class FeatureId(
     RunningApps        (19, "100526", "flux_gn_use_flux_running_apps"),
     DeviceStatus       (20, "100527", "flux_gn_use_flux_device_status"),
     NetworkTraffic     (21, "100528", "flux_gn_use_flux_network_traffic"),
-    NetworkTest        (22, "100529", "flux_gn_use_flux_network_test");
+    NetworkTest        (22, "100529", "flux_gn_use_flux_network_test"),
+
+    /**
+     * **The first constant here that does NOT come from the competitor.** It has no descriptor index
+     * to inherit, no analytics id to match and no `SharedPreferences` key to migrate, because
+     * `com.againstvirus.flux` has no such screen: `docs/reverse-engineering/13-photo-and-media.md:544`
+     * records that no sharpness, resolution or size heuristic exists anywhere in that APK.
+     *
+     * So the three columns are **ours**, and each is chosen to be unmistakably ours rather than to
+     * look inherited:
+     *
+     *  - `legacyIndex = 23` continues past the competitor's highest (22). It is not a legacy index at
+     *    all; it is a `goTag` and a deep-link `action_id` that only this app will ever emit. Keeping
+     *    it in the same sequence is what lets `fromLegacyIndex` stay one lookup over one list.
+     *  - `analyticsId = "100530"` likewise continues the sequence. No competitor event carries it.
+     *  - `legacyPrefKey = ""` — **empty on purpose.** The migration worker reads this column once, to
+     *    find what the competitor's install had recorded; there is nothing to find for a feature that
+     *    never existed there. An invented `flux_…` key would be a key the worker would go looking for
+     *    and never match, which is a lie that costs a lookup on every migration.
+     */
+    BlurryPhotos       (23, "100530", "");
 
     companion object {
         fun fromLegacyIndex(i: Int): FeatureId? = entries.firstOrNull { it.legacyIndex == i }
