@@ -8,7 +8,7 @@ import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
 import com.pion.phonecleaner.domain.model.photo.PhotoId
-import com.pion.phonecleaner.domain.model.photo.SimilarPhotoSession
+import com.pion.phonecleaner.domain.model.photo.PhotoSession
 import com.pion.phonecleaner.domain.model.photo.SimilarScanProgress
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
@@ -70,7 +70,7 @@ class SimilarPhotosViewModel(
         }
     }
 
-    private fun onSession(current: SimilarPhotoSession?) = setState {
+    private fun onSession(current: PhotoSession?) = setState {
         copy(
             groups = current?.groups ?: persistentListOf(),
             selectedIds = current?.selectedIds ?: persistentSetOf(),
