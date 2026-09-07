@@ -43,6 +43,15 @@ dependencies {
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.lifecycle.process)
 
+    // Video transcode — :data/files/Media3VideoCompressor and nothing else. `media3-effect` is
+    // compile-scope in the transformer POM so it would resolve transitively; it is declared
+    // anyway because a transitive version is pinned in no file (LLM.md §10.3).
+    // This dependency must NEVER appear in a :feature module: a screen that can name Transformer
+    // can build one, which is the :feature -> :data edge §2 forbids.
+    implementation(libs.androidx.media3.transformer)
+    implementation(libs.androidx.media3.effect)
+    implementation(libs.androidx.media3.common)
+
     // Firebase Cloud Messaging — ONLY so PushMessagingService, a manifest component of this module
     // (LLM.md §3.6), can extend FirebaseMessagingService. The SDK's internals are out of scope, and
     // there is no backend (owner decision 1), so nothing sends to it: data/push/ maps an incoming

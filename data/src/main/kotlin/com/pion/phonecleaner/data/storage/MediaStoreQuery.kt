@@ -8,6 +8,7 @@ import android.os.Build
 import android.provider.MediaStore
 import com.pion.phonecleaner.domain.model.file.FileOrigin
 import com.pion.phonecleaner.domain.model.file.ScannedFile
+import com.pion.phonecleaner.domain.model.video.VideoCandidate
 
 /**
  * **The one `ContentResolver` query builder in `:data/storage`** — the mitigation
@@ -36,11 +37,45 @@ internal object MediaStoreQuery {
         PATH_COLUMN,
     )
 
+    /**
+     * [PROJECTION] plus the three columns only a video candidate needs. All three exist from API 28:
+     * AOSP `MediaStore.java` (android-9.0.0_r61) `MediaColumns:463,468` and `VideoColumns:2006`
+     * (`phase-04-data-media3-engine.md` step 1).
+     *
+     * `BITRATE` is deliberately not selected: it is API 30+ only, and
+     * [com.pion.phonecleaner.domain.policy.VideoSizeEstimate] needs only `SIZE` and `DURATION`, both
+     * present from 28. **Do not widen [PROJECTION] itself** — six tools read it and a wider cursor on
+     * every scan for three columns five of them ignore is the cost avoided by extending it here.
+     */
+    val VIDEO_PROJECTION: Array<String> = PROJECTION + arrayOf(
+        MediaStore.Video.VideoColumns.DURATION,
+        MediaStore.Video.VideoColumns.WIDTH,
+        MediaStore.Video.VideoColumns.HEIGHT,
+    )
+
     fun imagesUri(): Uri = MediaStore.Images.Media.getContentUri(volume())
 
     fun videosUri(): Uri = MediaStore.Video.Media.getContentUri(volume())
 
     fun audioUri(): Uri = MediaStore.Audio.Media.getContentUri(volume())
+
+    /**
+     * The canonical id for a video row, whatever volume the URI in hand happens to be on.
+     *
+     * Writes and reads use **different volumes**: an insert must target `VOLUME_EXTERNAL_PRIMARY`
+     * (inserting into the read-only `VOLUME_EXTERNAL` union throws), while [videosUri] reads
+     * `VOLUME_EXTERNAL` on API 29+. `ScannedFile.id` is the URI *string*, so an id kept from a publish
+     * would never compare equal to the id the next scan produces for that same row —
+     * `content://media/external_primary/video/media/12` vs `content://media/external/video/media/12`.
+     * Every already-compressed check then answers false: the badge never draws, "Select all"
+     * re-encodes this app's own outputs, and an output below the size floor drops out of the scan.
+     *
+     * Falls back to the raw string rather than throwing: a URI with no numeric id is not a media row,
+     * and losing a ledger entry is a smaller failure than losing the file it points at.
+     */
+    fun videoIdFor(uri: Uri): String =
+        runCatching { ContentUris.withAppendedId(videosUri(), ContentUris.parseId(uri)).toString() }
+            .getOrElse { uri.toString() }
 
     /**
      * Runs one query and hands each row to [read]. The cursor never escapes: a `Cursor` that leaves
@@ -49,17 +84,22 @@ internal object MediaStoreQuery {
      * Returns `null` when the provider returns no cursor at all — which is not "no rows". A caller
      * that treats the two the same repeats `cd.d.e`'s defect: swallowing a `SecurityException` into
      * an empty map, so a permission failure renders as "nothing found" (§7.6).
+     *
+     * [projection] defaults to [PROJECTION] so every existing call site is unaffected; a caller that
+     * needs more columns — the video candidate repository, via [VIDEO_PROJECTION] — passes its own
+     * without opening a second cursor (`LLM.md` §12's mandatory mitigation).
      */
     inline fun <T> query(
         context: Context,
         collection: Uri,
+        projection: Array<String> = PROJECTION,
         selection: String? = null,
         selectionArgs: Array<String>? = null,
         sortOrder: String? = null,
         read: (Cursor) -> T,
     ): T? = context.contentResolver.query(
         collection,
-        PROJECTION,
+        projection,
         selection,
         selectionArgs,
         sortOrder,
@@ -119,10 +159,27 @@ internal fun Cursor.toScannedFile(collection: Uri): ScannedFile {
     )
 }
 
+/**
+ * Projects the row the cursor is on into a [VideoCandidate]. Requires the cursor to have been opened
+ * with [VIDEO_PROJECTION] (or a superset); a cursor opened with the plain [PROJECTION] has no
+ * duration/width/height columns to read, and [getLongOrZero]/[getIntOrZero] would silently answer `0`
+ * for a real video that simply wasn't asked about — the same "no such column" case §7.6 refuses to
+ * fold into "nothing found".
+ */
+internal fun Cursor.toVideoCandidate(collection: Uri): VideoCandidate = VideoCandidate(
+    file = toScannedFile(collection),
+    durationMs = getLongOrZero(MediaStore.Video.VideoColumns.DURATION),
+    width = getIntOrZero(MediaStore.Video.VideoColumns.WIDTH),
+    height = getIntOrZero(MediaStore.Video.VideoColumns.HEIGHT),
+)
+
 internal fun Cursor.getStringOrNull(column: String): String? =
     getColumnIndex(column).takeIf { it >= 0 }?.let { if (isNull(it)) null else getString(it) }
 
 private fun Cursor.getStringOrEmpty(column: String): String = getStringOrNull(column).orEmpty()
 
-private fun Cursor.getLongOrZero(column: String): Long =
+internal fun Cursor.getLongOrZero(column: String): Long =
     getColumnIndex(column).takeIf { it >= 0 }?.let { if (isNull(it)) 0L else getLong(it) } ?: 0L
+
+internal fun Cursor.getIntOrZero(column: String): Int =
+    getColumnIndex(column).takeIf { it >= 0 }?.let { if (isNull(it)) 0 else getInt(it) } ?: 0
