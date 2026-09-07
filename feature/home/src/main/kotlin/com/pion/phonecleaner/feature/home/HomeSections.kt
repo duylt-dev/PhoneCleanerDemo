@@ -59,6 +59,10 @@ internal object HomeSections {
      * placed next to [FeatureId.SimilarPhotos] because the two answer the same question — *which of
      * my photos is not worth keeping* — and a reader who opened one is the reader looking for the
      * other.
+     *
+     * [FeatureId.VideoCompressor] sits directly after [FeatureId.VideoManager] for the same reason
+     * [FeatureId.BlurryPhotos] sits after [FeatureId.SimilarPhotos] — a reader who just listed their
+     * videos is the reader looking for a way to shrink them. It has no counterpart in `x1()`.
      */
     private val saveSpaceFeatures = persistentListOf(
         FeatureId.BigFiles,
@@ -69,6 +73,7 @@ internal object HomeSections {
         FeatureId.PhotoCompressor,
         FeatureId.ImageManager,
         FeatureId.VideoManager,
+        FeatureId.VideoCompressor,
         FeatureId.AudioManager,
     )
 

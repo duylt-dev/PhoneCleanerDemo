@@ -34,6 +34,7 @@ fun FeatureId.destination(): Route = when (this) {
     FeatureId.BigFiles -> Route.BigFiles
     FeatureId.DuplicateFiles -> Route.Duplicates
     FeatureId.VideoManager -> Route.VideoManager
+    FeatureId.VideoCompressor -> Route.VideoCompressor
     FeatureId.AudioManager -> Route.AudioManager
     FeatureId.AppManager -> Route.AppManager
     FeatureId.WhatsAppCleaner -> Route.WhatsAppCleaner

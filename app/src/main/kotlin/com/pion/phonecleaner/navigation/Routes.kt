@@ -8,6 +8,8 @@ import com.pion.phonecleaner.domain.model.junk.JunkScanMode
 import com.pion.phonecleaner.domain.model.launch.LaunchSource
 import com.pion.phonecleaner.domain.model.photo.PhotoSessionSource
 import com.pion.phonecleaner.domain.model.settings.LegalDocument
+import com.pion.phonecleaner.domain.model.video.VideoCodecOption
+import com.pion.phonecleaner.domain.model.video.VideoQualityPreset
 import com.pion.phonecleaner.feature.notification.permissionmanager.PermissionTab
 import kotlinx.serialization.Serializable
 
@@ -125,6 +127,42 @@ sealed interface Route {
 
     @Serializable
     data object VideoManager : Route
+
+    /**
+     * Only the picker's route lands here. `Route.VideoCompressRun` needs `VideoQualityPreset`,
+     * which Phase 03 creates, and nothing before Phase 08 names it — the picker's Route composable
+     * takes callbacks and never names a route (LLM.md §7.1). Declaring it now would make this phase
+     * depend on Phase 03 for no benefit.
+     */
+    @Serializable
+    data object VideoCompressor : Route
+
+    /**
+     * `videoIds` matches `VideoCompressRunViewModel.VIDEO_IDS_ARG`, `preset` matches `PRESET_ARG`
+     * and `codec` matches `CODEC_ARG`; `List<String>` is a built-in NavType and a **non-nullable**
+     * enum needs none (a *nullable* one would need a hand-written `NavType` — §7.2, `Home.feature`).
+     *
+     * **Strings, not longs** — unlike `CompressRun(photoIds: List<Long>)`. A video row is a
+     * `ScannedFile` whose `id` IS the `content://` URI (`MediaStoreQuery.toScannedFile`), and
+     * carrying the URI is what stops the run screen re-resolving a row by name, which is the
+     * competitor defect `FileOrigin` exists to prevent.
+     *
+     * **`preset` and `codec` are arguments, not a session store,** because they are the one thing
+     * the run screen cannot re-derive: the videos can be re-read from `MediaStore` by id, but the
+     * chosen quality and codec exist only because the user tapped a chip. Neither has a default, for
+     * the reason `PhotoPreview.source` has none — a default would let a future caller start a run at
+     * a quality or codec nobody chose, and get no compile error for it.
+     *
+     * Three scalars and no request object (a bundled `VideoRunRequest(ids, preset, codec)` does not
+     * survive process death through `SavedStateHandle` the way a scalar or an enum does —
+     * phase-07 key insight 7).
+     */
+    @Serializable
+    data class VideoCompressRun(
+        val videoIds: List<String>,
+        val preset: VideoQualityPreset,
+        val codec: VideoCodecOption,
+    ) : Route
 
     @Serializable
     data object AudioManager : Route

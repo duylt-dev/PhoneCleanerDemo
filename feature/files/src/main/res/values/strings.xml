@@ -65,6 +65,59 @@
     <string name="video_title">Videos</string>
     <string name="video_empty">No videos were found in the locations that could be read.</string>
 
+    <!-- ── video compress: picker ────────────────────────────────────────────────────────────── -->
+    <string name="video_compress_title">Compress videos</string>
+    <string name="video_compress_empty">No videos large enough to be worth compressing were found.</string>
+    <string name="video_compress_intro_body">Pick the videos you want to shrink. A smaller copy is created first — your original is kept until you choose to remove it.</string>
+    <string name="video_compress_intro_action">Choose videos</string>
+
+    <string name="video_compress_quality_label">Quality</string>
+    <string name="video_compress_preset_saver">Smallest file</string>
+    <string name="video_compress_preset_balanced">Balanced</string>
+    <string name="video_compress_preset_quality">Keep quality</string>
+
+    <string name="video_compress_codec_label">Format</string>
+    <string name="video_compress_codec_h264">H.264</string>
+    <string name="video_compress_codec_hevc">HEVC (H.265)</string>
+    <string name="video_compress_codec_hevc_unavailable">This device has no hardware HEVC encoder.</string>
+
+    <string name="video_compress_estimate">Estimated %1$s after compressing, from %2$s now.</string>
+    <plurals name="video_compress_estimate_partial">
+        <item quantity="one">%1$d video could not be measured and is not counted in the estimate.</item>
+        <item quantity="other">%1$d videos could not be measured and are not counted in the estimate.</item>
+    </plurals>
+    <string name="video_compress_already_compressed">Already compressed by this app</string>
+    <string name="video_compress_continue">Continue</string>
+
+    <!-- ── video compress: run ───────────────────────────────────────────────────────────────── -->
+    <string name="video_compress_run_title">Compressing</string>
+    <string name="video_compress_run_action">Compress</string>
+    <string name="video_compress_run_confirm_title">Compress the selected videos?</string>
+    <string name="video_compress_run_confirm_body">This can take several minutes. Keep this screen open — leaving cancels the job and removes any unfinished file.</string>
+    <string name="video_compress_run_progress">Video %1$d of %2$d · %3$d%%</string>
+    <string name="video_compress_run_preparing">Preparing…</string>
+    <string name="video_compress_run_stop_title">Stop compressing?</string>
+    <string name="video_compress_run_stop_body">Videos already finished are kept. The one in progress is discarded.</string>
+    <string name="video_compress_run_stop_action">Stop</string>
+
+    <plurals name="video_compress_result_created">
+        <item quantity="one">Created %1$d smaller video — %2$s smaller than the original.</item>
+        <item quantity="other">Created %1$d smaller videos — %2$s smaller than the originals.</item>
+    </plurals>
+    <string name="video_compress_result_kept">Your originals are still on the device — nothing has been freed yet.</string>
+    <plurals name="video_compress_result_skipped">
+        <item quantity="one">%1$d video could not be made smaller and was skipped.</item>
+        <item quantity="other">%1$d videos could not be made smaller and were skipped.</item>
+    </plurals>
+    <plurals name="video_compress_result_failed">
+        <item quantity="one">%1$d video could not be compressed.</item>
+        <item quantity="other">%1$d videos could not be compressed.</item>
+    </plurals>
+    <string name="video_compress_delete_originals">Remove originals and free %1$s</string>
+    <string name="video_compress_delete_confirm_title">Remove the original videos?</string>
+    <string name="video_compress_delete_confirm_body">The smaller copies stay. This cannot be undone.</string>
+    <string name="video_compress_no_space">Not enough free space. About %1$s more is needed before this can run.</string>
+
     <!-- ── audio ─────────────────────────────────────────────────────────────────────────────── -->
     <string name="audio_title">Audio</string>
     <string name="audio_empty">No audio files were found in the locations that could be read.</string>

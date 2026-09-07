@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Notifications
@@ -152,6 +153,11 @@ object FeatureDescriptors {
         FeatureDescriptor(
             FeatureId.BlurryPhotos, R.string.feature_blurry_photos_title,
             R.string.feature_blurry_photos_description, Icons.Filled.BlurOn,
+            R.string.feature_cta_review,
+        ),
+        FeatureDescriptor(
+            FeatureId.VideoCompressor, R.string.feature_video_compressor_title,
+            R.string.feature_video_compressor_description, Icons.Filled.Movie,
             R.string.feature_cta_review,
         ),
     )

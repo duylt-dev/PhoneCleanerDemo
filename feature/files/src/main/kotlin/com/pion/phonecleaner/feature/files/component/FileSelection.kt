@@ -2,6 +2,7 @@ package com.pion.phonecleaner.feature.files.component
 
 import com.pion.phonecleaner.core.mvi.SelectableFiles
 import com.pion.phonecleaner.domain.model.file.ScannedFile
+import com.pion.phonecleaner.domain.model.video.VideoCandidate
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -25,3 +26,20 @@ internal fun selectableFiles(
     items: ImmutableList<ScannedFile> = persistentListOf(),
     selectedIds: ImmutableSet<String> = persistentSetOf(),
 ): SelectableFiles<ScannedFile> = SelectableFiles(items, selectedIds, ScannedFileId)
+
+/**
+ * The same identity rule for the video compressor's rows, held as **one instance** for the same
+ * reason [ScannedFileId] is: `idOf` is a constructor property of `SelectableFiles`, so a lambda
+ * written at the call site makes every new state object unequal to its predecessor, and a screen
+ * that is never `equals` is a screen that can never skip recomposition (`LLM.md` §8).
+ *
+ * `VideoCandidate.id` is the identity because it is what a selection, a `LazyColumn` key and the
+ * `OpenVideoCompressRun` effect payload all carry.
+ */
+internal val VideoCandidateId: (VideoCandidate) -> String = VideoCandidate::id
+
+/** `SelectableFiles(items, selected, VideoCandidateId)`, so no screen re-states the identity. */
+internal fun selectableVideos(
+    items: ImmutableList<VideoCandidate> = persistentListOf(),
+    selectedIds: ImmutableSet<String> = persistentSetOf(),
+): SelectableFiles<VideoCandidate> = SelectableFiles(items, selectedIds, VideoCandidateId)

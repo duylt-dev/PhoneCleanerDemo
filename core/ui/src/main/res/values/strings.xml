@@ -70,6 +70,8 @@
     <string name="feature_similar_photos_description">Group photos that look alike so you can keep the one you want.</string>
     <string name="feature_blurry_photos_title">Blurry photos</string>
     <string name="feature_blurry_photos_description">Find photos that came out blurred so you can remove the ones you do not want.</string>
+    <string name="feature_video_compressor_title">Compress videos</string>
+    <string name="feature_video_compressor_description">Make a smaller copy of a video, then remove the original if you want to.</string>
     <string name="feature_photo_compressor_title">Photo compressor</string>
     <string name="feature_photo_compressor_description">Save a smaller copy of a photo.</string>
     <string name="feature_permission_manager_title">Permission manager</string>
