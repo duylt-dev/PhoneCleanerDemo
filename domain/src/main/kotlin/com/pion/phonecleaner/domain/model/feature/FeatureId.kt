@@ -3,8 +3,8 @@ package com.pion.phonecleaner.domain.model.feature
 import kotlinx.serialization.Serializable
 
 /**
- * The one feature enum. Twenty-one constants: twenty verbatim from the competitor's own tables, and
- * [BlurryPhotos], which is this app's own and is marked as such below.
+ * The one feature enum. Twenty-two constants: twenty verbatim from the competitor's own tables, and
+ * [BlurryPhotos] and [VideoCompressor], which are this app's own and are marked as such below.
  *
  * The competitor kept these three facts in three unrelated places — a descriptor array index, a
  * `goTag` int on the router, and a deep-link `action_id` — and they had to be edited together by hand.
@@ -65,7 +65,25 @@ enum class FeatureId(
      *    never existed there. An invented `flux_…` key would be a key the worker would go looking for
      *    and never match, which is a lie that costs a lookup on every migration.
      */
-    BlurryPhotos       (23, "100530", "");
+    BlurryPhotos       (23, "100530", ""),
+
+    /**
+     * **The second constant here that does NOT come from the competitor**, after [BlurryPhotos].
+     * `grep -ri 'transcod\|MediaCodec\|MediaMuxer\|video.*compress' docs/` finds nothing in
+     * `com.againstvirus.flux`: it has a photo compressor and no video equivalent, so there is no
+     * descriptor index, no analytics id and no `SharedPreferences` key to inherit.
+     *
+     * The three columns are **ours**, chosen the same way [BlurryPhotos]'s were:
+     *
+     *  - `legacyIndex = 24` continues past 23. It is not a legacy index; it is a `goTag` and a
+     *    deep-link `action_id` only this app will ever emit, kept in sequence so `fromLegacyIndex`
+     *    stays one lookup over one list.
+     *  - `analyticsId = "100531"` likewise continues the sequence. No competitor event carries it.
+     *  - `legacyPrefKey = ""` — **empty on purpose.** The migration worker reads this column once to
+     *    find what a competitor install had recorded, and there is nothing to find for a feature
+     *    that never existed there. An invented `flux_…` key would be a lookup that can only miss.
+     */
+    VideoCompressor    (24, "100531", "");
 
     companion object {
         fun fromLegacyIndex(i: Int): FeatureId? = entries.firstOrNull { it.legacyIndex == i }

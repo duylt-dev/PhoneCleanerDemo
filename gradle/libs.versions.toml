@@ -40,6 +40,12 @@ navigation                  = "2.10.0"        # type-safe @Serializable routes �
 coil                        = "3.6.1"         # coil3 group
 lottie                      = "6.7.1"         # decoration only; never gates data — LLM.md §12
 exifinterface               = "1.4.2"
+media3                      = "1.11.0"        # transformer/-effect/-common move together; RESOLVED
+                                              # 2026-09-07 from Google Maven maven-metadata.xml —
+                                              # newest with no alpha/beta/rc. Video transcode ONLY
+                                              # (:data/files), never playback: nothing here plays
+                                              # media, and media3-exoplayer arrives only as
+                                              # transformer's own compile-scope dependency.
 documentfile                = "1.1.0"         # SAF branch of the storage split — LLM.md §3.6
 appcompat                   = "1.8.0"         # ONLY for AppCompatDelegate locale APIs (17-locale in-app picker)
 firebaseBom                 = "34.18.0"       # messaging only; SDK internals out of scope
@@ -102,6 +108,9 @@ androidx-work-testing = { group = "androidx.work", name = "work-testing", versio
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-gif = { group = "io.coil-kt.coil3", name = "coil-gif", version.ref = "coil" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+androidx-media3-transformer = { group = "androidx.media3", name = "media3-transformer", version.ref = "media3" }
+androidx-media3-effect      = { group = "androidx.media3", name = "media3-effect", version.ref = "media3" }
+androidx-media3-common      = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
 lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
 
 # ------------------------------------------------------------------ Platform-adjacent

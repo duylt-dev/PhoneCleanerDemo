@@ -32,6 +32,13 @@ import kotlinx.collections.immutable.persistentSetOf
  * the scan reaches real roots and real rules. `WhatsAppCleaner` still reads `EmptyWhatsAppRoots` and
  * stays locked: the two shared decision 1 and no longer share an answer.
  *
+ * **`VideoCompressor` was a fourth row and was removed on 2026-09-07.** It was never a pending
+ * decision — it was a build-order lock: registration (`FeatureId`, the descriptor, the home tile) has
+ * to land atomically across four modules, and it landed before the screens did (plan 260907-0142
+ * phase 02). Removing the row was the whole change, once `Route.VideoCompressor` and
+ * `Route.VideoCompressRun` were wired into the nav graph (phase 08) — the same thing the `JunkClean`
+ * paragraph above records.
+ *
  * Removing a row is the whole change: the tile unlocks, the hero button re-enables, the exit offer may
  * name it again, and nothing else moves. (The clean-result screen was a fourth reader until
  * 2026-09-03, when its suggestion list was removed by owner decision — it now names no feature at all.)
