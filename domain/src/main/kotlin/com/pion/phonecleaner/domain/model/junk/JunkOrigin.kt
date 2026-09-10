@@ -40,4 +40,7 @@ sealed interface JunkOrigin {
 
     /** A `.apk` file found by the walk. The file's own name is already a legible label. */
     data object ApkFile : JunkOrigin
+
+    /** A loose temporary or log file found by the walk. */
+    data object TemporaryFile : JunkOrigin
 }

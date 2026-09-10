@@ -49,7 +49,7 @@
 
       WHY IT HAD TO BE DECLARED. The junk scan is a filesystem walk, not a MediaStore query. Without
       this grant `AndroidStorageRootProvider.readableRoots()` returns exactly three directories — the
-      app's own cacheDir, externalCacheDir and filesDir — so all three passes walked this app's own
+      app's own cacheDir, externalCacheDir and filesDir — so every pass walked this app's own
       sandbox and reported 0 B on a device that really holds hundreds of megabytes of stale `.apk`
       files. That is worse than a missing feature: the screen said "scanned, nothing found".
       A `.apk` belonging to another app is a NON-MEDIA file, so neither READ_MEDIA_* nor

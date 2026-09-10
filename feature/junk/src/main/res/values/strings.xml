@@ -51,6 +51,7 @@
     <string name="junk_category_system_cache">Cached files</string>
     <string name="junk_category_app_residual">Files left by removed apps</string>
     <string name="junk_category_apk_files">Installer files</string>
+    <string name="junk_category_temporary_files">Temporary and log files</string>
 
     <!-- ── junkclean ─────────────────────────────────────────────────────────────────────────── -->
     <string name="junk_clean_title">Cleaning</string>

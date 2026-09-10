@@ -38,6 +38,7 @@
     <string name="junk_category_system_cache">Tệp bộ nhớ đệm</string>
     <string name="junk_category_app_residual">Tệp còn lại của ứng dụng đã gỡ</string>
     <string name="junk_category_apk_files">Tệp cài đặt</string>
+    <string name="junk_category_temporary_files">Tệp tạm và nhật ký</string>
 
     <!-- ── junkclean ─────────────────────────────────────────────────────────────────────────── -->
     <string name="junk_clean_title">Đang dọn</string>

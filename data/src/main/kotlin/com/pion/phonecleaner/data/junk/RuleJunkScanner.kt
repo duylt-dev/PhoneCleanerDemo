@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
 /**
- * The junk engine: three passes over the three shared file primitives, behind one cold `Flow`.
+ * The junk engine: four passes over the three shared file primitives, behind one cold `Flow`.
  *
  * It replaces `xc.x` (296 L), `xc.j` (the sizer and the unbounded parallel walker), `xc.c` (the
  * unbounded recursive size) and `xc.z` (the storage root cached in a static forever, with a
@@ -56,6 +56,7 @@ internal class RuleJunkScanner(
             categories,
         )
         finishPass(apkPass(readable, scanner), categories)
+        finishPass(temporaryFilesPass(readable, scanner), categories)
 
         emit(
             ScanProgress.Finished(
@@ -103,7 +104,7 @@ internal class RuleJunkScanner(
     private companion object {
         const val TREE_URI_PREFIX = "content://"
 
-        /** Three, and `JunkScanState.progress` divides by the same three (§3.1). */
-        const val PASS_COUNT = 3
+        /** Four, and `JunkScanState.progress` divides by the same four (§3.1). */
+        const val PASS_COUNT = 4
     }
 }

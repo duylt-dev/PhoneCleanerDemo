@@ -35,7 +35,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 /**
- * The three passes, over a real directory tree rather than a mocked filesystem: every one of them
+ * The four passes, over a real directory tree rather than a mocked filesystem: every one of them
  * decides what to look at with `File.isDirectory`, so a test that stubbed that away would exercise
  * nothing the device runs.
  *
@@ -207,6 +207,34 @@ internal class JunkScanPassesTest {
             apkPass(
                 roots = listOf("/irrelevant"),
                 scanner = FakeScanner(listOf(scannedFile("/irrelevant/old.apk", FileKind.Apk, 1L))),
+            )
+        }.filterIsInstance<ScanProgress.Candidate>().map { it.total }
+        assertTrue(totals.all { it == JunkWalkBounds.TOTAL_UNKNOWN })
+    }
+
+    @Test
+    fun `temporary files pass keeps tmp and log files`() = runTest {
+        val category = collect {
+            temporaryFilesPass(
+                roots = listOf("/irrelevant"),
+                scanner = FakeScanner(
+                    listOf(
+                        scannedFile("/irrelevant/session.tmp", FileKind.Other, 100L),
+                        scannedFile("/irrelevant/crash.LOG", FileKind.Other, 200L),
+                        scannedFile("/irrelevant/photo.jpg", FileKind.Image, 9_000L),
+                    ),
+                ),
+            )
+        }
+
+        assertEquals(JunkCategoryId.TemporaryFiles, category?.id)
+        assertEquals(listOf("session.tmp", "crash.LOG"), category?.items?.map { it.label })
+        assertEquals(300L, category?.totalBytes)
+
+        val totals = emissionsOf {
+            temporaryFilesPass(
+                roots = listOf("/irrelevant"),
+                scanner = FakeScanner(listOf(scannedFile("/irrelevant/session.tmp", FileKind.Other, 1L))),
             )
         }.filterIsInstance<ScanProgress.Candidate>().map { it.total }
         assertTrue(totals.all { it == JunkWalkBounds.TOTAL_UNKNOWN })

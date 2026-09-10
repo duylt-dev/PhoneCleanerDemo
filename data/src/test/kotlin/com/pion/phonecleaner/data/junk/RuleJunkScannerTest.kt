@@ -36,11 +36,11 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 /**
- * How the three passes are SEQUENCED, which is a separate question from what each one finds
+ * How the four passes are SEQUENCED, which is a separate question from what each one finds
  * ([JunkScanPassesTest]).
  *
  * The invariant worth a test is the emission contract, because a screen divides by it:
- * `JunkScanState.progress` is `passesFinished / 3`, so a pass that skipped its `PassFinished` when it
+ * `JunkScanState.progress` is `passesFinished / 4`, so a pass that skipped its `PassFinished` when it
  * found nothing would leave the bar stuck at two thirds on a clean device. The competitor produces
  * the same information and throws it away — its only `listener.c(category, result)` implementation
  * has an empty body (`docs/screens/12-junk-cleaning.md` §1.2).
@@ -51,12 +51,17 @@ internal class RuleJunkScannerTest {
     val temp = TemporaryFolder()
 
     @Test
-    fun `emits three PassFinished even when every pass finds nothing`() = runTest {
+    fun `emits four PassFinished even when every pass finds nothing`() = runTest {
         val progress = scanner(root = temp.newFolder(), catalog = EmptyCatalog).scan().toList()
 
-        assertEquals(3, progress.filterIsInstance<ScanProgress.PassFinished>().size)
+        assertEquals(4, progress.filterIsInstance<ScanProgress.PassFinished>().size)
         assertEquals(
-            listOf(JunkCategoryId.SystemCache, JunkCategoryId.AppResidual, JunkCategoryId.ApkFiles),
+            listOf(
+                JunkCategoryId.SystemCache,
+                JunkCategoryId.AppResidual,
+                JunkCategoryId.ApkFiles,
+                JunkCategoryId.TemporaryFiles,
+            ),
             progress.filterIsInstance<ScanProgress.PassStarted>().map { it.category },
         )
         val finished = progress.last() as ScanProgress.Finished
@@ -92,7 +97,7 @@ internal class RuleJunkScannerTest {
 
         val progress = scanner(root = root, catalog = TwoRuleCatalog, appsReadable = false).scan().toList()
 
-        assertEquals(3, progress.filterIsInstance<ScanProgress.PassFinished>().size)
+        assertEquals(4, progress.filterIsInstance<ScanProgress.PassFinished>().size)
         val finished = progress.last() as ScanProgress.Finished
         assertEquals(listOf(JunkCategoryId.SystemCache), finished.categories.map { it.id })
     }

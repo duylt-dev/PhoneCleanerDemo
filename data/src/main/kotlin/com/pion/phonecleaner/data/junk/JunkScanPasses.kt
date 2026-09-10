@@ -19,13 +19,13 @@ import java.io.File
 import java.util.Locale
 
 /**
- * The three passes, as functions over a `FlowCollector<ScanProgress>`.
+ * The four passes, as functions over a `FlowCollector<ScanProgress>`.
  *
  * They live beside `RuleJunkScanner` rather than inside it so that neither file exceeds the 200-line
- * limit and so that "what a pass does" reads apart from "how the three are sequenced"
+ * limit and so that "what a pass does" reads apart from "how the four are sequenced"
  * (`.claude/rules/development-rules.md`).
  *
- * Two invariants hold in all three: `ensureActive()` runs per candidate, so cancelling the collector
+ * Two invariants hold in all four: `ensureActive()` runs per candidate, so cancelling the collector
  * stops the pass; and the candidate list of the two determinate passes is built **before** the
  * sizing loop, which is what makes `ScanProgress.Candidate.total` a real number
  * (`docs/screens/12-junk-cleaning.md` §1.2).
@@ -117,6 +117,25 @@ internal suspend fun FlowCollector<ScanProgress>.apkPass(
     return categoryOf(JunkCategoryId.ApkFiles, items)
 }
 
+/** Pass 4 — loose `.tmp` and `.log` files. Indeterminate for the same reason as the APK walk. */
+internal suspend fun FlowCollector<ScanProgress>.temporaryFilesPass(
+    roots: List<String>,
+    scanner: StorageScanner,
+): JunkCategory? {
+    emit(ScanProgress.PassStarted(JunkCategoryId.TemporaryFiles))
+    val items = ArrayList<JunkItem>()
+    var index = 0
+    scanner.walk(JunkWalkBounds.temporaryFileWalk(roots)).collect { file ->
+        if (!file.name.hasTemporaryOrLogExtension()) return@collect
+        index++
+        emit(ScanProgress.Candidate(file.path, index, JunkWalkBounds.TOTAL_UNKNOWN, file.sizeBytes))
+        if (file.sizeBytes > 0L && items.size < JunkWalkBounds.MAX_ITEMS_PER_CATEGORY) {
+            items += JunkItem(file.path, file.name, file.sizeBytes, JunkOrigin.TemporaryFile)
+        }
+    }
+    return categoryOf(JunkCategoryId.TemporaryFiles, items)
+}
+
 /**
  * Installed under **any** of its names. The competitor tests the primary package only: `xc.o.j()`
  * stores the alias set at fifteen call sites and exposes no getter for it
@@ -126,6 +145,9 @@ internal suspend fun FlowCollector<ScanProgress>.apkPass(
  */
 private fun AppRule.isInstalled(installedPackages: Set<String>): Boolean =
     packageName in installedPackages || aliases.any { it in installedPackages }
+
+private fun String.hasTemporaryOrLogExtension(): Boolean =
+    lowercase(Locale.ROOT).let { it.endsWith(".tmp") || it.endsWith(".log") }
 
 private class ResidualCandidate(val path: String, val label: String, val origin: JunkOrigin)
 
