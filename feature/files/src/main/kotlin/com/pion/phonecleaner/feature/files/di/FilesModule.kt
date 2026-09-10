@@ -8,6 +8,7 @@ import com.pion.phonecleaner.feature.files.video.VideoManagerViewModel
 import com.pion.phonecleaner.feature.files.videocompressor.VideoCompressorViewModel
 import com.pion.phonecleaner.feature.files.videocompressrun.VideoCompressRunViewModel
 import com.pion.phonecleaner.feature.files.whatsapp.WhatsAppCleanerViewModel
+import com.pion.phonecleaner.feature.files.zipfiles.ZipFilesViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -87,4 +88,5 @@ val filesModule = module {
     // No `params`: this screen keeps no selection across process death — buckets are re-scanned,
     // and a bucket id restored against a list that has not arrived yet selects nothing.
     viewModelOf(::WhatsAppCleanerViewModel)
+    viewModelOf(::ZipFilesViewModel)
 }

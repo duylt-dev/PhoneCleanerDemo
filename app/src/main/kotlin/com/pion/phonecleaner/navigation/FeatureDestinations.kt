@@ -39,6 +39,7 @@ fun FeatureId.destination(): Route = when (this) {
     FeatureId.AppManager -> Route.AppManager
     FeatureId.WhatsAppCleaner -> Route.WhatsAppCleaner
     FeatureId.Trash -> Route.Trash
+    FeatureId.ZipFiles -> Route.ZipFiles
 
     FeatureId.ImageManager -> Route.PhotoAlbums
     FeatureId.SimilarPhotos -> Route.SimilarPhotos

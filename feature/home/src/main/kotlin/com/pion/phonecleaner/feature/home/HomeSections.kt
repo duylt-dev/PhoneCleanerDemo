@@ -72,10 +72,14 @@ internal object HomeSections {
      * itself save space — it holds bytes back for a retention window rather than freeing them — so
      * "Privacy and access" below was the more literal fit. Shown that distinction, the owner still
      * chose to close this run with it (plan 260908-0801, open question 2).
+     *
+     * [FeatureId.ZipFiles] sits with the file tools rather than privacy/access. It creates an
+     * archive and keeps the originals, so the copy never promises recovered bytes.
      */
     private val saveSpaceFeatures = persistentListOf(
         FeatureId.BigFiles,
         FeatureId.DuplicateFiles,
+        FeatureId.ZipFiles,
         FeatureId.WhatsAppCleaner,
         FeatureId.SimilarPhotos,
         FeatureId.BlurryPhotos,

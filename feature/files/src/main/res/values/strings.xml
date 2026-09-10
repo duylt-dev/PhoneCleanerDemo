@@ -71,6 +71,20 @@
     <string name="video_title">Videos</string>
     <string name="video_empty">No videos were found in the locations that could be read.</string>
 
+    <!-- ── zip files ────────────────────────────────────────────────────────────────────────── -->
+    <string name="zip_files_title">Zip files</string>
+    <string name="zip_files_empty">Choose up to 10 files to create a ZIP in Downloads/PhoneCleaner.</string>
+    <string name="zip_files_pick">Choose files</string>
+    <string name="zip_files_create">Create ZIP</string>
+    <string name="zip_files_creating">Creating ZIP…</string>
+    <string name="zip_files_limit">Up to 10 standalone files. Folders are not included.</string>
+    <string name="zip_files_unknown_size">Size not available</string>
+    <string name="zip_files_success">Created %1$s (%2$s) in Downloads/PhoneCleaner.</string>
+    <plurals name="zip_files_ignored">
+        <item quantity="one">%1$d extra file was not included. Pick up to 10 files.</item>
+        <item quantity="other">%1$d extra files were not included. Pick up to 10 files.</item>
+    </plurals>
+
     <!-- ── video compress: picker ────────────────────────────────────────────────────────────── -->
     <string name="video_compress_title">Compress videos</string>
     <string name="video_compress_empty">No videos large enough to be worth compressing were found.</string>

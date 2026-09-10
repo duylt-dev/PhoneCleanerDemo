@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.FolderZip
 import com.pion.phonecleaner.core.ui.R
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 
@@ -164,6 +165,11 @@ object FeatureDescriptors {
         FeatureDescriptor(
             FeatureId.Trash, R.string.feature_trash_title,
             R.string.feature_trash_description, Icons.Filled.Delete,
+            R.string.feature_cta_open,
+        ),
+        FeatureDescriptor(
+            FeatureId.ZipFiles, R.string.feature_zip_files_title,
+            R.string.feature_zip_files_description, Icons.Filled.FolderZip,
             R.string.feature_cta_open,
         ),
     )

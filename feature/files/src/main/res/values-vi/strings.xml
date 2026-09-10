@@ -63,6 +63,20 @@
     <string name="video_title">Video</string>
     <string name="video_empty">Không tìm thấy video nào trong những vị trí đọc được.</string>
 
+    <!-- ── zip files ────────────────────────────────────────────────────────────────────────── -->
+    <string name="zip_files_title">Nén ZIP</string>
+    <string name="zip_files_empty">Chọn tối đa 10 tệp để tạo một tệp ZIP trong Downloads/PhoneCleaner.</string>
+    <string name="zip_files_pick">Chọn tệp</string>
+    <string name="zip_files_create">Tạo ZIP</string>
+    <string name="zip_files_creating">Đang tạo ZIP…</string>
+    <string name="zip_files_limit">Tối đa 10 tệp rời. Không bao gồm thư mục.</string>
+    <string name="zip_files_unknown_size">Không có thông tin dung lượng</string>
+    <string name="zip_files_success">Đã tạo %1$s (%2$s) trong Downloads/PhoneCleaner.</string>
+    <plurals name="zip_files_ignored">
+        <item quantity="one">%1$d tệp vượt quá giới hạn không được thêm. Hãy chọn tối đa 10 tệp.</item>
+        <item quantity="other">%1$d tệp vượt quá giới hạn không được thêm. Hãy chọn tối đa 10 tệp.</item>
+    </plurals>
+
     <!-- ── video compress: picker ────────────────────────────────────────────────────────────── -->
     <string name="video_compress_title">Nén video</string>
     <string name="video_compress_empty">Không tìm thấy video nào đủ lớn để nén.</string>

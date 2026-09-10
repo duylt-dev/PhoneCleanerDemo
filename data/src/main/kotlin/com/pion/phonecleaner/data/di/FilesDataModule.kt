@@ -3,6 +3,7 @@ package com.pion.phonecleaner.data.di
 import com.pion.phonecleaner.data.app.PackageManagerAppControlRepository
 import com.pion.phonecleaner.data.app.StorageStatsAppRepository
 import com.pion.phonecleaner.data.files.DefaultWhatsAppScanner
+import com.pion.phonecleaner.data.files.DownloadsFileZipper
 import com.pion.phonecleaner.data.files.EmptyWhatsAppRoots
 import com.pion.phonecleaner.data.files.Md5DuplicateFinder
 import com.pion.phonecleaner.data.files.Media3VideoCompressor
@@ -13,6 +14,7 @@ import com.pion.phonecleaner.domain.repository.AppControlRepository
 import com.pion.phonecleaner.domain.repository.AppStorageStatsRepository
 import com.pion.phonecleaner.domain.repository.CompressedVideoLedger
 import com.pion.phonecleaner.domain.repository.DuplicateFinder
+import com.pion.phonecleaner.domain.repository.FileZipper
 import com.pion.phonecleaner.domain.repository.VideoCandidateRepository
 import com.pion.phonecleaner.domain.repository.VideoCompressor
 import com.pion.phonecleaner.domain.repository.VideoEncoderCapabilities
@@ -87,4 +89,5 @@ val filesDataModule = module {
     single<VideoCompressor> { Media3VideoCompressor(androidContext(), get(), get(), get()) }
     single<CompressedVideoLedger> { DataStoreCompressedVideoLedger(get()) }
     single<VideoEncoderCapabilities> { MediaCodecVideoEncoderCapabilities(get(), get()) }
+    single<FileZipper> { DownloadsFileZipper(androidContext(), get(), get()) }
 }

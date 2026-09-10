@@ -96,5 +96,7 @@
     <string name="feature_network_test_description">Measure the connection this device is using now.</string>
     <string name="feature_trash_title">Trash</string>
     <string name="feature_trash_description">Files you remove are kept here for 2 days, then they go for good.</string>
+    <string name="feature_zip_files_title">Zip files</string>
+    <string name="feature_zip_files_description">Pick up to 10 files and save them as one ZIP in Downloads.</string>
 
 </resources>

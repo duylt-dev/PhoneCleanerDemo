@@ -173,6 +173,9 @@ sealed interface Route {
     @Serializable
     data object WhatsAppCleaner : Route
 
+    @Serializable
+    data object ZipFiles : Route
+
     // -- trash ----------------------------------------------------------------------------------
 
     /** No arguments: the bin is a list of everything, and its contents come from Room. */

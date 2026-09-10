@@ -7,6 +7,7 @@ import com.pion.phonecleaner.domain.usecase.ClearAppLockUseCase
 import com.pion.phonecleaner.domain.usecase.ClearHiddenNotificationsUseCase
 import com.pion.phonecleaner.domain.usecase.CompressPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.CompressVideosUseCase
+import com.pion.phonecleaner.domain.usecase.CreateZipFileUseCase
 import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
 import com.pion.phonecleaner.domain.usecase.DeleteTrashForeverUseCase
@@ -89,6 +90,7 @@ val domainModule = module {
     factoryOf(::ClearHiddenNotificationsUseCase)
     factoryOf(::CompressPhotosUseCase)
     factoryOf(::CompressVideosUseCase)
+    factoryOf(::CreateZipFileUseCase)
     factoryOf(::DeleteFilesUseCase)
     factoryOf(::DeletePhotosUseCase)
     factoryOf(::DeleteTrashForeverUseCase)

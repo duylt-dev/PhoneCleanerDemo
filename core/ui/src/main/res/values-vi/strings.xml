@@ -90,5 +90,7 @@
     <string name="feature_network_test_description">Đo kết nối mà thiết bị này đang dùng.</string>
     <string name="feature_trash_title">Thùng rác</string>
     <string name="feature_trash_description">Tệp bạn xoá được giữ ở đây 2 ngày, sau đó sẽ mất hẳn.</string>
+    <string name="feature_zip_files_title">Nén ZIP</string>
+    <string name="feature_zip_files_description">Chọn tối đa 10 tệp và lưu thành một tệp ZIP trong Tải xuống.</string>
 
 </resources>

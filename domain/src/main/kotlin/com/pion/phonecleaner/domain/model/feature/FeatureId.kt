@@ -3,8 +3,8 @@ package com.pion.phonecleaner.domain.model.feature
 import kotlinx.serialization.Serializable
 
 /**
- * The one feature enum. Twenty-three constants: twenty verbatim from the competitor's own tables, and
- * [BlurryPhotos], [VideoCompressor] and [Trash], which are this app's own and are marked as such below.
+ * The one feature enum. Twenty-six constants: twenty verbatim from the competitor's own tables, and
+ * [BlurryPhotos], [VideoCompressor], [Trash] and [ZipFiles], which are this app's own and are marked as such below.
  *
  * The competitor kept these three facts in three unrelated places — a descriptor array index, a
  * `goTag` int on the router, and a deep-link `action_id` — and they had to be edited together by hand.
@@ -101,7 +101,14 @@ enum class FeatureId(
      *    find what a competitor install had recorded, and there is nothing to find for a feature that
      *    never existed there. An invented `flux_…` key would be a lookup that can only miss.
      */
-    Trash              (25, "100532", "");
+    Trash              (25, "100532", ""),
+
+    /**
+     * **The fourth constant here that does NOT come from the competitor.** It creates a ZIP archive
+     * from files the user picked through SAF, so there is no legacy descriptor, event or preference
+     * key to inherit.
+     */
+    ZipFiles           (26, "100533", "");
 
     companion object {
         fun fromLegacyIndex(i: Int): FeatureId? = entries.firstOrNull { it.legacyIndex == i }

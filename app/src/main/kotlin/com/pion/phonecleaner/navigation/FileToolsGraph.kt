@@ -11,6 +11,7 @@ import com.pion.phonecleaner.feature.files.video.VideoManagerRoute
 import com.pion.phonecleaner.feature.files.videocompressor.VideoCompressorRoute
 import com.pion.phonecleaner.feature.files.videocompressrun.VideoCompressRunRoute
 import com.pion.phonecleaner.feature.files.whatsapp.WhatsAppCleanerRoute
+import com.pion.phonecleaner.feature.files.zipfiles.ZipFilesRoute
 
 /** The six file tools and the video-compression pair. Every one of them ends on the shared clean-result screen. */
 internal fun NavGraphBuilder.fileToolsGraph(navController: NavHostController) {
@@ -54,6 +55,10 @@ internal fun NavGraphBuilder.fileToolsGraph(navController: NavHostController) {
             onNavigateToCleanResult = navController.toCleanResult(),
             onNavigateBack = { navController.popBackStack() },
         )
+    }
+
+    composable<Route.ZipFiles> {
+        ZipFilesRoute(onNavigateBack = { navController.popBackStack() })
     }
 
     composable<Route.VideoCompressor> {
