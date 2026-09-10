@@ -21,6 +21,8 @@
     <string name="trash_retention_note">Anything here is removed automatically after 2 days.</string>
 
     <string name="trash_empty">Nothing here yet. Files you remove from this app wait here before they go.</string>
+    <string name="trash_tab_original">Original files</string>
+    <string name="trash_tab_zip">ZIP files</string>
 
     <!-- The one thing that can turn the bin off. It states the consequence, not the permission name. -->
     <string name="trash_unavailable_title">The bin is off</string>

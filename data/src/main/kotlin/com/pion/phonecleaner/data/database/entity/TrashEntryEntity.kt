@@ -55,6 +55,15 @@ data class TrashEntryEntity(
     /** [TrashRowState.name]. */
     @ColumnInfo(name = "state")
     val state: String,
+    /** [TrashEntryTypeRow.name]. */
+    @ColumnInfo(name = "entry_type")
+    val entryType: String = TrashEntryTypeRow.ORIGINAL.name,
+    /** Delete-action group id. */
+    @ColumnInfo(name = "batch_id")
+    val batchId: String? = null,
+    /** Small JSON payload for type-specific metadata, currently ZIP restore manifest. */
+    @ColumnInfo(name = "metadata_json")
+    val metadataJson: String? = null,
     /** Epoch millis. */
     @ColumnInfo(name = "trashed_at")
     val trashedAtEpochMillis: Long,
@@ -70,3 +79,5 @@ data class TrashEntryEntity(
  * to settle whatever an old one left on anything but `TRASHED`.
  */
 enum class TrashRowState { PENDING, TRASHED, RESTORING, PURGING }
+
+enum class TrashEntryTypeRow { ORIGINAL, ZIP }

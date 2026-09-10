@@ -20,7 +20,8 @@ internal class TrashFixture(
     val ledger = FakeCleanupLedger()
     val vm = TrashViewModel(
         ObserveTrashUseCase(repository), ObserveTrashSummaryUseCase(repository),
-        RestoreFromTrashUseCase(repository), DeleteTrashForeverUseCase(repository, ledger),
+        RestoreFromTrashUseCase(repository), RestoreZipFromTrashUseCase(repository),
+        DeleteTrashForeverUseCase(repository, ledger),
         ReconcileTrashUseCase(repository), permissions, clock,
     )
     private val store = ViewModelStore().apply { put("trash", vm) }

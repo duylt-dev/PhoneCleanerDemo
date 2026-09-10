@@ -23,6 +23,7 @@ internal data class CommitRequest(
     val mimeType: String?,
     val source: FeatureId,
     val originContentUri: String?,
+    val batchId: String? = null,
 )
 
 /**
@@ -54,6 +55,7 @@ internal class TrashCommit(
             mimeType = request.mimeType,
             source = request.source,
             originContentUri = request.originContentUri,
+            batchId = request.batchId,
             trashedAt = clock.now(),
         )
         dao.insert(row) // 1. the row exists before the file moves

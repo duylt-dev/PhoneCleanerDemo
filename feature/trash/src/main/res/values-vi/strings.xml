@@ -17,6 +17,8 @@
     <string name="trash_retention_note">Mọi thứ ở đây sẽ tự động bị xoá sau 2 ngày.</string>
 
     <string name="trash_empty">Chưa có gì ở đây. Tệp bạn xoá trong ứng dụng này sẽ chờ ở đây trước khi mất hẳn.</string>
+    <string name="trash_tab_original">File gốc</string>
+    <string name="trash_tab_zip">File ZIP</string>
 
     <string name="trash_unavailable_title">Thùng rác đang tắt</string>
     <string name="trash_unavailable_body">Nếu không có quyền quản lý tất cả tệp, ứng dụng không thể chuyển tệp sang một chỗ khác trước khi xoá, nên việc xoá sẽ là vĩnh viễn. Hãy cấp quyền để bật lại thùng rác.</string>

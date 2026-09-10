@@ -7,10 +7,12 @@ import com.pion.phonecleaner.core.mvi.UiIntent
 import com.pion.phonecleaner.core.mvi.UiState
 import com.pion.phonecleaner.core.ui.component.dialog.ConfirmSpec
 import com.pion.phonecleaner.domain.model.trash.TrashEntry
+import com.pion.phonecleaner.domain.model.trash.TrashEntryType
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Instant
 
 /**
@@ -46,6 +48,7 @@ data class TrashState(
      * the card says why. Re-read on every resume (LLM.md §7.4).
      */
     val isTrashAvailable: Boolean = false,
+    val selectedTab: TrashTab = TrashTab.Original,
     /**
      * Set only by a failed [TrashPhase.Loading]/reconcile pass — rendered inline (`ErrorCard`,
      * `BigFilesScreen`/`BlurryPhotosScreen`'s own shape) and read back by the `ScreenStarted` retry
@@ -55,22 +58,26 @@ data class TrashState(
      */
     val error: AppError? = null,
 ) : UiState {
-    val isEmpty: Boolean get() = phase == TrashPhase.Ready && entries.isEmpty()
+    val visibleEntries: ImmutableList<TrashEntry>
+        get() = entries.filter { it.type == selectedTab.entryType }.toImmutableList()
+    val isEmpty: Boolean get() = phase == TrashPhase.Ready && visibleEntries.isEmpty()
     val selectedCount: Int get() = selectedIds.size
     val selectedBytes: Long get() = entries.filter { it.id in selectedIds }.sumOf { it.sizeBytes }
     val canSelect: Boolean get() = phase == TrashPhase.Ready && confirm == null
     val canAct: Boolean get() = isTrashAvailable && selectedIds.isNotEmpty() && canSelect
     val canEmptyBin: Boolean get() = isTrashAvailable && totalEntries > 0 && canSelect
-    val isAllSelected: Boolean get() = entries.isNotEmpty() && selectedIds.size == entries.size
+    val isAllSelected: Boolean get() = visibleEntries.isNotEmpty() && selectedIds.size == visibleEntries.size
 }
 
 enum class TrashPhase { Loading, Ready, Working }
 enum class TrashAction { Restore, DeleteForever, EmptyAll }
+enum class TrashTab(val entryType: TrashEntryType) { Original(TrashEntryType.Original), Zip(TrashEntryType.Zip) }
 
 sealed interface TrashIntent : UiIntent {
     data object ScreenStarted : TrashIntent
     data object ScreenResumed : TrashIntent
     data class EntryToggled(val id: String) : TrashIntent
+    data class TabSelected(val tab: TrashTab) : TrashIntent
     data object SelectAllToggled : TrashIntent
     data object RestorePressed : TrashIntent
     data object DeleteForeverPressed : TrashIntent

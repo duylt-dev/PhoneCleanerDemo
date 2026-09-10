@@ -45,6 +45,7 @@ import com.pion.phonecleaner.domain.usecase.ReconcileTrashUseCase
 import com.pion.phonecleaner.domain.usecase.RefreshAppPermissionsUseCase
 import com.pion.phonecleaner.domain.usecase.RemoveFindingUseCase
 import com.pion.phonecleaner.domain.usecase.RestoreFromTrashUseCase
+import com.pion.phonecleaner.domain.usecase.RestoreZipFromTrashUseCase
 import com.pion.phonecleaner.domain.usecase.RunSpeedTestUseCase
 import com.pion.phonecleaner.domain.usecase.SavePinUseCase
 import com.pion.phonecleaner.domain.usecase.ScanAppPermissionsUseCase
@@ -128,6 +129,7 @@ val domainModule = module {
     factoryOf(::RefreshAppPermissionsUseCase)
     factoryOf(::RemoveFindingUseCase)
     factoryOf(::RestoreFromTrashUseCase)
+    factoryOf(::RestoreZipFromTrashUseCase)
     factoryOf(::RunSpeedTestUseCase)
     factoryOf(::SavePinUseCase)
     factoryOf(::ScanAppPermissionsUseCase)

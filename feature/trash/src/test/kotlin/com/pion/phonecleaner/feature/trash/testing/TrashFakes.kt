@@ -35,6 +35,7 @@ internal class FakeTrashRepository(
 ) : TrashRepository {
     var isAvailable = true
     var restoreCalls = 0
+    var restoreZipCalls = 0
     var deleteCalls = 0
     var deleteAllCalls = 0
     var reconcileCalls = 0
@@ -71,6 +72,12 @@ internal class FakeTrashRepository(
         restoredIds = ids
         restoreException?.let { throw it }
         if (suspendRestore) try { awaitCancellation() } finally { restoreCancelled = true }
+        return nextRestoreResult
+    }
+
+    override suspend fun restoreZip(ids: List<String>): AppResult<TrashRestoreOutcome> {
+        restoreZipCalls++
+        restoredIds = ids
         return nextRestoreResult
     }
 

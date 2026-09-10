@@ -259,6 +259,28 @@ internal class VideoCompressRunViewModelTest {
         }
 
     @Test
+    fun `a compression run that never answers times out and closes the progress`() =
+        mainDispatcher.runVmTest {
+            videoCandidates.pool = listOf(clip("a"))
+            compressor.gate = CompletableDeferred()
+            val vm = viewModel(ids = listOf("a"))
+            vm.onIntent(VideoCompressRunIntent.ScreenStarted)
+            settle()
+
+            vm.onIntent(VideoCompressRunIntent.CompressAllPressed)
+            vm.onIntent(VideoCompressRunIntent.CompressConfirmed)
+            settle()
+            assertTrue(vm.state.value.isRunning)
+
+            settle(30 * 60 * 1_000L)
+
+            val run = requireNotNull(vm.state.value.run)
+            assertTrue(run.isFinished)
+            assertFalse(vm.state.value.isRunning)
+            assertTrue(vm.state.value.error is AppError.Unexpected)
+        }
+
+    @Test
     fun `currentPercent is null after every Finished`() = mainDispatcher.runVmTest {
         videoCandidates.pool = listOf(clip("a"))
         compressor.emissions = listOf(

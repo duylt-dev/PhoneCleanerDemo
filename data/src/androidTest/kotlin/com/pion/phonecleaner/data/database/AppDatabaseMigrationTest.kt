@@ -15,7 +15,8 @@ import org.junit.runner.RunWith
  * Verifies that:
  * 1. Migration 1 → 2 adds the `trash_entries` table correctly
  * 2. Existing data in `hidden_notifications` and `threat_cache` is preserved
- * 3. The migrated schema matches the exported v2 schema
+ * 3. The migrated schema matches the exported schema
+ * 4. Migration 2 -> 3 adds ZIP-batch trash metadata
  *
  * Requires `MigrationTestHelper` which needs a real SQLite database on a device.
  */
@@ -122,5 +123,39 @@ class AppDatabaseMigrationTest {
         }
 
         db2.close()
+    }
+
+    @Test
+    fun migration_2_to_3_adds_zip_metadata_columns() {
+        val db2 = migrationTestHelper.createDatabase(testDb, 2)
+        db2.execSQL(
+            """
+            INSERT INTO trash_entries (
+                id, original_path, trashed_path, display_name, size_bytes, file_count,
+                is_directory, mime_type, source_feature, origin_content_uri, media_row_cleared,
+                state, trashed_at, expires_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """.trimIndent(),
+            arrayOf<Any>(
+                "row", "/old.jpg", "/trash/row-old.jpg", "old.jpg", 12L, 1, 0,
+                "image/jpeg", "Trash", "", 1, "TRASHED", 1L, 2L,
+            ),
+        )
+        db2.close()
+
+        val db3 = migrationTestHelper.runMigrationsAndValidate(
+            testDb,
+            3,
+            true,
+            AppMigrations.MIGRATION_2_3,
+        )
+
+        val cursor = db3.query("SELECT entry_type, batch_id, metadata_json FROM trash_entries WHERE id = 'row'")
+        cursor.moveToFirst()
+        assert(cursor.getString(0) == "ORIGINAL") { "Old trash rows must remain original entries" }
+        assert(cursor.isNull(1)) { "Existing rows should not gain a batch id" }
+        assert(cursor.isNull(2)) { "Existing rows should not gain metadata" }
+        cursor.close()
+        db3.close()
     }
 }

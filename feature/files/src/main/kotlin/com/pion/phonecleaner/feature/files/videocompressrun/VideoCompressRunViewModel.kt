@@ -20,6 +20,8 @@ import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.EstimateVideoCompressionUseCase
 import com.pion.phonecleaner.feature.files.component.cleanupSummaryFor
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * `videocompressrun` (`plans/260907-0142-video-compression/phase-07-run-screen.md`).
@@ -124,14 +126,23 @@ class VideoCompressRunViewModel(
         runJob = launchSafely(onError = { setState { withFailure(it) } }) {
             var progress = VideoRunProgress.starting(ids.size)
             setState { copy(run = progress, error = null) }
-            compressVideos(ids, preset, codec).collect { step ->
-                progress = progress.fold(step)
-                setState { copy(run = progress) }
+            val completed = withTimeoutOrNull(RunTimeout) {
+                compressVideos(ids, preset, codec).collect { step ->
+                    progress = progress.fold(step)
+                    setState { copy(run = progress) }
+                }
+                true
             }
             // Close `total` onto what actually settled — left at the requested count it would park
             // the bar for ever, the competitor's never-reset latch by another route.
             progress = progress.copy(total = progress.settled)
-            setState { copy(run = progress, producedBytes = progress.savedBytes) }
+            setState {
+                copy(
+                    run = progress,
+                    producedBytes = progress.savedBytes,
+                    error = if (completed == null) AppError.Unexpected(RunTimeoutMessage) else error,
+                )
+            }
         }
     }
 
@@ -212,5 +223,7 @@ class VideoCompressRunViewModel(
         const val VIDEO_IDS_ARG: String = "videoIds"
         const val PRESET_ARG: String = "preset"
         const val CODEC_ARG: String = "codec"
+        private val RunTimeout = 30.minutes
+        private const val RunTimeoutMessage = "Video compression timed out"
     }
 }

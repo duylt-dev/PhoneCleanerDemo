@@ -50,13 +50,15 @@ internal class TrashFixture(base: File, dispatcher: CoroutineDispatcher) {
     var now = Instant.fromEpochMilliseconds(1_000)
     var scheduled = 0
     val roots = newRoots()
+    val zipDir = File(base, "Downloads/PhoneCleaner")
+    val zipBatch = TrashZipBatch(AppLogger.NoOp, downloadsDir = { zipDir })
     val mover = TrashMover(context, roots, dispatchers, AppLogger.NoOp,
         rename = { from, to -> !refuseMove && from.renameTo(to) },
         remove = { remove(it) }, restoredIndex = { _, _ -> })
     val dao = FakeTrashDao()
     val repository = RoomTrashRepository(dao, roots, mover, object : AppClock {
         override fun now() = now
-    }, dispatchers, AppLogger.NoOp, context, schedulePurge = { scheduled++ })
+    }, dispatchers, AppLogger.NoOp, context, schedulePurge = { scheduled++ }, zipBatch = zipBatch)
 
     fun newRoots() = TrashRoots(context, prefs, dispatchers, AppLogger.NoOp,
         hasAccess = { granted }, renameProbe = { from, to -> probeCalls++; probeSucceeds && from.renameTo(to) })
@@ -68,8 +70,19 @@ internal class TrashFixture(base: File, dispatcher: CoroutineDispatcher) {
 
     suspend fun row(id: String = "row", state: String = "TRASHED", content: String = "payload"): TrashEntryEntity {
         val payload = File(roots.resolve(volume.path)!!, id).apply { writeText(content) }
-        return newPendingTrashEntry(id, File(volume, "$id.txt").path, payload.path,
-            "$id.txt", payload.length(), 1, false, null, FeatureId.Trash, null, now).copy(state = state)
+        return newPendingTrashEntry(
+            id = id,
+            originalPath = File(volume, "$id.txt").path,
+            trashedPath = payload.path,
+            displayName = "$id.txt",
+            sizeBytes = payload.length(),
+            fileCount = 1,
+            isDirectory = false,
+            mimeType = null,
+            source = FeatureId.Trash,
+            originContentUri = null,
+            trashedAt = now,
+        ).copy(state = state)
             .also { dao.insert(it) }
     }
 }
@@ -82,6 +95,8 @@ internal class FakeTrashDao : TrashEntryDao {
     var beforeState: suspend (String, String) -> Unit = { _, _ -> }
     private fun changed() { changes.value++ }
     override fun observeTrashed() = changes.map { rows.values.filter { it.state == "TRASHED" }.take(500) }
+    override fun observeTrashed(entryType: String) =
+        changes.map { rows.values.filter { it.state == "TRASHED" && it.entryType == entryType }.take(500) }
     override fun observeSummary() = changes.map {
         val visible = rows.values.filter { it.state == "TRASHED" }
         TrashSummaryRow(visible.size, visible.sumOf { it.sizeBytes })

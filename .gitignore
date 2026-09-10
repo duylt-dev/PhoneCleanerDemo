@@ -51,3 +51,5 @@ plans/**/*.zip
 docs
 plans
 LLM.md
+
+data/schemas

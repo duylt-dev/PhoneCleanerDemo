@@ -14,6 +14,7 @@ import com.pion.phonecleaner.domain.usecase.ObserveTrashSummaryUseCase
 import com.pion.phonecleaner.domain.usecase.ObserveTrashUseCase
 import com.pion.phonecleaner.domain.usecase.ReconcileTrashUseCase
 import com.pion.phonecleaner.domain.usecase.RestoreFromTrashUseCase
+import com.pion.phonecleaner.domain.usecase.RestoreZipFromTrashUseCase
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 
@@ -26,6 +27,7 @@ class TrashViewModel(
     observeTrash: ObserveTrashUseCase,
     observeTrashSummary: ObserveTrashSummaryUseCase,
     private val restoreFromTrash: RestoreFromTrashUseCase,
+    private val restoreZipFromTrash: RestoreZipFromTrashUseCase,
     private val deleteTrashForever: DeleteTrashForeverUseCase,
     private val reconcileTrash: ReconcileTrashUseCase,
     private val permissions: PermissionRepository,
@@ -50,6 +52,7 @@ class TrashViewModel(
             TrashIntent.ScreenStarted -> onScreenStarted()
             TrashIntent.ScreenResumed -> onScreenResumed()
             is TrashIntent.EntryToggled -> setState { withToggled(intent.id) }
+            is TrashIntent.TabSelected -> setState { copy(selectedTab = intent.tab, selectedIds = persistentSetOf()) }
             TrashIntent.SelectAllToggled -> setState { withAllToggled() }
             TrashIntent.RestorePressed -> confirm(TrashAction.Restore)
             TrashIntent.DeleteForeverPressed -> confirm(TrashAction.DeleteForever)
@@ -114,7 +117,7 @@ class TrashViewModel(
         }
         setState { copy(phase = TrashPhase.Working, confirm = null) }
         when (action) {
-            TrashAction.Restore -> runRestore(ids)
+            TrashAction.Restore -> if (currentState.selectedTab == TrashTab.Zip) runRestoreZip(ids) else runRestore(ids)
             TrashAction.DeleteForever, TrashAction.EmptyAll -> runDelete(ids, action == TrashAction.EmptyAll)
         }
     }
@@ -131,6 +134,15 @@ class TrashViewModel(
     private fun onRestored(outcome: TrashRestoreOutcome) {
         finishAction()
         sendEffect(TrashEffect.ShowRestored(outcome.restoredIds.size, outcome.renamedCount, outcome.failedIds.size))
+    }
+
+    private fun runRestoreZip(ids: List<String>) {
+        launchSafely(onError = ::onActionFailure) {
+            when (val result = timedTrashOperation { restoreZipFromTrash(ids) }) {
+                is AppResult.Success -> onRestored(result.value)
+                is AppResult.Failure -> onActionFailure(result.error)
+            }
+        }
     }
 
     private fun runDelete(ids: List<String>, all: Boolean) {

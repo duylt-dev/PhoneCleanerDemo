@@ -19,6 +19,8 @@ data class TrashMoveOutcome(
     val failedPaths: ImmutableList<String>,
     /** Measured child count, for the directory case. Zero for a file batch. */
     val fileCount: Int = 0,
+    /** True when originals moved successfully but the companion ZIP batch could not be created. */
+    val zipFailed: Boolean = false,
 )
 
 /**
@@ -38,6 +40,7 @@ fun TrashMoveOutcome.asDeleteOutcome(): DeleteOutcome.Deleted = DeleteOutcome.De
     freedBytes = movedBytes,
     failedPaths = failedPaths,
     recoverable = true,
+    zipFailed = zipFailed,
 )
 
 /**

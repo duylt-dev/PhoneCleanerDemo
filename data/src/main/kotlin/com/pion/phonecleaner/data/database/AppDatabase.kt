@@ -37,7 +37,7 @@ import com.pion.phonecleaner.data.database.migration.AppMigrations
  */
 @Database(
     entities = [HiddenNotificationEntity::class, ThreatCacheEntity::class, TrashEntryEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -66,6 +66,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, NAME)
                 .addMigrations(AppMigrations.MIGRATION_1_2)
+                .addMigrations(AppMigrations.MIGRATION_2_3)
                 .build()
     }
 }
