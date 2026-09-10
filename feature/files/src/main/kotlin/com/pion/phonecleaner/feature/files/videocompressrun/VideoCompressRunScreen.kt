@@ -70,6 +70,7 @@ internal fun VideoCompressRunScreen(
                 state.run?.let { progress ->
                     VideoCompressRunOverlay(
                         progress = progress,
+                        timeoutSeconds = state.timeoutSeconds,
                         onFinished = { onIntent(VideoCompressRunIntent.CompletionAnimationFinished) },
                     )
                 }

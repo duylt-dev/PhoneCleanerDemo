@@ -34,6 +34,8 @@ import com.pion.phonecleaner.feature.files.testing.runVmTest
 import com.pion.phonecleaner.feature.files.testing.settle
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -297,6 +299,40 @@ internal class VideoCompressRunViewModelTest {
 
         assertNull(requireNotNull(vm.state.value.run).currentPercent)
     }
+
+    @Test
+    fun `overall percent and eta include the current video progress`() {
+        val progress = VideoRunProgress.starting(total = 2)
+            .fold(finished("a", outputId = "a-out", total = 2), elapsedSeconds = 20L)
+            .fold(
+                VideoCompressProgress.Working(index = 2, total = 2, id = "b", percent = 50),
+                elapsedSeconds = 30L,
+            )
+
+        assertEquals(75, progress.overallPercent)
+        assertEquals(10L, progress.estimatedRemainingSeconds)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `preparing progress still reports elapsed time and timeout remaining`() =
+        mainDispatcher.runVmTest {
+            videoCandidates.pool = listOf(clip("a"))
+            compressor.gate = CompletableDeferred()
+            val vm = viewModel(ids = listOf("a"))
+            vm.onIntent(VideoCompressRunIntent.ScreenStarted)
+            settle()
+
+            vm.onIntent(VideoCompressRunIntent.CompressAllPressed)
+            vm.onIntent(VideoCompressRunIntent.CompressConfirmed)
+            runCurrent()
+            settle(3_000L)
+
+            val run = requireNotNull(vm.state.value.run)
+            assertNull(run.currentPercent)
+            assertEquals(3L, run.elapsedSeconds)
+            assertEquals(30 * 60L - 3L, run.timeoutRemainingSeconds(vm.state.value.timeoutSeconds))
+        }
 
     // -- honesty ---------------------------------------------------------------------------------------
 

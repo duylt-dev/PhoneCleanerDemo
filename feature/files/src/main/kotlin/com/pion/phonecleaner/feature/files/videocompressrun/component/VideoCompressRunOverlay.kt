@@ -34,6 +34,7 @@ import com.pion.phonecleaner.feature.files.videocompressrun.VideoRunProgress
 @Composable
 internal fun VideoCompressRunOverlay(
     progress: VideoRunProgress,
+    timeoutSeconds: Long,
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -43,15 +44,49 @@ internal fun VideoCompressRunOverlay(
     ) {
         LinearProgressIndicator(
             progress = {
-                if (progress.total == 0) 0f else progress.settled.toFloat() / progress.total
+                progress.overallPercent / 100f
             },
             modifier = Modifier.fillMaxWidth(),
         )
+        Text(
+            text = stringResource(R.string.video_compress_run_overall, progress.overallPercent),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        progress.estimatedRemainingSeconds?.let { seconds ->
+            Text(
+                text = stringResource(R.string.video_compress_run_eta, formatSeconds(seconds)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Text(
+            text = stringResource(R.string.video_compress_run_timeout, formatSeconds(timeoutSeconds)),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         val percent = progress.currentPercent
-        if (percent == null) {
+        if (progress.isFinished) {
+            Text(
+                text = stringResource(R.string.video_compress_run_finished, formatSeconds(progress.elapsedSeconds)),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            LinearProgressIndicator(
+                progress = { 1f },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } else if (percent == null) {
             Text(
                 text = stringResource(R.string.video_compress_run_preparing),
                 style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                text = stringResource(
+                    R.string.video_compress_run_preparing_time,
+                    formatSeconds(progress.elapsedSeconds),
+                    formatSeconds(progress.timeoutRemainingSeconds(timeoutSeconds)),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         } else {
@@ -71,4 +106,11 @@ internal fun VideoCompressRunOverlay(
         }
     }
     if (progress.isFinished) LaunchedEffect(Unit) { onFinished() }
+}
+
+private fun formatSeconds(totalSeconds: Long): String {
+    val safeSeconds = totalSeconds.coerceAtLeast(0L)
+    val minutes = safeSeconds / 60
+    val seconds = safeSeconds % 60
+    return "$minutes:${seconds.toString().padStart(2, '0')}"
 }

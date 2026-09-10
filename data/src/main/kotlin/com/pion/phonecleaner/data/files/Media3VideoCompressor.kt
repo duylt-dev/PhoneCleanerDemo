@@ -85,6 +85,11 @@ internal class Media3VideoCompressor(
         codec: VideoCodecOption,
     ): VideoCompressStep {
         val temp = publisher.newTempFile(candidate.file.name, preset)
+        log.d {
+            "Video compression starting index=$index total=$total id=${candidate.id} " +
+                "size=${candidate.sizeBytes} preset=$preset codec=$codec"
+        }
+        trySend(VideoCompressProgress.Working(index, total, candidate.id, percent = 0))
         val afterBytes = try {
             session.transcode(
                 source = Uri.parse(candidate.id),
@@ -114,6 +119,7 @@ internal class Media3VideoCompressor(
             publisher.discard(temp)
             return failedStep(index, total, candidate.id, candidate.sizeBytes)
         }
+        log.d { "Video compression transcoded id=${candidate.id} before=${candidate.sizeBytes} after=$afterBytes" }
 
         // The bigger-output guard: Transformer has no such check. Measured with File.length(), never
         // ExportResult.fileSizeBytes, which can be C.LENGTH_UNSET.
