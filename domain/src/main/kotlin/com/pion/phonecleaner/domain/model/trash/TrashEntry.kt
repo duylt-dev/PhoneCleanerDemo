@@ -40,6 +40,10 @@ data class TrashEntry(
     val mimeType: String? = null,
     /** Which tool put it here. Rendered as the row's second line; never used for logic. */
     val source: FeatureId,
+    /** Original rows and ZIP-batch rows share the same screen, but are acted on independently. */
+    val type: TrashEntryType = TrashEntryType.Original,
+    /** Rows created by the same user delete action share this value. */
+    val batchId: String? = null,
     val trashedAt: Instant,
     val expiresAt: Instant,
 )
@@ -51,3 +55,5 @@ data class TrashEntry(
  * screen never offers it.
  */
 enum class TrashEntryKind { File, Directory }
+
+enum class TrashEntryType { Original, Zip }

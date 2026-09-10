@@ -29,6 +29,10 @@
     <!-- ── albums ────────────────────────────────────────────────────────────────────────────── -->
     <string name="photo_albums_title">Hình ảnh</string>
     <string name="photo_albums_empty">Không tìm thấy hình ảnh nào trong những thư mục đọc được.</string>
+    <string name="photo_folder_all">ALL</string>
+    <string name="photo_sort_most_items">Nhiều ảnh nhất</string>
+    <string name="photo_sort_largest">Dung lượng lớn nhất</string>
+    <string name="photo_sort_name">Tên</string>
     <plurals name="photo_album_count">
         <item quantity="other">%1$d ảnh</item>
     </plurals>

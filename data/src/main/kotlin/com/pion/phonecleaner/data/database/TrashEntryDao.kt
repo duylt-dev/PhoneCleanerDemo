@@ -20,6 +20,12 @@ interface TrashEntryDao {
     )
     fun observeTrashed(): Flow<List<TrashEntryEntity>>
 
+    @Query(
+        "SELECT * FROM trash_entries WHERE state = 'TRASHED' AND entry_type = :entryType " +
+            "ORDER BY trashed_at DESC LIMIT $MAX_OBSERVED_ENTRIES",
+    )
+    fun observeTrashed(entryType: String): Flow<List<TrashEntryEntity>>
+
     /** For the Settings row and the home tile badge, without loading [observeTrashed]'s full list. */
     @Query(
         "SELECT COUNT(*) AS entryCount, COALESCE(SUM(size_bytes), 0) AS totalBytes " +

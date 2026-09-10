@@ -17,6 +17,7 @@
     <string name="action_retry">Try again</string>
     <string name="action_select_all">Select all</string>
     <string name="action_clear_selection">Clear selection</string>
+    <string name="action_sort">Sort</string>
     <string name="state_loading">Working…</string>
 
     <!-- SelectionBar. A count with a plural body, never a hand-appended "s" — the competitor

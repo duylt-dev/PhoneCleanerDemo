@@ -8,8 +8,10 @@ import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.core.common.time.AppClock
 import com.pion.phonecleaner.data.database.TrashEntryDao
 import com.pion.phonecleaner.data.database.entity.TrashEntryEntity
+import com.pion.phonecleaner.data.database.entity.TrashEntryTypeRow
 import com.pion.phonecleaner.data.database.entity.TrashRowState
 import com.pion.phonecleaner.domain.model.feature.FeatureId
+import com.pion.phonecleaner.domain.model.file.FileKind
 import com.pion.phonecleaner.domain.model.file.FileOrigin
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.domain.model.trash.TrashDirectoryRequest
@@ -54,6 +56,7 @@ internal class RoomTrashRepository(
     private val log: AppLogger,
     private val context: Context,
     schedulePurge: (() -> Unit)? = null,
+    zipBatch: TrashZipBatch = TrashZipBatch(log),
 ) : TrashRepository {
 
     // One repository singleton owns every mutation: a worker must never reconcile a live move.
@@ -61,6 +64,7 @@ internal class RoomTrashRepository(
     private val commit = TrashCommit(dao, mover, clock, log, context, schedulePurge)
     private val reconciler = TrashReconciler(dao, log, roots)
     private val removal = TrashRemoval(dao, mover)
+    private val zipBatch = zipBatch
 
     override suspend fun isAvailable(): Boolean = withContext(dispatchers.io) { roots.isAvailable() }
 
@@ -68,7 +72,9 @@ internal class RoomTrashRepository(
         io("trashFiles") {
             val movedIds = mutableListOf<String>()
             val failedPaths = mutableListOf<String>()
+            val zipSources = mutableListOf<ZipSource>()
             var movedBytes = 0L
+            val batchId = UUID.randomUUID().toString()
             for (file in files) {
                 currentCoroutineContext().ensureActive()
                 val contentUri = (file.origin as? FileOrigin.MediaStoreEntry)?.contentUri
@@ -76,15 +82,19 @@ internal class RoomTrashRepository(
                 // API 29+ (LLM.md §11 row 10); resolve the real absolute path off the row itself
                 // before anything else touches it.
                 val absolutePath = mover.absolutePathOf(file.path, contentUri)
-                val trashedPath = absolutePath?.let { commit.commit(file.toCommitRequest(source, it, contentUri)) }
+                val trashedPath = absolutePath?.let { commit.commit(file.toCommitRequest(source, it, contentUri, batchId)) }
                 if (trashedPath != null) {
                     movedIds += file.id
                     movedBytes += file.sizeBytes
+                    if (file.isTrashZipEligible()) {
+                        zipSources += ZipSource(trashedPath, absolutePath, file.name, file.sizeBytes, file.mimeType)
+                    }
                 } else {
                     failedPaths += file.path
                 }
             }
-            TrashMoveOutcome(movedIds.toImmutableList(), movedBytes, failedPaths.toImmutableList())
+            val zipFailed = movedIds.isNotEmpty() && zipSources.isNotEmpty() && createZipEntry(batchId, source, zipSources) == null
+            TrashMoveOutcome(movedIds.toImmutableList(), movedBytes, failedPaths.toImmutableList(), zipFailed = zipFailed)
         }
 
     override suspend fun trashDirectory(request: TrashDirectoryRequest): AppResult<TrashMoveOutcome> =
@@ -137,10 +147,35 @@ internal class RoomTrashRepository(
     override suspend fun deleteAllForever(): AppResult<TrashPurgeOutcome> =
         io("deleteAllForever") { removal.purge(dao.allTrashed()) }
 
+    override suspend fun restoreZip(ids: List<String>): AppResult<TrashRestoreOutcome> = io("restoreZip") {
+        val rows = dao.byIds(ids.distinct()).filter {
+            it.state == TrashRowState.TRASHED.name && it.entryType == TrashEntryTypeRow.ZIP.name
+        }
+        val restored = mutableListOf<String>()
+        val failed = ids.distinct().filterNot { id -> rows.any { it.id == id } }.toMutableList()
+        var renamed = 0
+        rows.forEach { row ->
+            val result = zipBatch.restore(row, mover)
+            if (result.failed == 0 && result.restored > 0) {
+                removal.purge(listOf(row))
+                restored += row.id
+            } else {
+                failed += row.id
+            }
+            renamed += result.renamed
+        }
+        TrashRestoreOutcome(restored.toImmutableList(), failed.toImmutableList(), renamed)
+    }
+
     override suspend fun reconcile(): AppResult<Int> = io("reconcile") { reconciler.reconcile() }
 
     /** [resolvedPath] is the real filesystem path — see [TrashMover.absolutePathOf] — never [ScannedFile.path] directly. */
-    private fun ScannedFile.toCommitRequest(source: FeatureId, resolvedPath: String, contentUri: String?) = CommitRequest(
+    private fun ScannedFile.toCommitRequest(
+        source: FeatureId,
+        resolvedPath: String,
+        contentUri: String?,
+        batchId: String,
+    ) = CommitRequest(
         id = UUID.randomUUID().toString(),
         originalPath = resolvedPath,
         displayName = name,
@@ -150,7 +185,39 @@ internal class RoomTrashRepository(
         mimeType = mimeType,
         source = source,
         originContentUri = contentUri,
+        batchId = batchId,
     )
+
+    private suspend fun createZipEntry(batchId: String, source: FeatureId, files: List<ZipSource>): String? {
+        val created = zipBatch.create(batchId, files) ?: return null
+        val row = newPendingTrashEntry(
+            id = UUID.randomUUID().toString(),
+            originalPath = created.path,
+            trashedPath = created.path,
+            displayName = created.displayName,
+            sizeBytes = created.sizeBytes,
+            fileCount = created.fileCount,
+            isDirectory = false,
+            mimeType = ZIP_MIME,
+            source = source,
+            originContentUri = null,
+            entryType = TrashEntryTypeRow.ZIP,
+            batchId = batchId,
+            metadataJson = created.metadataJson,
+            trashedAt = clock.now(),
+        )
+        dao.insert(row)
+        dao.setState(row.id, TrashRowState.TRASHED.name)
+        return created.path
+    }
+
+    private fun ScannedFile.isTrashZipEligible(): Boolean =
+        kind == FileKind.Image || kind == FileKind.Video || kind == FileKind.Audio ||
+            mimeType?.let { it.startsWith("image/") || it.startsWith("video/") || it.startsWith("audio/") } == true
+
+    private companion object {
+        const val ZIP_MIME = "application/zip"
+    }
 
     private suspend fun <T> io(what: String, block: suspend () -> T): AppResult<T> =
         withContext(dispatchers.io) { mutationLock.withLock {

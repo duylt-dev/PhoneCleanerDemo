@@ -28,6 +28,8 @@ sealed interface DeleteOutcome {
          * delete of that path — the whole point of the bin is that a failure here costs nothing.
          */
         val recoverable: Boolean = false,
+        /** Originals were moved, but the companion ZIP batch was not created. */
+        val zipFailed: Boolean = false,
     ) : DeleteOutcome
 
     /**

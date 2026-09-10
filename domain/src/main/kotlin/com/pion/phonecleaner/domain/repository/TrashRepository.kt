@@ -85,6 +85,9 @@ interface TrashRepository {
     /** All settled entries, including those beyond the display cap. Never derives ids from UI state. */
     suspend fun deleteAllForever(): AppResult<TrashPurgeOutcome>
 
+    /** ZIP tab action: extract every file in a ZIP batch back to its original location. */
+    suspend fun restoreZip(ids: List<String>): AppResult<TrashRestoreOutcome>
+
     /** Everything whose stored `expiresAt` has passed. Never "everything older than N" measured now. */
     suspend fun purgeExpired(): AppResult<TrashPurgeOutcome>
 

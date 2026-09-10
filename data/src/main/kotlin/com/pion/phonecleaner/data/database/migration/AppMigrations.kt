@@ -48,4 +48,12 @@ internal object AppMigrations {
             )
         }
     }
+
+    val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `trash_entries` ADD COLUMN `entry_type` TEXT NOT NULL DEFAULT 'ORIGINAL'")
+            db.execSQL("ALTER TABLE `trash_entries` ADD COLUMN `batch_id` TEXT")
+            db.execSQL("ALTER TABLE `trash_entries` ADD COLUMN `metadata_json` TEXT")
+        }
+    }
 }

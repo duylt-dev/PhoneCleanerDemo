@@ -47,6 +47,8 @@ data class VideoCompressRunState(
     val reclaimedBytes: Long = 0L,
     /** Set by the pre-flight check. Non-null ⇒ the run was refused and never started. */
     val spaceShortfall: Long? = null,
+    /** Visible run budget, in seconds, so the user knows when this foreground job gives up. */
+    val timeoutSeconds: Long = DEFAULT_RUN_TIMEOUT_SECONDS,
     /** Every id from the route resolved to nothing — process death, or the videos are gone. */
     val sessionLost: Boolean = false,
     val error: AppError? = null,
@@ -82,6 +84,10 @@ data class VideoCompressRunState(
 
     /** The line that stops this feature reading as broken: the originals are still on the device. */
     val showOriginalsKeptNotice: Boolean get() = isFinished && reclaimedBytes == 0L
+
+    companion object {
+        const val DEFAULT_RUN_TIMEOUT_SECONDS: Long = 30 * 60
+    }
 }
 
 /**
@@ -108,11 +114,30 @@ data class VideoRunProgress(
     val currentId: String?,
     /** `null` ⇒ the engine has not produced a figure yet; the bar is indeterminate, not zero. */
     val currentPercent: Int?,
+    /** Seconds since the run started, updated by the ViewModel's monotonic clock. */
+    val elapsedSeconds: Long,
     /** Source ids the engine actually re-encoded. The delete step names only these (open question 2). */
     val succeededIds: ImmutableSet<String> = persistentSetOf(),
 ) {
     val settled: Int get() = done + skipped + failed
     val isFinished: Boolean get() = settled >= total
+    val overallPercent: Int
+        get() = if (total <= 0) {
+            0
+        } else {
+            val currentShare = (currentPercent ?: 0).coerceIn(0, 100) / 100f
+            val completedBeforeCurrent = (currentIndex - 1).coerceIn(settled, total)
+            (((completedBeforeCurrent + currentShare) / total) * 100).toInt().coerceIn(0, 100)
+        }
+    val estimatedRemainingSeconds: Long?
+        get() {
+            val percent = overallPercent
+            if (isFinished || elapsedSeconds <= 0L || percent <= 0) return null
+            val estimatedTotalSeconds = (elapsedSeconds * 100f / percent).toLong()
+            return (estimatedTotalSeconds - elapsedSeconds).coerceAtLeast(0L)
+        }
+    fun timeoutRemainingSeconds(timeoutSeconds: Long): Long =
+        (timeoutSeconds - elapsedSeconds).coerceAtLeast(0L)
 
     companion object {
         /** The zeroed progress a run starts from, [total] being the requested count. */
@@ -125,14 +150,16 @@ data class VideoRunProgress(
             currentIndex = 0,
             currentId = null,
             currentPercent = null,
+            elapsedSeconds = 0L,
         )
     }
 
-    fun fold(progress: VideoCompressProgress): VideoRunProgress = when (progress) {
+    fun fold(progress: VideoCompressProgress, elapsedSeconds: Long = this.elapsedSeconds): VideoRunProgress = when (progress) {
         is VideoCompressProgress.Working -> copy(
             currentIndex = progress.index,
             currentId = progress.id,
             currentPercent = progress.percent,
+            elapsedSeconds = elapsedSeconds,
         )
 
         is VideoCompressProgress.Finished -> {
@@ -149,6 +176,7 @@ data class VideoRunProgress(
                     succeededIds
                 },
                 currentPercent = null,
+                elapsedSeconds = elapsedSeconds,
             )
         }
     }

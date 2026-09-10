@@ -15,7 +15,9 @@ import com.pion.phonecleaner.domain.model.file.PendingIntentToken
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.feature.files.component.MediaAccess
 import com.pion.phonecleaner.feature.files.component.MediaSort
+import com.pion.phonecleaner.feature.files.component.filteredByFolder
 import com.pion.phonecleaner.feature.files.component.selectableFiles
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * `video` (`docs/screens/14-file-tools-and-app-manager.md` §3). Replaces `IndavailActivity` (426 L)
@@ -32,6 +34,7 @@ data class VideoManagerState(
     override val phase: ToolPhase = ToolPhase.Idle,
     val files: SelectableFiles<ScannedFile> = selectableFiles(),
     val access: MediaAccess = MediaAccess.Unknown,
+    val selectedFolderPath: String? = null,
 
     /** The competitor has no sort; its query order is fixed. */
     val sort: MediaSort = MediaSort.NewestFirst,
@@ -54,11 +57,14 @@ data class VideoManagerState(
     val canDelete: Boolean get() = phase == ToolPhase.Ready && selectedCount > 0
 
     val showEmptyState: Boolean
-        get() = phase == ToolPhase.Ready && files.items.isEmpty() && access.canLoad
+        get() = phase == ToolPhase.Ready && visibleItems.isEmpty() && access.canLoad
 
     val showPartialAccessBanner: Boolean get() = access == MediaAccess.Partial
 
     val showPermissionState: Boolean get() = access == MediaAccess.Denied
+
+    val visibleItems: ImmutableList<ScannedFile>
+        get() = files.items.filteredByFolder(selectedFolderPath)
 }
 
 sealed interface VideoManagerIntent : UiIntent {
@@ -67,6 +73,7 @@ sealed interface VideoManagerIntent : UiIntent {
     /** The load starts from HERE, never from `init` (MVI §3: work that needs a permission). */
     data class PermissionResolved(val access: MediaAccess) : VideoManagerIntent
     data object GrantMorePressed : VideoManagerIntent
+    data class FolderSelected(val folderPath: String?) : VideoManagerIntent
     data class SortSelected(val sort: MediaSort) : VideoManagerIntent
     data class RowToggled(override val id: String) : VideoManagerIntent, FileToolIntent.ToggleItem
     data object SelectAllToggled : VideoManagerIntent, FileToolIntent.ToggleSelectAll

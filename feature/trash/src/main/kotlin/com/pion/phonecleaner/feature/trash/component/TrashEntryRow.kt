@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
 import com.pion.phonecleaner.domain.model.trash.TrashEntry
 import com.pion.phonecleaner.domain.model.trash.TrashEntryKind
+import com.pion.phonecleaner.domain.model.trash.TrashEntryType
 import com.pion.phonecleaner.feature.trash.ExpiryLabel
 import com.pion.phonecleaner.feature.trash.R
 import com.pion.phonecleaner.feature.trash.TrashIntent
@@ -57,11 +59,7 @@ internal fun TrashEntryRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = if (entry.kind == TrashEntryKind.Directory) {
-                Icons.Filled.Folder
-            } else {
-                Icons.AutoMirrored.Filled.InsertDriveFile
-            },
+            imageVector = entry.icon(),
             contentDescription = null, // decorative: `entry.displayName` is the accessible name
             modifier = Modifier.size(RowIconSize),
         )
@@ -114,6 +112,12 @@ private fun entrySubtitle(entry: TrashEntry, bytes: String): String {
 private fun expiryText(label: ExpiryLabel): String = when (label) {
     is ExpiryLabel.DaysLeft -> pluralStringResource(R.plurals.trash_expires_in_days, label.days, label.days)
     ExpiryLabel.Today -> stringResource(R.string.trash_expires_today)
+}
+
+private fun TrashEntry.icon() = when {
+    type == TrashEntryType.Zip -> Icons.Filled.Inventory2
+    kind == TrashEntryKind.Directory -> Icons.Filled.Folder
+    else -> Icons.AutoMirrored.Filled.InsertDriveFile
 }
 
 private const val SubtitleSeparator = " · "

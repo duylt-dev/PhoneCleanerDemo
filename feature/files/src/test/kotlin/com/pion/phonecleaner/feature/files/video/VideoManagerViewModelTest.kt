@@ -98,6 +98,26 @@ internal class VideoManagerViewModelTest {
         assertTrue(vm.state.value.error != null)
     }
 
+    @Test
+    fun `folder filter changes visible rows but keeps selection global`() = mainDispatcher.runVmTest {
+        mediaStore.videos = AppResult.Success(
+            persistentListOf(
+                clip("v1").copy(path = "/movies/camera/v1.mp4"),
+                clip("v2").copy(path = "/movies/download/v2.mp4"),
+            ),
+        )
+        val vm = viewModel()
+        vm.onIntent(VideoManagerIntent.PermissionResolved(MediaAccess.Granted))
+        settle()
+
+        vm.onIntent(VideoManagerIntent.RowToggled("v1"))
+        vm.onIntent(VideoManagerIntent.FolderSelected("/movies/download"))
+
+        assertEquals(listOf("v2"), vm.state.value.visibleItems.map { it.id })
+        assertEquals(1, vm.state.value.files.selectedCount)
+        assertTrue("v1" in vm.state.value.files.selectedIds)
+    }
+
     private companion object {
         fun clip(id: String) = ScannedFile(
             id = id,

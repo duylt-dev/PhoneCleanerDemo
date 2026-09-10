@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import com.pion.phonecleaner.core.common.concurrent.DispatcherProvider
 import com.pion.phonecleaner.core.common.error.AppError
 import com.pion.phonecleaner.core.common.log.AppLogger
@@ -81,6 +82,7 @@ internal class DownloadsFileZipper(
     private fun openTarget(fileName: String): ZipTarget? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) openScopedTarget(fileName) else openLegacyTarget(fileName)
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun openScopedTarget(fileName: String): ZipTarget? {
         val values = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, fileName)

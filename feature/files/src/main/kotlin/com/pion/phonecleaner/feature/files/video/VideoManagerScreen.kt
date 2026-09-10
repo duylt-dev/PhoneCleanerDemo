@@ -15,7 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.pion.phonecleaner.core.ui.component.header.PageHeader
+import com.pion.phonecleaner.core.ui.component.list.FolderFilterBar
 import com.pion.phonecleaner.core.ui.component.list.SelectionBar
+import com.pion.phonecleaner.core.ui.component.list.SortMenuItem
 import com.pion.phonecleaner.core.ui.component.state.EmptyState
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.PageSpacing
@@ -25,11 +27,12 @@ import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.feature.files.R
 import com.pion.phonecleaner.feature.files.component.ConfirmDialogHost
 import com.pion.phonecleaner.feature.files.component.MediaPermissionState
-import com.pion.phonecleaner.feature.files.component.MediaSortChips
+import com.pion.phonecleaner.feature.files.component.MediaSort
 import com.pion.phonecleaner.feature.files.component.PartialAccessBanner
 import com.pion.phonecleaner.feature.files.component.ToolBanner
 import com.pion.phonecleaner.feature.files.component.ToolOverlay
 import com.pion.phonecleaner.feature.files.component.TruncationBanner
+import com.pion.phonecleaner.feature.files.component.folderTabs
 import com.pion.phonecleaner.feature.files.video.component.VideoCell
 
 /**
@@ -52,9 +55,13 @@ internal fun VideoManagerScreen(
                     title = stringResource(R.string.video_title),
                     onBack = { onIntent(VideoManagerIntent.BackPressed) },
                 )
-                MediaSortChips(
+                FolderFilterBar(
+                    tabs = state.files.items.folderTabs(stringResource(R.string.media_folder_all)),
+                    selectedKey = state.selectedFolderPath,
                     sort = state.sort,
-                    onSelect = { onIntent(VideoManagerIntent.SortSelected(it)) },
+                    sortItems = videoSortItems(),
+                    onFolderSelected = { onIntent(VideoManagerIntent.FolderSelected(it)) },
+                    onSortSelected = { onIntent(VideoManagerIntent.SortSelected(it)) },
                 )
                 PartialAccessBanner(
                     visible = state.showPartialAccessBanner,
@@ -120,7 +127,7 @@ private fun VideoGrid(
         ),
     ) {
         items(
-            items = state.files.items,
+            items = state.visibleItems,
             key = { it.id },
             contentType = { it.kind },
         ) { file ->
@@ -152,3 +159,10 @@ private fun VideoGridCell(
 
 /** Three columns, as §3.3 specifies. */
 private const val GridColumns = 3
+
+@Composable
+private fun videoSortItems(): List<SortMenuItem<MediaSort>> = listOf(
+    SortMenuItem(MediaSort.NewestFirst, stringResource(R.string.media_sort_newest)),
+    SortMenuItem(MediaSort.LargestFirst, stringResource(R.string.media_sort_largest)),
+    SortMenuItem(MediaSort.Name, stringResource(R.string.media_sort_name)),
+)

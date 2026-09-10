@@ -20,6 +20,14 @@ import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.EstimateVideoCompressionUseCase
 import com.pion.phonecleaner.feature.files.component.cleanupSummaryFor
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 /**
  * `videocompressrun` (`plans/260907-0142-video-compression/phase-07-run-screen.md`).
@@ -118,20 +126,52 @@ class VideoCompressRunViewModel(
         val ids = currentState.videos.map { it.id }
         val preset = currentState.preset
         val codec = currentState.codec
+        val timeoutSeconds = currentState.timeoutSeconds
         setState { copy(isRunConfirmVisible = false) }
         if (ids.isEmpty()) return
         runJob?.cancel()
         runJob = launchSafely(onError = { setState { withFailure(it) } }) {
             var progress = VideoRunProgress.starting(ids.size)
+            val startedAt = TimeSource.Monotonic.markNow()
             setState { copy(run = progress, error = null) }
-            compressVideos(ids, preset, codec).collect { step ->
-                progress = progress.fold(step)
-                setState { copy(run = progress) }
+            val completed = coroutineScope {
+                val ticker = launch {
+                    while (isActive) {
+                        delay(1.seconds)
+                        val currentRun = currentState.run ?: progress
+                        if (!currentRun.isFinished) {
+                            progress = currentRun.copy(elapsedSeconds = currentRun.elapsedSeconds + 1L)
+                            setState { copy(run = progress) }
+                        }
+                    }
+                }
+                val result = withTimeoutOrNull(timeoutSeconds.seconds) {
+                    compressVideos(ids, preset, codec).collect { step ->
+                        progress = progress.fold(step, elapsedSeconds = startedAt.elapsedNow().inWholeSeconds)
+                        setState { copy(run = progress) }
+                    }
+                    true
+                }
+                ticker.cancelAndJoin()
+                result
             }
             // Close `total` onto what actually settled — left at the requested count it would park
             // the bar for ever, the competitor's never-reset latch by another route.
-            progress = progress.copy(total = progress.settled)
-            setState { copy(run = progress, producedBytes = progress.savedBytes) }
+            progress = progress.copy(
+                total = progress.settled,
+                elapsedSeconds = if (completed == null) {
+                    timeoutSeconds
+                } else {
+                    startedAt.elapsedNow().inWholeSeconds
+                },
+            )
+            setState {
+                copy(
+                    run = progress,
+                    producedBytes = progress.savedBytes,
+                    error = if (completed == null) AppError.Unexpected(RunTimeoutMessage) else error,
+                )
+            }
         }
     }
 
@@ -212,5 +252,6 @@ class VideoCompressRunViewModel(
         const val VIDEO_IDS_ARG: String = "videoIds"
         const val PRESET_ARG: String = "preset"
         const val CODEC_ARG: String = "codec"
+        private const val RunTimeoutMessage = "Video compression timed out"
     }
 }

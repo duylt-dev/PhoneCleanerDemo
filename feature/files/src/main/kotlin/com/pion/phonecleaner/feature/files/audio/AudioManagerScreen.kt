@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.pion.phonecleaner.core.ui.component.header.PageHeader
+import com.pion.phonecleaner.core.ui.component.list.FolderFilterBar
 import com.pion.phonecleaner.core.ui.component.list.SelectionBar
+import com.pion.phonecleaner.core.ui.component.list.SortMenuItem
 import com.pion.phonecleaner.core.ui.component.state.EmptyState
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.PageSpacing
@@ -25,10 +27,11 @@ import com.pion.phonecleaner.feature.files.R
 import com.pion.phonecleaner.feature.files.component.ConfirmDialogHost
 import com.pion.phonecleaner.feature.files.component.FileRow
 import com.pion.phonecleaner.feature.files.component.MediaPermissionState
-import com.pion.phonecleaner.feature.files.component.MediaSortChips
+import com.pion.phonecleaner.feature.files.component.MediaSort
 import com.pion.phonecleaner.feature.files.component.ToolBanner
 import com.pion.phonecleaner.feature.files.component.ToolOverlay
 import com.pion.phonecleaner.feature.files.component.TruncationBanner
+import com.pion.phonecleaner.feature.files.component.folderTabs
 
 /**
  * `docs/screens/14-file-tools-and-app-manager.md` §4.
@@ -49,9 +52,13 @@ internal fun AudioManagerScreen(
                     title = stringResource(R.string.audio_title),
                     onBack = { onIntent(AudioManagerIntent.BackPressed) },
                 )
-                MediaSortChips(
+                FolderFilterBar(
+                    tabs = state.files.items.folderTabs(stringResource(R.string.media_folder_all)),
+                    selectedKey = state.selectedFolderPath,
                     sort = state.sort,
-                    onSelect = { onIntent(AudioManagerIntent.SortSelected(it)) },
+                    sortItems = audioSortItems(),
+                    onFolderSelected = { onIntent(AudioManagerIntent.FolderSelected(it)) },
+                    onSortSelected = { onIntent(AudioManagerIntent.SortSelected(it)) },
                 )
                 TruncationBanner(state.scanTruncated)
                 if (state.failedCount > 0) {
@@ -108,7 +115,7 @@ private fun AudioList(
         contentPadding = PaddingValues(bottom = PageSpacing.listBottom),
     ) {
         items(
-            items = state.files.items,
+            items = state.visibleItems,
             key = { it.id },
             contentType = { it.kind },
         ) { file ->
@@ -136,3 +143,10 @@ private fun AudioRow(
     val onOpen = remember(id, onIntent) { { onIntent(AudioManagerIntent.RowOpened(id)) } }
     FileRow(file = file, selected = selected, onToggle = onToggle, onOpen = onOpen)
 }
+
+@Composable
+private fun audioSortItems(): List<SortMenuItem<MediaSort>> = listOf(
+    SortMenuItem(MediaSort.NewestFirst, stringResource(R.string.media_sort_newest)),
+    SortMenuItem(MediaSort.LargestFirst, stringResource(R.string.media_sort_largest)),
+    SortMenuItem(MediaSort.Name, stringResource(R.string.media_sort_name)),
+)

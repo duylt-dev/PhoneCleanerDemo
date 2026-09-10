@@ -85,6 +85,7 @@ internal class VideoTranscodeSession(
                         result: ExportResult,
                         exception: ExportException,
                     ) {
+                        log.e(exception) { "export failed for $source" }
                         if (cont.isActive) cont.resumeWithException(exception)
                     }
                 }
@@ -122,8 +123,17 @@ internal class VideoTranscodeSession(
                 }
 
                 handler.post {
-                    poll = startProgressPolling(transformer, handler, onProgress)
-                    transformer.start(item, outputPath)
+                    try {
+                        log.d {
+                            "export start source=$source output=$outputPath " +
+                                "mime=$videoMimeType bitrate=$videoBitrateBps shortSide=$targetShortSidePx"
+                        }
+                        poll = startProgressPolling(transformer, handler, onProgress)
+                        transformer.start(item, outputPath)
+                    } catch (failure: Exception) {
+                        log.e(failure) { "export start failed for $source" }
+                        if (cont.isActive) cont.resumeWithException(failure)
+                    }
                 }
             }
         } finally {
@@ -147,10 +157,14 @@ internal class VideoTranscodeSession(
         val holder = ProgressHolder()
         lateinit var poll: Runnable
         poll = Runnable {
-            val state = transformer.getProgress(holder)
-            if (state == Transformer.PROGRESS_STATE_AVAILABLE) onProgress(holder.progress)
-            if (state != Transformer.PROGRESS_STATE_NOT_STARTED) {
-                handler.postDelayed(poll, PROGRESS_POLL_MS)
+            try {
+                val state = transformer.getProgress(holder)
+                if (state == Transformer.PROGRESS_STATE_AVAILABLE) onProgress(holder.progress)
+                if (state != Transformer.PROGRESS_STATE_NOT_STARTED) {
+                    handler.postDelayed(poll, PROGRESS_POLL_MS)
+                }
+            } catch (failure: Exception) {
+                log.e(failure) { "export progress polling failed" }
             }
         }
         handler.postDelayed(poll, PROGRESS_POLL_MS)

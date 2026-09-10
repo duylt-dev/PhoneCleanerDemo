@@ -14,6 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -64,6 +66,7 @@ internal fun TrashScreen(
                 if (!state.isTrashAvailable) {
                     TrashUnavailableCard(onAllowAccess = { onIntent(TrashIntent.AllowAccessPressed) })
                 }
+                TrashTabs(state = state, onIntent = onIntent)
                 state.error?.let { error ->
                     ErrorCard(
                         error = error,
@@ -90,7 +93,7 @@ internal fun TrashScreen(
                         ) { Text(stringResource(R.string.trash_action_delete_forever)) }
                     }
                 }
-                if (state.entries.isNotEmpty()) {
+                if (state.visibleEntries.isNotEmpty()) {
                     SelectionBar(
                         selectedCount = state.selectedCount,
                         selectedBytes = state.selectedBytes,
@@ -135,7 +138,7 @@ private fun TrashEntryList(
         contentPadding = PaddingValues(bottom = PageSpacing.listBottom),
     ) {
         items(
-            items = state.entries,
+            items = state.visibleEntries,
             // `TrashEntry.id` is the identity the selection Set, the row key and the restore/delete
             // requests all carry.
             key = { it.id },
@@ -148,6 +151,22 @@ private fun TrashEntryList(
                 onIntent = onIntent,
             )
         }
+    }
+}
+
+@Composable
+private fun TrashTabs(state: TrashState, onIntent: (TrashIntent) -> Unit) {
+    TabRow(selectedTabIndex = state.selectedTab.ordinal) {
+        Tab(
+            selected = state.selectedTab == TrashTab.Original,
+            onClick = { onIntent(TrashIntent.TabSelected(TrashTab.Original)) },
+            text = { Text(stringResource(R.string.trash_tab_original)) },
+        )
+        Tab(
+            selected = state.selectedTab == TrashTab.Zip,
+            onClick = { onIntent(TrashIntent.TabSelected(TrashTab.Zip)) },
+            text = { Text(stringResource(R.string.trash_tab_zip)) },
+        )
     }
 }
 

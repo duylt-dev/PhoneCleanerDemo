@@ -17,7 +17,7 @@ internal fun TrashState.withToggled(id: String): TrashState = if (!canSelect || 
 )
 
 internal fun TrashState.withAllToggled(): TrashState = if (!canSelect) this else copy(
-    selectedIds = if (isAllSelected) persistentSetOf() else entries.map { it.id }.toImmutableSet(),
+    selectedIds = if (isAllSelected) persistentSetOf() else visibleEntries.map { it.id }.toImmutableSet(),
 )
 
 internal fun TrashState.withoutConfirmation(): TrashState = copy(

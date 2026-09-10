@@ -65,6 +65,9 @@ internal class FakeTrashRepository(
     override suspend fun restore(ids: List<String>): AppResult<TrashRestoreOutcome> =
         AppResult.Success(TrashRestoreOutcome(persistentListOf(), persistentListOf(), 0))
 
+    override suspend fun restoreZip(ids: List<String>): AppResult<TrashRestoreOutcome> =
+        AppResult.Success(TrashRestoreOutcome(persistentListOf(), persistentListOf(), 0))
+
     override suspend fun deleteForever(ids: List<String>): AppResult<TrashPurgeOutcome> =
         AppResult.Success(TrashPurgeOutcome(persistentListOf(), 0L, persistentListOf()))
 

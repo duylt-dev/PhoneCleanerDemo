@@ -114,8 +114,13 @@
     <string name="video_compress_run_action">Compress</string>
     <string name="video_compress_run_confirm_title">Compress the selected videos?</string>
     <string name="video_compress_run_confirm_body">This can take several minutes. Keep this screen open — leaving cancels the job and removes any unfinished file.</string>
+    <string name="video_compress_run_overall">%1$d%% compressed</string>
+    <string name="video_compress_run_eta">Estimated time left: %1$s</string>
+    <string name="video_compress_run_timeout">Timeout: %1$s</string>
     <string name="video_compress_run_progress">Video %1$d of %2$d · %3$d%%</string>
     <string name="video_compress_run_preparing">Preparing…</string>
+    <string name="video_compress_run_preparing_time">Waiting %1$s · timeout in %2$s</string>
+    <string name="video_compress_run_finished">Finished in %1$s</string>
     <string name="video_compress_run_stop_title">Stop compressing?</string>
     <string name="video_compress_run_stop_body">Videos already finished are kept. The one in progress is discarded.</string>
     <string name="video_compress_run_stop_action">Stop</string>
@@ -152,6 +157,7 @@
     <string name="media_sort_newest">Newest</string>
     <string name="media_sort_largest">Largest</string>
     <string name="media_sort_name">Name</string>
+    <string name="media_folder_all">ALL</string>
 
     <!-- ── appmanager ────────────────────────────────────────────────────────────────────────── -->
     <string name="app_manager_title">App manager</string>
