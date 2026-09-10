@@ -5,7 +5,10 @@ import com.pion.phonecleaner.feature.files.audio.AudioManagerViewModel
 import com.pion.phonecleaner.feature.files.bigfiles.BigFilesViewModel
 import com.pion.phonecleaner.feature.files.duplicates.DuplicatesViewModel
 import com.pion.phonecleaner.feature.files.video.VideoManagerViewModel
+import com.pion.phonecleaner.feature.files.videocompressor.VideoCompressorViewModel
+import com.pion.phonecleaner.feature.files.videocompressrun.VideoCompressRunViewModel
 import com.pion.phonecleaner.feature.files.whatsapp.WhatsAppCleanerViewModel
+import com.pion.phonecleaner.feature.files.zipfiles.ZipFilesViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -39,23 +42,43 @@ import org.koin.dsl.module
  * exact lines are reported rather than added here, because adding a `single` to a module this
  * cluster does not own is precisely the defect §6.4 prevents.
  *
- * Screens: bigfiles · duplicates · video · audio · appmanager · whatsapp
+ * Screens: bigfiles · duplicates · video · videocompressor · videocompressrun · audio · appmanager ·
+ * whatsapp
  */
 val filesModule = module {
+    // One more `get()` than before phase 07: `PermissionRepository`, resolved from `coreDataModule`
+    // — the confirm dialog's advisory read of `AppPermission.AllFiles` (plan `260908-0801-trash-bin`).
     viewModel { params ->
-        BigFilesViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        BigFilesViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { params ->
-        DuplicatesViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        DuplicatesViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { params ->
-        VideoManagerViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        VideoManagerViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
+    }
+
+    // One more `get()` than `video`: `VideoEncoderCapabilities`, bound as a `single` in
+    // `filesDataModule` (phase 04). `params.get()` for the `SavedStateHandle` — this screen keeps a
+    // selection, a preset and a codec across process death (`LLM.md` §6.3).
+    viewModel { params ->
+        VideoCompressorViewModel(params.get(), get(), get(), get(), get(), get(), get())
+    }
+
+    // params.get() for SavedStateHandle (ids/preset/codec are route scalars, LLM.md §7.2), then
+    // compressVideos, estimateCompression, checkSpace, deleteFiles, videos (VideoCandidateRepository),
+    // analytics, permissions, log — in that constructor order (phase-07-run-screen.md step 7;
+    // `permissions` added by plan `260908-0801-trash-bin` Phase 07).
+    viewModel { params ->
+        VideoCompressRunViewModel(
+            params.get(), get(), get(), get(), get(), get(), get(), get(), get(),
+        )
     }
 
     viewModel { params ->
-        AudioManagerViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        AudioManagerViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { params ->
@@ -65,4 +88,5 @@ val filesModule = module {
     // No `params`: this screen keeps no selection across process death — buckets are re-scanned,
     // and a bucket id restored against a list that has not arrived yet selects nothing.
     viewModelOf(::WhatsAppCleanerViewModel)
+    viewModelOf(::ZipFilesViewModel)
 }

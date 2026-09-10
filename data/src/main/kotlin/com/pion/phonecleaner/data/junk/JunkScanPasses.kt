@@ -19,13 +19,13 @@ import java.io.File
 import java.util.Locale
 
 /**
- * The three passes, as functions over a `FlowCollector<ScanProgress>`.
+ * The four passes, as functions over a `FlowCollector<ScanProgress>`.
  *
  * They live beside `RuleJunkScanner` rather than inside it so that neither file exceeds the 200-line
- * limit and so that "what a pass does" reads apart from "how the three are sequenced"
+ * limit and so that "what a pass does" reads apart from "how the four are sequenced"
  * (`.claude/rules/development-rules.md`).
  *
- * Two invariants hold in all three: `ensureActive()` runs per candidate, so cancelling the collector
+ * Two invariants hold in all four: `ensureActive()` runs per candidate, so cancelling the collector
  * stops the pass; and the candidate list of the two determinate passes is built **before** the
  * sizing loop, which is what makes `ScanProgress.Candidate.total` a real number
  * (`docs/screens/12-junk-cleaning.md` §1.2).
@@ -63,14 +63,25 @@ internal suspend fun FlowCollector<ScanProgress>.systemCachePass(
     return categoryOf(JunkCategoryId.SystemCache, items)
 }
 
-/** Pass 2 — leftovers of apps that are no longer installed. Determinate. */
+/**
+ * Pass 2 — leftovers of apps that are no longer installed. Determinate.
+ *
+ * [installedPackages] is the whole rule: a folder is junk **only** when the app that made it is gone.
+ * `null` is the third state — the installed list could not be read — and the pass yields nothing
+ * rather than treating "unknown" as "nothing is installed", which would fire every rule at once
+ * against apps that are all still there. The pass still starts and still finishes, so the progress
+ * bar's three thirds are unchanged and the screen never silently loses a stage.
+ */
 internal suspend fun FlowCollector<ScanProgress>.appResidualPass(
     rules: List<AppRule>,
     roots: List<String>,
     sizer: DirectorySizer,
+    installedPackages: Set<String>?,
 ): JunkCategory? {
     emit(ScanProgress.PassStarted(JunkCategoryId.AppResidual))
-    val candidates = residualCandidates(rules, roots)
+    if (installedPackages == null) return null
+    val uninstalled = rules.filterNot { rule -> rule.isInstalled(installedPackages) }
+    val candidates = residualCandidates(uninstalled, roots)
     val items = ArrayList<JunkItem>()
     candidates.forEachIndexed { index, candidate ->
         currentCoroutineContext().ensureActive()
@@ -106,6 +117,38 @@ internal suspend fun FlowCollector<ScanProgress>.apkPass(
     return categoryOf(JunkCategoryId.ApkFiles, items)
 }
 
+/** Pass 4 — loose `.tmp` and `.log` files. Indeterminate for the same reason as the APK walk. */
+internal suspend fun FlowCollector<ScanProgress>.temporaryFilesPass(
+    roots: List<String>,
+    scanner: StorageScanner,
+): JunkCategory? {
+    emit(ScanProgress.PassStarted(JunkCategoryId.TemporaryFiles))
+    val items = ArrayList<JunkItem>()
+    var index = 0
+    scanner.walk(JunkWalkBounds.temporaryFileWalk(roots)).collect { file ->
+        if (!file.name.hasTemporaryOrLogExtension()) return@collect
+        index++
+        emit(ScanProgress.Candidate(file.path, index, JunkWalkBounds.TOTAL_UNKNOWN, file.sizeBytes))
+        if (file.sizeBytes > 0L && items.size < JunkWalkBounds.MAX_ITEMS_PER_CATEGORY) {
+            items += JunkItem(file.path, file.name, file.sizeBytes, JunkOrigin.TemporaryFile)
+        }
+    }
+    return categoryOf(JunkCategoryId.TemporaryFiles, items)
+}
+
+/**
+ * Installed under **any** of its names. The competitor tests the primary package only: `xc.o.j()`
+ * stores the alias set at fifteen call sites and exposes no getter for it
+ * (`docs/screens/12-junk-cleaning.md` §2), so an app the user still has under a renamed package —
+ * Telegram's web and beta channels write the same `/Telegram` directory — is reported as uninstalled
+ * and its live downloads are offered for deletion. Reading the field is the whole fix.
+ */
+private fun AppRule.isInstalled(installedPackages: Set<String>): Boolean =
+    packageName in installedPackages || aliases.any { it in installedPackages }
+
+private fun String.hasTemporaryOrLogExtension(): Boolean =
+    lowercase(Locale.ROOT).let { it.endsWith(".tmp") || it.endsWith(".log") }
+
 private class ResidualCandidate(val path: String, val label: String, val origin: JunkOrigin)
 
 /**
@@ -123,13 +166,10 @@ private class ResidualCandidate(val path: String, val label: String, val origin:
  * `StorageRootProvider.coveredSurfaces()` is the port that exists for saying what was not looked at.
  * Nothing is invented here: the skip happens, and the reporting seam is left where it already is.
  *
- * UNKNOWN — the "app is not installed" filter. `docs/reverse-engineering/12-junk-cleaning.md` §6.3
- * shows the competitor testing `PackageManager.getPackageInfo` and keeping the rule when it FAILS,
- * and §7.3 of the appendix maps that onto `InstalledAppsRepository`. That binding is not declared
- * anywhere yet — `data/di/CoreDataModule.kt` carries it as a commented TODO owned by another cluster
- * — so injecting it here would be a missing binding rather than a filter. With the empty catalogue
- * of PENDING OWNER DECISION (1) there are no app rules to filter, so the two must be settled
- * together: the reported `bindingsForOwner` line names it.
+ * The "app is not installed" filter is applied by the CALLER, before this function sees a rule:
+ * [appResidualPass] takes the installed set and hands only uninstalled rules down. It is not done
+ * here because the set costs one `PackageManager` enumeration for the whole pass and doing it per
+ * candidate would repeat that work once per directory.
  */
 private fun residualCandidates(rules: List<AppRule>, roots: List<String>): List<ResidualCandidate> {
     val seen = HashSet<String>()

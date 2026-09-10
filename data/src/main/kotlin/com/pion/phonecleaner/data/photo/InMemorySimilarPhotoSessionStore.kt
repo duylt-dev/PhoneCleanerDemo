@@ -2,7 +2,7 @@ package com.pion.phonecleaner.data.photo
 
 import com.pion.phonecleaner.domain.model.photo.PhotoGroup
 import com.pion.phonecleaner.domain.model.photo.PhotoId
-import com.pion.phonecleaner.domain.model.photo.SimilarPhotoSession
+import com.pion.phonecleaner.domain.model.photo.PhotoSession
 import com.pion.phonecleaner.domain.repository.SimilarPhotoSessionStore
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -23,8 +23,8 @@ import kotlinx.coroutines.flow.update
  */
 internal class InMemorySimilarPhotoSessionStore : SimilarPhotoSessionStore {
 
-    private val _session = MutableStateFlow<SimilarPhotoSession?>(null)
-    override val session: StateFlow<SimilarPhotoSession?> = _session.asStateFlow()
+    private val _session = MutableStateFlow<PhotoSession?>(null)
+    override val session: StateFlow<PhotoSession?> = _session.asStateFlow()
 
     /**
      * Pre-selection is applied **here, once**: every member of every group except the first, which is
@@ -32,7 +32,7 @@ internal class InMemorySimilarPhotoSessionStore : SimilarPhotoSessionStore {
      * then deselects the opener afterwards — so "keep the best" is literally "keep the first".
      */
     override fun put(groups: ImmutableList<PhotoGroup>, skipped: Int) {
-        _session.value = SimilarPhotoSession(
+        _session.value = PhotoSession(
             groups = groups,
             selectedIds = groups.asSequence()
                 .flatMap { group -> group.photos.asSequence().drop(1) }

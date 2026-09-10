@@ -6,6 +6,10 @@ import kotlinx.collections.immutable.ImmutableList
  * What the duplicate pipeline reports while it runs
  * (`docs/screens/14-file-tools-and-app-manager.md` §2.2).
  *
+ * [Collecting] exists because the corpus is no longer three `MediaStore` queries that answer at
+ * once: with all-files access the pipeline walks every mounted volume, and a walk of a full device
+ * takes long enough that a screen showing *"compared 0 of 0"* the whole time would look hung.
+ *
  * [Hashing] carries both numbers because a digest pass is the slow half and *"how many of how many"*
  * is the only honest progress a content hash can offer.
  *
@@ -14,6 +18,9 @@ import kotlinx.collections.immutable.ImmutableList
  * has no duplicates. On expiry this publishes what completed and says the answer is partial.
  */
 sealed interface DuplicateScanProgress {
+
+    /** Stage 1 — how many candidate rows the walk and the media queries have yielded so far. */
+    data class Collecting(val found: Int) : DuplicateScanProgress
 
     data class Hashing(val hashed: Int, val candidates: Int) : DuplicateScanProgress
 

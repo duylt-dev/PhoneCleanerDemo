@@ -28,6 +28,13 @@
 
     <string name="junk_permission_title">Storage access is needed</string>
     <string name="junk_permission_body">To list files this device can remove, the app needs permission to read storage. It only reads what you allow, and nothing is removed until you choose it.</string>
+    <!--
+      Android 11 and later grant all-files access on a Settings page with a switch, not through a
+      dialog, so the copy has to name the switch. A single string for both branches would send half of
+      all users looking for a dialog that never appears. `StoragePermissionPanel` picks between them
+      with `needsAllFilesSettingsPage()`, the same predicate `JunkScanRoute` picks its launcher with.
+    -->
+    <string name="junk_permission_body_all_files">Junk files live outside the photo and video folders, so Android asks for this one on its own Settings page. Turn on \"Allow access to manage all files\", then come back. The app only reads — nothing is removed until you choose it.</string>
     <string name="junk_permission_grant">Allow access</string>
 
     <!-- ── junkreview ────────────────────────────────────────────────────────────────────────── -->
@@ -44,6 +51,7 @@
     <string name="junk_category_system_cache">Cached files</string>
     <string name="junk_category_app_residual">Files left by removed apps</string>
     <string name="junk_category_apk_files">Installer files</string>
+    <string name="junk_category_temporary_files">Temporary and log files</string>
 
     <!-- ── junkclean ─────────────────────────────────────────────────────────────────────────── -->
     <string name="junk_clean_title">Cleaning</string>
@@ -51,6 +59,9 @@
     <string name="junk_clean_finished">Finished</string>
     <string name="junk_clean_stop_title">Stop cleaning?</string>
     <string name="junk_clean_stop_body">Files already removed stay removed. The rest are left alone.</string>
+    <!-- Shown instead of junk_clean_stop_body when the bin is available (plan 260908-0801-trash-bin,
+         Phase 07). -->
+    <string name="junk_clean_stop_body_trash">What has already moved stays in Trash. The rest is left alone.</string>
     <string name="junk_clean_stop_confirm">Stop</string>
     <string name="junk_clean_access_lost_title">Storage access is no longer granted</string>
     <string name="junk_clean_access_lost_body">Nothing has been removed. Allow access again to continue.</string>

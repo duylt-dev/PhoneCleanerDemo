@@ -50,7 +50,7 @@ internal fun JunkCleanScreen(
                 else -> CleaningPanel(state, onIntent)
             }
         }
-        if (state.isStopConfirmVisible) StopCleanDialog(onIntent)
+        if (state.isStopConfirmVisible) StopCleanDialog(onIntent, recoverable = state.recoverable)
     }
 }
 

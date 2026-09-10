@@ -35,14 +35,39 @@ import kotlinx.collections.immutable.persistentListOf
  *
  * `docs/screens/20-settings-language-and-push.md` §8 open item 4 states plainly that the roster is a
  * **product decision, not a design question**, and no source settles it. Looked for a shipped-locale
- * list in that appendix §2, in `LLM.md` §10.4 (build types and source sets, which names no locale
- * set) and in each feature module's `src/main/res`, where only `values/` exists today — i.e. the app is
- * currently English-only and every row below would render its endonym while the UI stayed in English.
+ * list in that appendix §2 and in `LLM.md` §10.4 (build types and source sets, which names no locale
+ * set); neither carries one.
+ *
+ * **Two of the seventeen have a translation set: `en-US` (`values/`) and `vi-VN` (`values-vi/`, in
+ * all thirteen modules that own copy).** Picking either changes the UI. The other fifteen rows still
+ * render their endonym and then leave the UI in English, because a locale with no `values-<code>/`
+ * falls back to the default resources — the row is honest about which language it selects, and wrong
+ * about nothing, but it does not yet do anything.
+ *
+ * `vi-VN` resolves against `values-vi`: Android matches the language subtag when no
+ * `values-vi-rVN` exists, so one directory per module covers the tag. Vietnamese has ONE CLDR plural
+ * category, `other`, so every `<plurals>` in `values-vi` carries that body alone.
  *
  * The list is carried in full anyway, because the alternative is inventing a shorter one, and because
  * removing rows later is a one-line edit here while the plumbing is identical either way. **Shipping
- * this picker to users requires that decision first**, plus the translation set and the
- * `res/xml/locales_config.xml` + `android:localeConfig` pair that §2.4 delta 1 asks for in `:app`.
+ * this picker to users requires that decision first**, plus the remaining fifteen translation sets.
+ *
+ * ### VERIFIED DEFECT — the picker stores a choice that nothing applies
+ *
+ * Measured on `RF8Y60B9NCZ` (SM-A165F, Android 16) once `values-vi` existed and the failure became
+ * observable for the first time: selecting a language and pressing Save **does** write the tag (the
+ * settings row re-reads as "English"), but `adb shell cmd locale get-app-locales` stays `[]` and the
+ * UI does not change — not on the spot, and not after a force-stop and relaunch either.
+ *
+ * `AppCompatDelegate.setApplicationLocales` (`LanguageRoute.kt:73`) is the only apply path, and it
+ * reaches `LocaleManager` on API 33+ through a registered `AppCompatActivity` delegate or the
+ * `AppLocalesMetadataHolderService` manifest entry. This app has **neither** — `MainActivity` is a
+ * `ComponentActivity` (`app/.../MainActivity.kt:21`) and no manifest declares that service — so the
+ * call is a silent no-op. `LanguageRoute`'s KDoc flags the host type as UNKNOWN; this is that open
+ * item observed failing rather than suspected.
+ *
+ * Until it is closed, Vietnamese is reachable only by the device's own system language, which does
+ * work: with no app override the app resolves `values-vi` from the system locale.
  */
 internal object SupportedLanguages {
 

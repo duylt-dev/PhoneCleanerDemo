@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:junk. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale: no performance, security or memory claim and
+  no percentage figure. The feature reports BYTES RECOVERED, measured, and says what it did not do.
+
+  junk_review_empty stays a statement about the SCAN — "không tìm thấy tệp rác nào" — never a
+  compliment about the device.
+
+  PLURALS — Vietnamese has one CLDR category, `other`; a `one` body would never be selected.
+-->
+<resources>
+
+    <string name="junk_title">Tệp rác</string>
+
+    <!-- ── junkscan ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="junk_scan_scanning">Đang tìm tệp rác…</string>
+    <string name="junk_scan_finished">Đã quét xong</string>
+    <string name="junk_scan_stop_title">Dừng quét?</string>
+    <string name="junk_scan_stop_body">Lượt quét sẽ dừng lại và những gì tìm được từ đầu đến giờ sẽ không được giữ.</string>
+    <string name="junk_scan_stop_confirm">Dừng</string>
+
+    <string name="junk_permission_title">Cần quyền truy cập bộ nhớ</string>
+    <string name="junk_permission_body">Để liệt kê những tệp có thể xóa khỏi thiết bị này, ứng dụng cần quyền đọc bộ nhớ. Ứng dụng chỉ đọc phần bạn cho phép, và không xóa bất cứ thứ gì cho tới khi bạn chọn.</string>
+    <string name="junk_permission_body_all_files">Tệp rác nằm ngoài thư mục ảnh và video, nên Android hỏi quyền này ở một trang Cài đặt riêng. Hãy bật \"Cho phép quản lý tất cả tệp\", rồi quay lại. Ứng dụng chỉ đọc — không xóa bất cứ thứ gì cho tới khi bạn chọn.</string>
+    <string name="junk_permission_grant">Cho phép truy cập</string>
+
+    <!-- ── junkreview ────────────────────────────────────────────────────────────────────────── -->
+    <string name="junk_review_total_label">Tìm thấy</string>
+    <string name="junk_review_total_collapsed">Tìm thấy %1$s</string>
+    <string name="junk_review_empty">Không tìm thấy tệp rác nào trong những thư mục đọc được.</string>
+    <string name="junk_review_clean_cta">Dọn %1$s</string>
+    <string name="junk_review_nothing_selected">Chưa chọn mục nào</string>
+    <string name="junk_category_expand">Hiện các tệp</string>
+    <string name="junk_category_collapse">Ẩn các tệp</string>
+
+    <string name="junk_category_system_cache">Tệp bộ nhớ đệm</string>
+    <string name="junk_category_app_residual">Tệp còn lại của ứng dụng đã gỡ</string>
+    <string name="junk_category_apk_files">Tệp cài đặt</string>
+    <string name="junk_category_temporary_files">Tệp tạm và nhật ký</string>
+
+    <!-- ── junkclean ─────────────────────────────────────────────────────────────────────────── -->
+    <string name="junk_clean_title">Đang dọn</string>
+    <string name="junk_clean_cleaning">Đang xóa những tệp bạn đã chọn…</string>
+    <string name="junk_clean_finished">Đã xong</string>
+    <string name="junk_clean_stop_title">Dừng dọn?</string>
+    <string name="junk_clean_stop_body">Những tệp đã xóa vẫn ở trạng thái đã xóa. Phần còn lại được giữ nguyên.</string>
+    <string name="junk_clean_stop_body_trash">Những gì đã được chuyển vẫn ở trong Thùng rác. Phần còn lại được giữ nguyên.</string>
+    <string name="junk_clean_stop_confirm">Dừng</string>
+    <string name="junk_clean_access_lost_title">Quyền truy cập bộ nhớ không còn được cấp</string>
+    <string name="junk_clean_access_lost_body">Chưa có gì bị xóa. Hãy cho phép truy cập lại để tiếp tục.</string>
+
+    <!-- Say what was NOT done. -->
+    <plurals name="junk_clean_failed_count">
+        <item quantity="other">Không xóa được %1$d tệp</item>
+    </plurals>
+
+</resources>

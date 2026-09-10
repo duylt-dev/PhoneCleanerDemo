@@ -2,10 +2,12 @@ package com.pion.phonecleaner.data.storage
 
 import android.content.Context
 import com.pion.phonecleaner.core.common.concurrent.DispatcherProvider
+import com.pion.phonecleaner.data.trash.TrashRoots
 import com.pion.phonecleaner.domain.model.file.FileOrigin
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.domain.model.file.WalkConfig
 import com.pion.phonecleaner.domain.repository.StorageScanner
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -26,6 +28,12 @@ import java.io.File
 internal class DefaultStorageScanner(
     private val context: Context,
     private val dispatchers: DispatcherProvider,
+    /**
+     * Required, not nullable: a null here makes the exclusion below silently inert, which is the one
+     * failure mode this parameter exists to prevent (plan 260908-0801 phase 03). `storageDataModule`
+     * is the only construction site and passes it.
+     */
+    private val trashRoots: TrashRoots,
 ) : StorageScanner {
 
     /**
@@ -41,9 +49,15 @@ internal class DefaultStorageScanner(
      * differently on each screen.
      */
     override fun walk(config: WalkConfig): Flow<ScannedFile> = flow {
-        val (trees, paths) = config.roots.partition { it.startsWith(TREE_URI_PREFIX) }
-        walkFilesBounded(paths, config) { emit(it.toScannedFile()) }
-        walkSafTreeBounded(context, trees, config) { emit(it) }
+        // The bin sits on a volume root, so an all-files walk would list every trashed file straight
+        // back into big files, duplicates and the junk rules — and the junk cleaner would then delete
+        // what the user can still restore. Unioned here, once, so every caller inherits it.
+        val guarded = config.copy(
+            excludedRoots = (config.excludedRoots + trashRoots.allRoots()).toImmutableList(),
+        )
+        val (trees, paths) = guarded.roots.partition { it.startsWith(TREE_URI_PREFIX) }
+        walkFilesBounded(paths, guarded) { emit(it.toScannedFile()) }
+        walkSafTreeBounded(context, trees, guarded) { emit(it) }
     }.flowOn(dispatchers.io)
 
     private companion object {

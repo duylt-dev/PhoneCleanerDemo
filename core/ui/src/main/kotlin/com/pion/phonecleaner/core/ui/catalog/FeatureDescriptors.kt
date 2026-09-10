@@ -6,12 +6,15 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Compress
+import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DataUsage
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Notifications
@@ -21,11 +24,12 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.FolderZip
 import com.pion.phonecleaner.core.ui.R
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 
 /**
- * The twenty descriptors, in `FeatureId` declaration order. This is `ae.i2` (621 lines), `ae.o0`
+ * One descriptor per `FeatureId`, in declaration order. This is `ae.i2` (621 lines), `ae.o0`
  * (538 lines) and `qd.a` (119 lines) reduced to a lookup (`docs/screens/21` §5).
  *
  * A pure `object` and **not in Koin**, for the same reason `FeatureCatalog` is not: a dependency-free
@@ -148,12 +152,32 @@ object FeatureDescriptors {
             R.string.feature_network_test_description, Icons.Filled.NetworkCheck,
             R.string.feature_cta_open,
         ),
+        FeatureDescriptor(
+            FeatureId.BlurryPhotos, R.string.feature_blurry_photos_title,
+            R.string.feature_blurry_photos_description, Icons.Filled.BlurOn,
+            R.string.feature_cta_review,
+        ),
+        FeatureDescriptor(
+            FeatureId.VideoCompressor, R.string.feature_video_compressor_title,
+            R.string.feature_video_compressor_description, Icons.Filled.Movie,
+            R.string.feature_cta_review,
+        ),
+        FeatureDescriptor(
+            FeatureId.Trash, R.string.feature_trash_title,
+            R.string.feature_trash_description, Icons.Filled.Delete,
+            R.string.feature_cta_open,
+        ),
+        FeatureDescriptor(
+            FeatureId.ZipFiles, R.string.feature_zip_files_title,
+            R.string.feature_zip_files_description, Icons.Filled.FolderZip,
+            R.string.feature_cta_open,
+        ),
     )
 
     private val byId: Map<FeatureId, FeatureDescriptor> = all.associateBy(FeatureDescriptor::feature)
 
     init {
-        // Twenty features, twenty descriptors. `of()` uses getValue, so a missing row would throw at
+        // One descriptor per feature. `of()` uses getValue, so a missing row would throw at
         // the first render of the tile that needs it — on a device, not here. This turns that into a
         // failure at class-load, which every unit test touching the catalogue hits immediately.
         check(byId.size == FeatureId.entries.size) {

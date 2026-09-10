@@ -8,8 +8,10 @@ import kotlinx.collections.immutable.persistentListOf
 /**
  * The WhatsApp path catalogue, **carrying no paths**.
  *
- * PENDING OWNER DECISION (1) — the same fork as the junk rule catalogue, and `EmptyJunkRuleCatalog`
- * is the precedent this follows exactly. The six-bucket path table is the **competitor's**
+ * PENDING OWNER DECISION (1) — **still open for THIS cluster.** The junk half of that fork was
+ * settled on 2026-09-06 (branch 2: our own rules, `KotlinJunkRuleCatalog`), and this is now the last
+ * reader of the decision. The precedent it sets is the one to follow when this half is settled: write
+ * our own table in code, never paste the competitor's. The six-bucket path table is the **competitor's**
  * (`docs/reverse-engineering/14-file-tools-and-app-manager.md`), and the task that commissioned this
  * cluster is explicit: read the paths through an interface, do not paste a copied table into this
  * repository. Whether a competitor-derived catalogue is reused at all is the owner's call.

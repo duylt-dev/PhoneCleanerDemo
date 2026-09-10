@@ -23,6 +23,7 @@ import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.photo.PhotoId
 import com.pion.phonecleaner.feature.photo.R
 import com.pion.phonecleaner.feature.photo.component.PHOTO_GRID_COLUMNS
@@ -52,7 +53,7 @@ internal fun SimilarPhotosScreen(
     // Resolved above the lane: `stringResource` is a @Composable call and `LazyGridScope` is not one.
     val groupActionLabel = stringResource(R.string.photo_similar_group_cleanup)
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.photo_similar_title),
                 onBack = { onIntent(SimilarPhotosIntent.BackPressed) },

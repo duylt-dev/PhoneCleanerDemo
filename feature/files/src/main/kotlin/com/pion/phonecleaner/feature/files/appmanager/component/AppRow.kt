@@ -42,6 +42,7 @@ import org.koin.compose.koinInject
 internal fun AppRow(
     app: ManagedApp,
     selected: Boolean,
+    usageAccessGranted: Boolean,
     onIntent: (AppManagerIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -89,7 +90,7 @@ internal fun AppRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            AppRowSubtitle(app)
+            AppRowSubtitle(app, usageAccessGranted)
         }
         Checkbox(checked = selected, onCheckedChange = { onToggle() })
     }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.pion.phonecleaner.core.ui.component.header.PageHeader
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.settings.LegalDocument
 import com.pion.phonecleaner.feature.settings.R
 import com.pion.phonecleaner.feature.settings.component.AppIdentityBlock
@@ -32,7 +33,7 @@ internal fun AboutScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.settings_about_title),
                 onBack = { onIntent(AboutIntent.BackPressed) },

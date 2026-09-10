@@ -61,13 +61,14 @@ val coreDataModule = module {
     // the class as written takes (Context, DispatcherProvider, PermissionRepository).
     single<InstalledAppsRepository> { PackageManagerInstalledAppsRepository(androidContext(), get(), get()) }
 
-    // Room — exactly two tables (§7.3). The DAOs are bound here and not in the clusters that read
-    // them: `hidden_notifications` is read by the notification cluster and `threat_cache` by the
-    // security cluster, and both appendices say explicitly that this module owns them
-    // (docs/screens/17:718, docs/screens/15:208).
+    // Room — exactly three tables (plan 260908-0801 phase 03, AppDatabase's own KDoc). The DAOs are
+    // bound here and not in the clusters that read them: `hidden_notifications` is read by the
+    // notification cluster, `threat_cache` by the security cluster and `trash_entries` by the trash
+    // cluster, and Room holds exactly one binding of the database itself (§6.4).
     single { AppDatabase.build(androidContext()) }
     single { get<AppDatabase>().hiddenNotificationDao() }
     single { get<AppDatabase>().threatCacheDao() }
+    single { get<AppDatabase>().trashEntryDao() }
 
     // The one place the app posts a notification, so the one place a channel is created. Claimed by
     // clusters 08 and 11; homed here rather than in either, because two `single<AppNotifier>` lines

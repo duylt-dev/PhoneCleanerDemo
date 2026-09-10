@@ -12,6 +12,7 @@ import com.pion.phonecleaner.core.common.result.asFailure
 import com.pion.phonecleaner.core.common.result.asSuccess
 import com.pion.phonecleaner.data.storage.MediaStoreQuery
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.domain.model.photo.Photo
 import com.pion.phonecleaner.domain.model.photo.PhotoAlbum
 import com.pion.phonecleaner.domain.model.photo.PhotoId
@@ -88,19 +89,31 @@ internal class MediaStorePhotoRepository(
     }.flowOn(dispatchers.io)
 
     /**
-     * Maps to `ScannedFile` and delegates to the one [FileDeleter].
+     * Maps to `ScannedFile` via [resolve] and delegates to the one [FileDeleter].
      * [DeleteOutcome.PendingConsent] comes back untouched: on API 30+ the system dialog is the
      * ordinary path, and only an Activity can launch its `IntentSender`
      * (`docs/system-architecture.md` §8.4).
      */
     override suspend fun delete(ids: List<PhotoId>): AppResult<DeleteOutcome> {
         if (ids.isEmpty()) return DeleteOutcome.NothingResolved.asSuccess()
+        return when (val resolved = resolve(ids)) {
+            is AppResult.Failure -> resolved
+            is AppResult.Success -> deleter.delete(resolved.value)
+        }
+    }
+
+    /**
+     * The pure `Photo -> ScannedFile` projection (plan `260908-0801-trash-bin`, Phase 07 step 4).
+     * [delete] calls this, so there remains exactly **one** projection out of this class — the same
+     * promise `PhotoRepository.kt`'s own KDoc states.
+     */
+    override suspend fun resolve(ids: List<PhotoId>): AppResult<ImmutableList<ScannedFile>> {
         val wanted = ids.toSet()
         val rows = withContext(dispatchers.io) { queryPhotos(selection = null, args = null) }
         return when (rows) {
             is AppResult.Failure -> rows
             is AppResult.Success ->
-                deleter.delete(rows.value.filter { it.id in wanted }.map { it.toScannedFile() })
+                rows.value.filter { it.id in wanted }.map { it.toScannedFile() }.toImmutableList().asSuccess()
         }
     }
 

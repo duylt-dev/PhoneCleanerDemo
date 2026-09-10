@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:notification. Mirrors values/strings.xml key for key.
+
+  WORDING RULES apply to every string in this file, not only to the English originals: no claim about
+  removing viruses, blocking scams, speeding a phone up or freeing memory, and no performance
+  percentage. A measured number is reported with its unit; what the number will do for the user is
+  never asserted.
+
+  PLURALS — Vietnamese has ONE CLDR plural category, `other`. Note these two carry %d, not %1$d, so
+  the Vietnamese bodies keep the unpositioned form to match.
+-->
+<resources>
+
+    <!-- gate -->
+    <string name="notification_cleaner_title">Dọn thông báo</string>
+    <string name="notification_gate_listener_missing_title">Quyền truy cập thông báo đang tắt</string>
+    <string name="notification_gate_listener_missing_body">Để chuyển thông báo ra khỏi bảng thông báo và giữ chúng ở đây, ứng dụng này cần quyền truy cập thông báo. Bạn cấp quyền đó ở màn hình cài đặt hệ thống mở ra tiếp theo, bằng cách tìm ứng dụng này trong danh sách và bật nó lên.</string>
+    <string name="notification_gate_listener_missing_cta">Mở cài đặt truy cập thông báo</string>
+    <string name="notification_gate_hiding_disabled_title">Việc ẩn thông báo đang tạm dừng</string>
+    <string name="notification_gate_hiding_disabled_body">Hiện không có gì được chuyển ra khỏi bảng thông báo của bạn. Hãy bật lại chế độ ẩn để tiếp tục gom thông báo về đây.</string>
+    <string name="notification_gate_hiding_disabled_cta">Bật chế độ ẩn</string>
+
+    <!-- hidingsettings -->
+    <string name="notification_hiding_settings_title">Cài đặt ẩn thông báo</string>
+    <string name="notification_hiding_master_title">Ẩn thông báo</string>
+    <string name="notification_hiding_master_subtitle">Khi bật, thông báo từ những ứng dụng bạn chọn bên dưới sẽ được chuyển ra khỏi bảng thông báo và liệt kê trong ứng dụng này.</string>
+    <string name="notification_hiding_master_on">Bật</string>
+    <string name="notification_hiding_master_off">Tắt</string>
+    <string name="notification_hiding_none_selected">Chưa chọn ứng dụng nào, nên sẽ không có gì bị ẩn. Hãy chọn một ứng dụng bên dưới.</string>
+    <string name="notification_hiding_apps_header">Ứng dụng</string>
+    <string name="notification_hiding_empty">Không có ứng dụng nào để hiển thị.</string>
+    <string name="notification_hiding_row_state_on">Đang ẩn</string>
+    <string name="notification_hiding_row_state_off">Không ẩn</string>
+
+    <!-- hiddenlist -->
+    <string name="hidden_notifications_title">Thông báo đã ẩn</string>
+    <string name="hidden_notifications_empty">Chưa có thông báo nào được ẩn.</string>
+    <string name="hidden_notifications_clear_all">Xóa tất cả</string>
+    <string name="hidden_notifications_clearing">Đang xóa…</string>
+    <string name="hidden_notifications_clear_in_progress">Hãy đợi việc xóa hoàn tất.</string>
+    <string name="hidden_notifications_paused_banner">Chế độ ẩn đang tạm dừng. Thông báo mới sẽ ở lại bảng thông báo của bạn.</string>
+    <string name="hidden_notifications_paused_action">Bật</string>
+    <string name="hidden_notifications_settings">Cài đặt ẩn thông báo</string>
+    <string name="hidden_notifications_no_title">(Không có tiêu đề)</string>
+
+    <!-- permissionmanager -->
+    <string name="permission_manager_title">Quản lý quyền</string>
+    <string name="permission_manager_tab_apps">Ứng dụng</string>
+    <string name="permission_manager_tab_sensitive">Nhạy cảm</string>
+    <string name="permission_manager_tab_special">Truy cập đặc biệt</string>
+    <string name="permission_manager_scanning">Đang đọc các ứng dụng đã cài…</string>
+    <string name="permission_manager_scan_in_progress">Hãy đợi lượt quét hoàn tất.</string>
+    <string name="permission_manager_empty">Không có ứng dụng nào để hiển thị.</string>
+    <string name="permission_manager_manage">Quản lý trong cài đặt hệ thống</string>
+    <string name="permission_manager_granted">Đã cấp</string>
+    <string name="permission_manager_not_granted">Chưa cấp</string>
+    <string name="permission_manager_section_sensitive">Quyền nhạy cảm</string>
+    <string name="permission_manager_section_normal">Quyền thông thường</string>
+    <string name="permission_manager_section_other">Quyền khác</string>
+    <string name="permission_manager_no_settings_screen">Thiết bị này không có màn hình cài đặt cho mục đó.</string>
+
+    <plurals name="permission_manager_sensitive_count">
+        <item quantity="other">%d quyền nhạy cảm</item>
+    </plurals>
+    <plurals name="permission_manager_group_app_count">
+        <item quantity="other">%d ứng dụng</item>
+    </plurals>
+
+    <!-- AppPermission labels. -->
+    <string name="app_permission_storage">Bộ nhớ</string>
+    <string name="app_permission_all_files">Truy cập mọi tệp</string>
+    <string name="app_permission_media">Ảnh và nội dung nghe nhìn</string>
+    <string name="app_permission_notifications">Gửi thông báo</string>
+    <string name="app_permission_notification_listener">Truy cập thông báo</string>
+    <string name="app_permission_usage_stats">Truy cập dữ liệu sử dụng</string>
+    <string name="app_permission_overlay">Hiển thị trên ứng dụng khác</string>
+    <string name="app_permission_write_settings">Thay đổi cài đặt hệ thống</string>
+    <string name="app_permission_do_not_disturb">Truy cập chế độ Không làm phiền</string>
+    <string name="app_permission_ignore_battery_optimizations">Chạy nền không giới hạn</string>
+    <string name="app_permission_whatsapp_folder">Truy cập thư mục WhatsApp</string>
+
+    <!-- PermissionGroupId labels, in `SensitivePermissionCatalog`'s fixed order. -->
+    <string name="permission_group_activity_recognition">Hoạt động thể chất</string>
+    <string name="permission_group_body_sensors">Cảm biến cơ thể</string>
+    <string name="permission_group_calendar">Lịch</string>
+    <string name="permission_group_camera">Máy ảnh</string>
+    <string name="permission_group_contacts">Danh bạ</string>
+    <string name="permission_group_location">Vị trí</string>
+    <string name="permission_group_phone">Điện thoại</string>
+    <string name="permission_group_query_packages">Danh sách ứng dụng đã cài</string>
+    <string name="permission_group_boot">Khởi chạy cùng máy</string>
+    <string name="permission_group_microphone">Micrô</string>
+    <string name="permission_group_sms">SMS</string>
+</resources>

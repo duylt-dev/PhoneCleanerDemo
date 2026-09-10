@@ -27,15 +27,16 @@ import com.pion.phonecleaner.feature.device.batteryscan.component.BatteryCheckRo
  * `batteryscan` (`docs/screens/18-device-battery-and-apps.md` §4.3). Stateless:
  * `(state, onIntent) -> Unit`, never the ViewModel (MVI §4).
  *
- * **A `Column`, not a `LazyColumn`.** Six fixed rows that never scroll; `animateContentSize` replaces
+ * **A `Column`, not a `LazyColumn`.** A fixed row per `BatteryCheck`, never scrolled;
+ * `animateContentSize` replaces
  * the competitor's `DefaultItemAnimator` (add 300 ms, move 200 ms) on a `RecyclerView` that grows one
  * row at a time — which is also why its list cannot survive a config change.
  *
  * The title is **its own**. The competitor calls this screen *and* the detail screen "Battery Info",
  * so its back stack reads as if nothing happened between them (§4.5).
  *
- * `onIntent` is passed down as-is; the rows take only stable parameters, so five of six skip on
- * every tick (`LLM.md` §8).
+ * `onIntent` is passed down as-is; the rows take only stable parameters, so every row but the one
+ * that changed skips on each tick (`LLM.md` §8).
  */
 @Composable
 internal fun BatteryScanScreen(

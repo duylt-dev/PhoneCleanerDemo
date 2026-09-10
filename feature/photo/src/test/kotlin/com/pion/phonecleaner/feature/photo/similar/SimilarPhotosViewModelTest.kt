@@ -12,9 +12,11 @@ import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
 import com.pion.phonecleaner.domain.usecase.ScanSimilarPhotosUseCase
+import com.pion.phonecleaner.feature.photo.testing.FakePermissionRepository
 import com.pion.phonecleaner.feature.photo.testing.FakePhotoRepository
 import com.pion.phonecleaner.feature.photo.testing.FakeSimilarPhotoScanner
 import com.pion.phonecleaner.feature.photo.testing.FakeSimilarPhotoSessionStore
+import com.pion.phonecleaner.feature.photo.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.photo.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.photo.testing.RecordingAnalytics
 import com.pion.phonecleaner.feature.photo.testing.RecordingFeatureUsage
@@ -50,10 +52,11 @@ class SimilarPhotosViewModelTest {
 
     private fun viewModel() = SimilarPhotosViewModel(
         scanSimilar = ScanSimilarPhotosUseCase(scanner),
-        deletePhotos = DeletePhotosUseCase(repository),
+        deletePhotos = DeletePhotosUseCase(repository, FakeTrashRepository()),
         session = session,
         markFeatureUsed = MarkFeatureUsedUseCase(RecordingFeatureUsage()),
         analytics = analytics,
+        permissions = FakePermissionRepository(),
     )
 
     private fun started() = viewModel().also {

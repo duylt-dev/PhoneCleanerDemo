@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import com.pion.phonecleaner.core.ui.component.header.PageHeader
 import com.pion.phonecleaner.core.ui.component.state.EmptyState
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.notification.R
 import com.pion.phonecleaner.feature.notification.component.AppRowSkeletonList
 import com.pion.phonecleaner.feature.notification.hiddenlist.component.ClearAllButton
@@ -36,7 +37,7 @@ internal fun HiddenNotificationsScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().screenInsetsPadding()) {
             Column(Modifier.fillMaxSize()) {
                 PageHeader(
                     title = stringResource(R.string.hidden_notifications_title),

@@ -5,6 +5,7 @@ import com.pion.phonecleaner.core.common.error.AppError
 import com.pion.phonecleaner.core.common.log.AppLogger
 import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.core.mvi.MviViewModel
+import com.pion.phonecleaner.domain.catalog.FeatureAvailability
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
@@ -134,8 +135,14 @@ class HomeViewModel(
      * literals in two code paths, they produced the live `100525`/`100526` transposition (delta 10).
      * Split from [resolveFeature], which a permission or consent answer re-enters: counting the tap
      * again there would inflate every gated feature by the number of prompts the user saw.
+     *
+     * The `FeatureAvailability` gate is the first line for the same reason: all four routes into a
+     * feature pass through here, and only one of them — a tile tap — goes through a composable that
+     * can disable itself. Nothing is tracked or marked used, because a feature that could not be
+     * opened was not opened, and counting it would put a figure in the ledger no screen rendered.
      */
     private fun openFeature(feature: FeatureId) {
+        if (!FeatureAvailability.isAvailable(feature)) return
         analytics.track(AnalyticsEvent.FeatureOpened(feature))
         // Bookkeeping the user did not ask for: fire and forget, a failure is logged, never surfaced.
         launchSafely { markFeatureUsed(feature) }
@@ -173,10 +180,11 @@ class HomeViewModel(
     }
 
     private fun onExitOfferAnswered(accepted: Boolean) {
-        val offered = (currentState.dialog as? HomeDialog.ExitOffer)?.feature
+        val offer = currentState.dialog as? HomeDialog.ExitOffer
         setState { copy(dialog = null) }
         // Accepting opens a feature the user had not opened, so it IS a feature open, and is counted.
-        if (accepted && offered != null) openFeature(offered) else sendEffect(HomeEffect.ExitApp)
+        val opened = offer?.openedFeature(accepted)
+        if (opened != null) openFeature(opened) else sendEffect(HomeEffect.ExitApp)
     }
 
     /**

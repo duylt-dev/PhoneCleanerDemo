@@ -1,14 +1,19 @@
 package com.pion.phonecleaner.domain.di
 
+import com.pion.phonecleaner.domain.usecase.CheckSpaceForCompressionUseCase
 import com.pion.phonecleaner.domain.usecase.CleanFilesUseCase
 import com.pion.phonecleaner.domain.usecase.CleanJunkUseCase
 import com.pion.phonecleaner.domain.usecase.ClearAppLockUseCase
 import com.pion.phonecleaner.domain.usecase.ClearHiddenNotificationsUseCase
 import com.pion.phonecleaner.domain.usecase.CompressPhotosUseCase
+import com.pion.phonecleaner.domain.usecase.CompressVideosUseCase
+import com.pion.phonecleaner.domain.usecase.CreateZipFileUseCase
 import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
+import com.pion.phonecleaner.domain.usecase.DeleteTrashForeverUseCase
 import com.pion.phonecleaner.domain.usecase.DismissHiddenNotificationUseCase
 import com.pion.phonecleaner.domain.usecase.EstimateCompressionUseCase
+import com.pion.phonecleaner.domain.usecase.EstimateVideoCompressionUseCase
 import com.pion.phonecleaner.domain.usecase.FindDuplicatesUseCase
 import com.pion.phonecleaner.domain.usecase.GetTrafficReportUseCase
 import com.pion.phonecleaner.domain.usecase.GroupAppsByPermissionUseCase
@@ -18,6 +23,7 @@ import com.pion.phonecleaner.domain.usecase.LoadAlbumPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.LoadAlbumsUseCase
 import com.pion.phonecleaner.domain.usecase.LoadAudioUseCase
 import com.pion.phonecleaner.domain.usecase.LoadCompressiblePhotosUseCase
+import com.pion.phonecleaner.domain.usecase.LoadCompressibleVideosUseCase
 import com.pion.phonecleaner.domain.usecase.LoadGeotaggedPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.LoadInstalledAppsUseCase
 import com.pion.phonecleaner.domain.usecase.LoadVideosUseCase
@@ -29,15 +35,21 @@ import com.pion.phonecleaner.domain.usecase.ObserveBatteryUseCase
 import com.pion.phonecleaner.domain.usecase.ObserveHiddenNotificationsUseCase
 import com.pion.phonecleaner.domain.usecase.ObserveLockableAppsUseCase
 import com.pion.phonecleaner.domain.usecase.ObserveNotificationHidingSettingsUseCase
+import com.pion.phonecleaner.domain.usecase.ObserveTrashSummaryUseCase
+import com.pion.phonecleaner.domain.usecase.ObserveTrashUseCase
+import com.pion.phonecleaner.domain.usecase.PurgeExpiredTrashUseCase
 import com.pion.phonecleaner.domain.usecase.ReadDeviceMetricsUseCase
 import com.pion.phonecleaner.domain.usecase.ReadMemoryUseCase
 import com.pion.phonecleaner.domain.usecase.ReadUsageAccessUseCase
+import com.pion.phonecleaner.domain.usecase.ReconcileTrashUseCase
 import com.pion.phonecleaner.domain.usecase.RefreshAppPermissionsUseCase
 import com.pion.phonecleaner.domain.usecase.RemoveFindingUseCase
+import com.pion.phonecleaner.domain.usecase.RestoreFromTrashUseCase
 import com.pion.phonecleaner.domain.usecase.RunSpeedTestUseCase
 import com.pion.phonecleaner.domain.usecase.SavePinUseCase
 import com.pion.phonecleaner.domain.usecase.ScanAppPermissionsUseCase
 import com.pion.phonecleaner.domain.usecase.ScanBigFilesUseCase
+import com.pion.phonecleaner.domain.usecase.ScanBlurryPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.ScanSimilarPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.ScanWhatsAppUseCase
 import com.pion.phonecleaner.domain.usecase.SetAppLockEnabledUseCase
@@ -71,15 +83,20 @@ import org.koin.dsl.module
  * is what keeps it honest.
  */
 val domainModule = module {
+    factoryOf(::CheckSpaceForCompressionUseCase)
     factoryOf(::CleanFilesUseCase)
     factoryOf(::CleanJunkUseCase)
     factoryOf(::ClearAppLockUseCase)
     factoryOf(::ClearHiddenNotificationsUseCase)
     factoryOf(::CompressPhotosUseCase)
+    factoryOf(::CompressVideosUseCase)
+    factoryOf(::CreateZipFileUseCase)
     factoryOf(::DeleteFilesUseCase)
     factoryOf(::DeletePhotosUseCase)
+    factoryOf(::DeleteTrashForeverUseCase)
     factoryOf(::DismissHiddenNotificationUseCase)
     factoryOf(::EstimateCompressionUseCase)
+    factoryOf(::EstimateVideoCompressionUseCase)
     factoryOf(::FindDuplicatesUseCase)
     factoryOf(::GetTrafficReportUseCase)
     factoryOf(::GroupAppsByPermissionUseCase)
@@ -89,6 +106,7 @@ val domainModule = module {
     factoryOf(::LoadAlbumsUseCase)
     factoryOf(::LoadAudioUseCase)
     factoryOf(::LoadCompressiblePhotosUseCase)
+    factoryOf(::LoadCompressibleVideosUseCase)
     factoryOf(::LoadGeotaggedPhotosUseCase)
     factoryOf(::LoadInstalledAppsUseCase)
     factoryOf(::LoadVideosUseCase)
@@ -100,15 +118,21 @@ val domainModule = module {
     factoryOf(::ObserveHiddenNotificationsUseCase)
     factoryOf(::ObserveLockableAppsUseCase)
     factoryOf(::ObserveNotificationHidingSettingsUseCase)
+    factoryOf(::ObserveTrashSummaryUseCase)
+    factoryOf(::ObserveTrashUseCase)
+    factoryOf(::PurgeExpiredTrashUseCase)
     factoryOf(::ReadDeviceMetricsUseCase)
     factoryOf(::ReadMemoryUseCase)
     factoryOf(::ReadUsageAccessUseCase)
+    factoryOf(::ReconcileTrashUseCase)
     factoryOf(::RefreshAppPermissionsUseCase)
     factoryOf(::RemoveFindingUseCase)
+    factoryOf(::RestoreFromTrashUseCase)
     factoryOf(::RunSpeedTestUseCase)
     factoryOf(::SavePinUseCase)
     factoryOf(::ScanAppPermissionsUseCase)
     factoryOf(::ScanBigFilesUseCase)
+    factoryOf(::ScanBlurryPhotosUseCase)
     factoryOf(::ScanSimilarPhotosUseCase)
     factoryOf(::ScanWhatsAppUseCase)
     factoryOf(::SetAppLockEnabledUseCase)

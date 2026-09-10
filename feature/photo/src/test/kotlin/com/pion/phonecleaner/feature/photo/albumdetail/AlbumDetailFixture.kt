@@ -7,7 +7,9 @@ import com.pion.phonecleaner.domain.model.file.PendingIntentToken
 import com.pion.phonecleaner.domain.model.photo.PhotoId
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
 import com.pion.phonecleaner.domain.usecase.LoadAlbumPhotosUseCase
+import com.pion.phonecleaner.feature.photo.testing.FakePermissionRepository
 import com.pion.phonecleaner.feature.photo.testing.FakePhotoRepository
+import com.pion.phonecleaner.feature.photo.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.photo.testing.RecordingAnalytics
 import com.pion.phonecleaner.feature.photo.testing.photo
 import kotlinx.collections.immutable.persistentListOf
@@ -30,8 +32,9 @@ internal class AlbumDetailFixture {
     fun viewModel() = AlbumDetailViewModel(
         savedStateHandle = SavedStateHandle(mapOf(AlbumDetailViewModel.FOLDER_NAME_ARG to folder)),
         loadAlbumPhotos = LoadAlbumPhotosUseCase(repository),
-        deletePhotos = DeletePhotosUseCase(repository),
+        deletePhotos = DeletePhotosUseCase(repository, FakeTrashRepository()),
         analytics = analytics,
+        permissions = FakePermissionRepository(),
     )
 
     fun loaded() = viewModel().also { it.onIntent(AlbumDetailIntent.ScreenStarted) }

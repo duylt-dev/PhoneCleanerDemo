@@ -1,5 +1,6 @@
 package com.pion.phonecleaner.feature.home
 
+import com.pion.phonecleaner.domain.catalog.FeatureAvailability
 import com.pion.phonecleaner.domain.catalog.FeatureCatalog
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.permission.AppPermission
@@ -50,16 +51,44 @@ internal object HomeSections {
         FeatureId.NetworkTest,
     )
 
-    /** `x1()` rows 1–3 — the "save space" icon tiles. */
+    /**
+     * `x1()` rows 1–3 — the "save space" icon tiles.
+     *
+     * [FeatureId.BlurryPhotos] is the one entry here with no counterpart in `x1()`: the competitor
+     * has no sharpness heuristic at all (`docs/reverse-engineering/13-photo-and-media.md:544`). It is
+     * placed next to [FeatureId.SimilarPhotos] because the two answer the same question — *which of
+     * my photos is not worth keeping* — and a reader who opened one is the reader looking for the
+     * other.
+     *
+     * [FeatureId.VideoCompressor] sits directly after [FeatureId.VideoManager] for the same reason
+     * [FeatureId.BlurryPhotos] sits after [FeatureId.SimilarPhotos] — a reader who just listed their
+     * videos is the reader looking for a way to shrink them. It has no counterpart in `x1()`.
+     *
+     * [FeatureId.Trash] closes the run rather than opening it: every tile above it can put something
+     * in the bin, so it is where a reader looks after using one. It has no counterpart in `x1()` — the
+     * competitor has no bin.
+     *
+     * **Placement is an owner decision, not an inference from what this tile does.** A trash does not
+     * itself save space — it holds bytes back for a retention window rather than freeing them — so
+     * "Privacy and access" below was the more literal fit. Shown that distinction, the owner still
+     * chose to close this run with it (plan 260908-0801, open question 2).
+     *
+     * [FeatureId.ZipFiles] sits with the file tools rather than privacy/access. It creates an
+     * archive and keeps the originals, so the copy never promises recovered bytes.
+     */
     private val saveSpaceFeatures = persistentListOf(
         FeatureId.BigFiles,
         FeatureId.DuplicateFiles,
+        FeatureId.ZipFiles,
         FeatureId.WhatsAppCleaner,
         FeatureId.SimilarPhotos,
+        FeatureId.BlurryPhotos,
         FeatureId.PhotoCompressor,
         FeatureId.ImageManager,
         FeatureId.VideoManager,
+        FeatureId.VideoCompressor,
         FeatureId.AudioManager,
+        FeatureId.Trash,
     )
 
     /** `x1()` row 4 — the privacy and access tiles. */
@@ -72,12 +101,13 @@ internal object HomeSections {
     /**
      * Features that exist but deliberately have no tile on this page.
      *
-     * PENDING OWNER DECISIONS 2 and 3 — whether the speed test ships (`FeatureId.NetworkTest`) and
-     * whether running apps requires a hand-granted `PACKAGE_USAGE_STATS` (`FeatureId.RunningApps`).
-     * Neither is decided here: the list is **empty**, so today every feature is on the page exactly
-     * as the competitor arranged it. If a decision removes one, its row moves out of the run above
-     * and into this set, and the completeness check below keeps passing — which is the point of
-     * having the escape hatch rather than a `check` that must be weakened to make a decision.
+     * Still **empty**, and it is not where a deferred feature goes. PENDING OWNER DECISIONS 1, 2 and
+     * 3 leave four entry points inert, and the owner's answer was to keep every one of them drawn and
+     * locked rather than removed — `FeatureAvailability.comingSoon` carries that list and [toTiles]
+     * reads it. This set stays for the other case: a decision that says a feature is not on this page
+     * at all. Its row would move out of the run above and into here, and the completeness check below
+     * would keep passing — which is the point of having the escape hatch rather than a `check` that
+     * must be weakened to make a decision.
      */
     private val notOnHome: Set<FeatureId> = emptySet()
 
@@ -113,6 +143,17 @@ internal object HomeSections {
             HomeSection(R.string.home_section_security, TileStyle.Icon, securityFeatures.toTiles(badges)),
         )
 
+    /**
+     * `isComingSoon` is resolved **here**, not in the tile composable, for the reason every other
+     * fact on this page is: the grid draws state, and a test that reads `HomeState.sections` must be
+     * able to see a locked tile without composing anything.
+     */
     private fun List<FeatureId>.toTiles(badges: Map<FeatureId, TileBadge>): ImmutableList<HomeTile> =
-        map { HomeTile(feature = it, badge = badges[it] ?: TileBadge.None) }.toImmutableList()
+        map {
+            HomeTile(
+                feature = it,
+                badge = badges[it] ?: TileBadge.None,
+                isComingSoon = !FeatureAvailability.isAvailable(it),
+            )
+        }.toImmutableList()
 }

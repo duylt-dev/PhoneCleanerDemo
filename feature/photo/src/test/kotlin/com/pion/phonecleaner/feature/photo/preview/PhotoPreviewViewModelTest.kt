@@ -3,6 +3,8 @@ package com.pion.phonecleaner.feature.photo.preview
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.pion.phonecleaner.domain.model.photo.PhotoId
+import com.pion.phonecleaner.domain.model.photo.PhotoSessionSource
+import com.pion.phonecleaner.feature.photo.testing.FakeBlurryPhotoSessionStore
 import com.pion.phonecleaner.feature.photo.testing.FakeSimilarPhotoSessionStore
 import com.pion.phonecleaner.feature.photo.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.photo.testing.group
@@ -24,15 +26,22 @@ class PhotoPreviewViewModelTest {
     private val second = photo(2)
     private val third = photo(3)
     private val session = FakeSimilarPhotoSessionStore()
+    private val blurry = FakeBlurryPhotoSessionStore()
 
-    private fun viewModel(groupKey: String = "g1", startIndex: Int = 1) = PhotoPreviewViewModel(
+    private fun viewModel(
+        groupKey: String = "g1",
+        startIndex: Int = 1,
+        source: PhotoSessionSource = PhotoSessionSource.Similar,
+    ) = PhotoPreviewViewModel(
         savedStateHandle = SavedStateHandle(
             mapOf(
                 PhotoPreviewViewModel.GROUP_KEY_ARG to groupKey,
                 PhotoPreviewViewModel.START_INDEX_ARG to startIndex,
+                PhotoPreviewViewModel.SOURCE_ARG to source,
             ),
         ),
-        session = session,
+        similar = session,
+        blurry = blurry,
     )
 
     private fun scanned() = session.put(persistentListOf(group("g1", opener, second, third)))
@@ -103,7 +112,7 @@ class PhotoPreviewViewModelTest {
             assertTrue(vm.state.value.sessionLost)
             assertTrue(vm.state.value.photos.isEmpty())
             vm.effects.test {
-                assertEquals(PhotoPreviewEffect.NavigateToSimilar, awaitItem())
+                assertEquals(PhotoPreviewEffect.NavigateToGrid, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -115,13 +124,63 @@ class PhotoPreviewViewModelTest {
 
         assertTrue(vm.state.value.sessionLost)
         vm.effects.test {
-            assertEquals(PhotoPreviewEffect.NavigateToSimilar, awaitItem())
+            assertEquals(PhotoPreviewEffect.NavigateToGrid, awaitItem())
             // A second store emission must not raise a second hop.
             session.select(setOf(PhotoId(2)))
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `the source argument decides which store the pager reads`() = main.runVmTest {
+        // Only the BLURRY store holds a scan; the similar one is empty.
+        blurry.put(persistentListOf(group("tier", opener, second, third)))
+
+        val vm = viewModel(groupKey = "tier", source = PhotoSessionSource.Blurry)
+
+        assertFalse(vm.state.value.sessionLost)
+        assertEquals(listOf(opener, second, third), vm.state.value.photos)
+        // Every row of a blur tier is pre-selected, where a similar group holds back its opener.
+        assertEquals(setOf(PhotoId(1), PhotoId(2), PhotoId(3)), vm.state.value.selectedIds)
+    }
+
+    @Test
+    fun `a blur tier badges no member as kept, because it keeps none`() = main.runVmTest {
+        blurry.put(persistentListOf(group("tier", opener, second, third)))
+
+        // Page 0 is the opener — the page `similar` badges "Keeping".
+        val vm = viewModel(groupKey = "tier", startIndex = 0, source = PhotoSessionSource.Blurry)
+
+        assertFalse(vm.state.value.marksKeptPhoto)
+        // Badging it would tell the reader a photo is safe that is in fact ticked for deletion.
+        assertFalse(vm.state.value.isCurrentKept)
+        assertTrue(vm.state.value.isCurrentSelected)
+    }
+
+    @Test
+    fun `a similar group still badges its opener as kept`() = main.runVmTest {
+        scanned()
+
+        val vm = viewModel(startIndex = 0)
+
+        assertTrue(vm.state.value.marksKeptPhoto)
+        assertTrue(vm.state.value.isCurrentKept)
+    }
+
+    @Test
+    fun `toggling in the blurry pager writes to the blurry store and not the similar one`() =
+        main.runVmTest {
+            scanned()
+            blurry.put(persistentListOf(group("tier", opener, second, third)))
+            val vm = viewModel(groupKey = "tier", source = PhotoSessionSource.Blurry)
+
+            vm.onIntent(PhotoPreviewIntent.SelectionToggled)
+
+            assertEquals(setOf(PhotoId(1), PhotoId(3)), blurry.session.value?.selectedIds)
+            // The similar session is untouched: the two grids keep separate stores.
+            assertEquals(setOf(PhotoId(2), PhotoId(3)), session.session.value?.selectedIds)
+        }
 
     @Test
     fun `close is an Effect` () = main.runVmTest {

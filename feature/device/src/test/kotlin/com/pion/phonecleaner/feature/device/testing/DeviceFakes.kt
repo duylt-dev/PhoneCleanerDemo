@@ -156,6 +156,7 @@ internal fun batterySnapshot(
     percent: Int = 64,
     chargeState: ChargeState = ChargeState.DISCHARGING,
     capacityMah: Int? = 4200,
+    currentChargeMah: Int? = 2688,
     brightnessPercent: Int? = 55,
 ): BatterySnapshot = BatterySnapshot(
     percent = percent,
@@ -166,6 +167,7 @@ internal fun batterySnapshot(
     rawTechnology = "Li-ion",
     chargeState = chargeState,
     capacityMah = capacityMah,
+    currentChargeMah = currentChargeMah,
     brightnessPercent = brightnessPercent,
     chargeTimeRemaining = null,
 )

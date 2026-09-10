@@ -39,6 +39,11 @@ data class CleanProgress(
     val deletedCount: Int = 0,
     val failedCount: Int = 0,
     val totalCount: Int = 0,
+    /**
+     * True once `FileCleanProgress.Finished.recoverable` lands — the run moved into the bin rather
+     * than freeing anything (plan `260908-0801-trash-bin`, Phase 07). Read by [cleanSummary].
+     */
+    val recoverable: Boolean = false,
 ) {
     val remainingBytes: Long get() = (promisedBytes - deletedBytes).coerceAtLeast(0L)
     val isFinished: Boolean get() = deletedCount + failedCount >= totalCount
@@ -61,6 +66,8 @@ data class WhatsAppCleanerState(
 
     /** Both dialogs are STATE, and they are never both up (`LLM.md` §7.4). */
     val confirm: ConfirmSpec? = null,
+    /** Mode stated by the confirmation; retained through the system consent round trip. */
+    val trashEligible: Boolean = false,
     val stopConfirm: ConfirmSpec? = null,
     val cleaning: CleanProgress? = null,
     override val error: AppError? = null,

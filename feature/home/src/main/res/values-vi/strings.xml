@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:home. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5; docs/screens/11-home.md §4.2) carries into every locale. Every string
+  below names a capability or reports a measurement; none claims an outcome, and the one percentage
+  on this page is storage occupancy — a measurement of how full the volume is.
+
+  Two distinctions the English file insists on and this file keeps:
+    * home_junk_not_measured ("chưa kiểm tra") vs home_junk_none ("không tìm thấy") — "we have not
+      looked" and "there is nothing" must not read the same in any locale.
+    * home_value_unknown stays the honest rendering of null. It is a resource so a translator may
+      change it; two hyphens read the same in Vietnamese, so it is unchanged here.
+
+  PLURALS — Vietnamese has one CLDR category, `other`.
+-->
+<resources>
+
+    <!-- ── header ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_header_title">Phone Cleaner</string>
+    <string name="home_open_settings">Cài đặt</string>
+    <string name="home_permission_warning">Một số tính năng vẫn cần được cấp quyền để chạy.</string>
+
+    <!-- ── hero card ─────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_storage_title">Bộ nhớ</string>
+    <string name="home_storage_ring_value">%1$d%%</string>
+    <string name="home_storage_ring_description">Bộ nhớ đã đầy %1$d phần trăm</string>
+    <string name="home_storage_used">Đã dùng</string>
+    <string name="home_storage_free">Còn trống</string>
+
+    <string name="home_junk_not_measured">Chưa kiểm tra</string>
+    <string name="home_junk_none">Không tìm thấy tệp rác nào trong những thư mục đọc được</string>
+    <string name="home_junk_measured">Tìm thấy %1$s tệp rác</string>
+    <string name="home_junk_checking">Đang kiểm tra…</string>
+    <string name="home_junk_coming_soon">Tính năng dọn tệp rác chưa sẵn sàng ở phiên bản này</string>
+
+    <string name="home_safety_check_due">Hôm nay chưa chạy lượt kiểm tra an toàn nào</string>
+
+    <!-- ── section headings ──────────────────────────────────────────────────────────────────── -->
+    <string name="home_section_save_space">Tiết kiệm dung lượng</string>
+    <string name="home_section_security">Quyền riêng tư và truy cập</string>
+
+    <!-- ── tiles ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_value_unknown">--</string>
+    <string name="home_badge_overflow">99+</string>
+    <string name="home_badge_attention">Cần xem lại</string>
+    <string name="home_tile_coming_soon">Sắp có</string>
+
+    <!-- ── notification banner ───────────────────────────────────────────────────────────────── -->
+    <string name="home_notification_banner_title">Bật thông báo</string>
+    <string name="home_notification_banner_body">Nhận lời nhắc khi có điều gì đó trên thiết bị này đáng để xem lại.</string>
+    <string name="home_notification_banner_action">Bật</string>
+
+    <!-- ── footer ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="home_footer_days_label">Đồng hành cùng bạn</string>
+    <plurals name="home_footer_days_value">
+        <item quantity="other">%1$d ngày</item>
+    </plurals>
+    <string name="home_footer_saved_label">Dung lượng đã thu hồi</string>
+
+    <!-- ── the notification-permission sheet ─────────────────────────────────────────────────── -->
+    <string name="home_notification_sheet_title">Bật thông báo?</string>
+    <string name="home_notification_sheet_body">Thông báo được dùng để báo cho bạn biết khi có điều gì đó trên thiết bị này đáng để xem lại. Bạn có thể tắt lại bất cứ lúc nào, trong phần Cài đặt.</string>
+    <string name="home_notification_sheet_confirm">Bật</string>
+    <string name="home_notification_sheet_dismiss">Để sau</string>
+
+    <!-- ── the safety-check consent dialog ───────────────────────────────────────────────────── -->
+    <string name="home_consent_title">Trước khi kiểm tra an toàn ứng dụng</string>
+    <string name="home_consent_body">Lượt kiểm tra do Trustlook thực hiện. Hãy đọc điều khoản và chính sách quyền riêng tư bên dưới, rồi chọn có tiếp tục hay không.</string>
+    <!-- SDK attribution requirement, not decoration (LLM.md §5). Do not translate. -->
+    <string name="home_consent_powered_by">Powered by Trustlook</string>
+    <string name="home_consent_terms">Điều khoản dịch vụ</string>
+    <string name="home_consent_privacy">Chính sách quyền riêng tư</string>
+    <string name="home_consent_agree">Đồng ý và tiếp tục</string>
+    <string name="home_consent_reject">Để sau</string>
+
+    <!-- ── the exit offer dialog ─────────────────────────────────────────────────────────────── -->
+    <string name="home_exit_quit">Thoát</string>
+
+</resources>

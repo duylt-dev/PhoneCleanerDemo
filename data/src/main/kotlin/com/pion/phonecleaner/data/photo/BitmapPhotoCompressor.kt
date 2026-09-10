@@ -43,6 +43,12 @@ import java.io.ByteArrayOutputStream
  * effect, intent or state for it — unlike the delete path, which declares all three. A
  * `SecurityException` therefore lands as `failed = true` on that photo and is reported in the run's
  * `failedCount`, never swallowed. The missing contract is reported, not invented here.
+ *
+ * **Out of scope for the bin** (owner decision D7, plan `260908-0801-trash-bin`). `encode`'s write at
+ * `openOutputStream(uri, "wt")` overwrites the original in place; it issues no delete, so there is
+ * nothing for `TrashRepository` to intercept. A copy-first backup was rejected: it doubles the write
+ * on a device the user is trying to free space on, and an overwrite is not a delete. Recorded here so
+ * a later reader does not conclude the path was missed.
  */
 internal class BitmapPhotoCompressor(
     private val context: Context,

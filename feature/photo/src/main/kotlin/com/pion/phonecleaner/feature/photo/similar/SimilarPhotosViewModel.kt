@@ -7,11 +7,13 @@ import com.pion.phonecleaner.core.mvi.MviViewModel
 import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.model.photo.PhotoId
-import com.pion.phonecleaner.domain.model.photo.SimilarPhotoSession
+import com.pion.phonecleaner.domain.model.photo.PhotoSession
 import com.pion.phonecleaner.domain.model.photo.SimilarScanProgress
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
+import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.repository.SimilarPhotoSessionStore
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
@@ -40,6 +42,7 @@ class SimilarPhotosViewModel(
     private val session: SimilarPhotoSessionStore,
     private val markFeatureUsed: MarkFeatureUsedUseCase,
     private val analytics: AnalyticsRepository,
+    private val permissions: PermissionRepository,
     log: AppLogger = AppLogger.NoOp,
 ) : MviViewModel<SimilarPhotosState, SimilarPhotosIntent, SimilarPhotosEffect>(
     SimilarPhotosState(),
@@ -60,7 +63,12 @@ class SimilarPhotosViewModel(
                 session.select(currentState.selectedIds.toggle(intent.id))
             is SimilarPhotosIntent.GroupCleanupPressed -> onGroupCleanup(intent.groupKey)
             SimilarPhotosIntent.SelectAllToggled -> onSelectAllToggled()
-            SimilarPhotosIntent.DeletePressed -> setState { copy(isDeleteConfirmVisible = true) }
+            SimilarPhotosIntent.DeletePressed -> setState {
+                copy(
+                    isDeleteConfirmVisible = true,
+                    trashEligible = permissions.isGranted(AppPermission.AllFiles),
+                )
+            }
             SimilarPhotosIntent.DeleteDismissed -> setState { copy(isDeleteConfirmVisible = false) }
             SimilarPhotosIntent.DeleteConfirmed -> onDeleteConfirmed()
             SimilarPhotosIntent.CompletionAnimationFinished -> setState { copy(phase = ToolPhase.Ready) }
@@ -70,7 +78,7 @@ class SimilarPhotosViewModel(
         }
     }
 
-    private fun onSession(current: SimilarPhotoSession?) = setState {
+    private fun onSession(current: PhotoSession?) = setState {
         copy(
             groups = current?.groups ?: persistentListOf(),
             selectedIds = current?.selectedIds ?: persistentSetOf(),
@@ -130,12 +138,13 @@ class SimilarPhotosViewModel(
     }
 
     private fun onDeleteConfirmed() {
+        val requireTrash = currentState.trashEligible
         val ids = currentState.selectedIds.toList()
         setState { copy(isDeleteConfirmVisible = false) }
         if (ids.isEmpty()) return
         setState { copy(phase = ToolPhase.Deleting, consentDeclined = false, failedCount = 0) }
         launchSafely(onError = ::onFailure) {
-            when (val result = deletePhotos(ids)) {
+            when (val result = deletePhotos(ids, FeatureId.SimilarPhotos, requireTrash = requireTrash)) {
                 is AppResult.Failure -> onFailure(result.error)
                 is AppResult.Success -> onOutcome(result.value)
             }
@@ -143,14 +152,15 @@ class SimilarPhotosViewModel(
     }
 
     private fun onOutcome(outcome: DeleteOutcome) = when (outcome) {
-        // The ordinary API 30+ path: the system, not this app, asks the user.
+        // The ordinary API 30+ path: the system, not this app, asks the user. Unreachable on the
+        // trash path — no delete request is ever built there.
         is DeleteOutcome.PendingConsent -> {
             setState { copy(pendingConsentUris = outcome.ids.toImmutableSet()) }
             sendEffect(SimilarPhotosEffect.RequestDeleteConsent(outcome.request))
         }
 
         is DeleteOutcome.Deleted ->
-            prune(outcome.ids.toSet(), outcome.freedBytes, outcome.failedPaths.size)
+            prune(outcome.ids.toSet(), outcome.freedBytes, outcome.failedPaths.size, outcome.recoverable)
 
         DeleteOutcome.NothingResolved -> setState { copy(phase = ToolPhase.Ready) }
     }
@@ -163,15 +173,16 @@ class SimilarPhotosViewModel(
             }
             return
         }
-        // The system has already removed the rows; the freed bytes are what this screen still holds.
-        prune(pending, currentState.bytesForUris(pending), failedCount = 0)
+        // The system has already removed the rows permanently; this path is only reached on the
+        // no-trash branch. The freed bytes are what this screen still holds.
+        prune(pending, currentState.bytesForUris(pending), failedCount = 0, recoverable = false)
     }
 
     /**
      * The rows leave the store **before** the navigation Effect, so the empty state is immediate and
      * groups that fall to one member go with them — the competitor's `L0()` never re-runs its reveal.
      */
-    private fun prune(removedUris: Set<String>, freedBytes: Long, failedCount: Int) {
+    private fun prune(removedUris: Set<String>, freedBytes: Long, failedCount: Int, recoverable: Boolean) {
         val removedIds = currentState.idsForUris(removedUris)
         session.remove(removedIds)
         setState {
@@ -183,7 +194,7 @@ class SimilarPhotosViewModel(
         )
         sendEffect(
             SimilarPhotosEffect.NavigateToCleanResult(
-                similarCleanupSummary(freedBytes, removedIds.size),
+                similarCleanupSummary(freedBytes, removedIds.size, recoverable),
             ),
         )
     }

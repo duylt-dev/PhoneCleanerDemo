@@ -16,7 +16,8 @@ import com.pion.phonecleaner.domain.model.device.MemoryInfo
  * is written so that neither outcome touches it: the enumeration is behind
  * `ListStoppableAppsUseCase`, and the usage-access surface is on `runningapps`, where the user can
  * act on it. Under option A only the repository's data source changes; under option B nothing does.
- * **The permission is declared in no manifest** while the decision is open.
+ * `:data` declares the permission for App Manager's *Last used* column; this cluster reads no usage
+ * statistic either way while the decision is open.
  */
 @Immutable
 data class RunningAppsScanState(

@@ -153,6 +153,40 @@ internal class AppManagerViewModelTest {
             assertEquals(ToolPhase.Ready, vm.state.value.phase)
         }
 
+    /**
+     * Confirming our dialog and then declining Android's is a **cancel**, not a finished run. The
+     * screen stays where it is: navigating to the shared result screen would render `NothingFound`
+     * — *"Nothing was found to remove"* — over a list where the apps were found and are still there.
+     */
+    @Test
+    fun `declining every system dialog does not reach the result screen`() =
+        mainDispatcher.runVmTest {
+            val vm = viewModel()
+            vm.onIntent(AppManagerIntent.ScreenStarted)
+            settle()
+            vm.onIntent(AppManagerIntent.CompletionAnimationFinished)
+            vm.onIntent(AppManagerIntent.RowToggled("one"))
+
+            vm.effects.test {
+                vm.onIntent(AppManagerIntent.UninstallPressed)
+                vm.onIntent(AppManagerIntent.UninstallConfirmed)
+                settle()
+                assertEquals(AppManagerEffect.RequestUninstall("one"), awaitItem())
+
+                // The user backed out of the system sheet: `one` is still installed.
+                vm.onIntent(AppManagerIntent.UninstallReturned("one"))
+                settle()
+
+                expectNoEvents()
+            }
+
+            // The run is over and the row is still both listed and ticked, so the retry is one tap.
+            assertNull(vm.state.value.uninstalling)
+            assertEquals(ToolPhase.Ready, vm.state.value.phase)
+            assertEquals(listOf("one", "two"), vm.state.value.apps.map { it.packageName })
+            assertEquals(persistentSetOf("one"), vm.state.value.selectedPackages)
+        }
+
     /** The rationale is shown BEFORE the user is handed out to Settings (§5.5). */
     @Test
     fun `the grant press opens a rationale first and Settings only on continue`() =
@@ -173,12 +207,83 @@ internal class AppManagerViewModelTest {
             }
         }
 
+    /**
+     * Both dates survive the port -> use case -> row hop as themselves. They used to not: the row's
+     * install date was hard-coded to `0` in the use case, so every row rendered "install date not
+     * available" no matter what the platform reported.
+     */
+    @Test
+    fun `the install and last-used timestamps reach the row`() = mainDispatcher.runVmTest {
+        installedApps.apps = listOf(
+            app("one", apkBytes = 10L, lastUsedAtMillis = 1_700L, firstInstallAtMillis = 900L),
+            app("two", apkBytes = 20L),
+        ).toImmutableList()
+        val vm = viewModel()
+
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+
+        val one = vm.state.value.apps.first { it.packageName == "one" }
+        assertEquals(900L, one.firstInstallEpochMillis)
+        assertEquals(1_700L, one.lastUsedEpochMillis)
+
+        // `0` is carried through as `0`, never as a date the row would then render.
+        val two = vm.state.value.apps.first { it.packageName == "two" }
+        assertEquals(0L, two.firstInstallEpochMillis)
+        assertEquals(0L, two.lastUsedEpochMillis)
+    }
+
+    /** The row needs the grant to know which of the two meanings a `0` last-used stamp carries. */
+    @Test
+    fun `granting usage access flips the flag the row reads`() = mainDispatcher.runVmTest {
+        val vm = viewModel()
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+        assertFalse(vm.state.value.usageAccessGranted)
+
+        permissions.granted.value = persistentSetOf(AppPermission.UsageStats)
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+
+        assertTrue(vm.state.value.usageAccessGranted)
+    }
+
+    /**
+     * Owner decision (2026-09-03): a system app is never listed, and no switch shows it. The port
+     * still returns them — the filter is `LoadInstalledAppsUseCase`'s, and this asserts the screen
+     * sees the filtered list, not that the port was asked for one.
+     */
+    @Test
+    fun `a system app never reaches the list and is never sized`() = mainDispatcher.runVmTest {
+        installedApps.apps = listOf(
+            app("one", 10L),
+            app("system", 30L, isSystem = true),
+        ).toImmutableList()
+        // The fan-out would report it if it were asked; the row must still be absent.
+        stats.stats = listOf(AppStorageStats("system", appBytes = 5L, dataBytes = 1L))
+        val vm = viewModel()
+
+        vm.onIntent(AppManagerIntent.ScreenStarted)
+        settle()
+
+        assertEquals(listOf("one"), vm.state.value.apps.map { it.packageName })
+    }
+
     private companion object {
-        fun app(packageName: String, apkBytes: Long) = InstalledApp(
+        fun app(
+            packageName: String,
+            apkBytes: Long,
+            lastUsedAtMillis: Long = 0L,
+            firstInstallAtMillis: Long = 0L,
+            isSystem: Boolean = false,
+        ) = InstalledApp(
             packageName = packageName,
             label = packageName,
             uid = packageName.hashCode(),
             apkBytes = apkBytes,
+            lastUsedAtMillis = lastUsedAtMillis,
+            firstInstallAtMillis = firstInstallAtMillis,
+            isSystem = isSystem,
         )
     }
 }

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import com.pion.phonecleaner.core.common.time.AppClock
 import com.pion.phonecleaner.data.datastore.FeatureUsagePrefs
+import com.pion.phonecleaner.domain.catalog.FeatureAvailability
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.repository.FeatureUsageRepository
 import kotlinx.collections.immutable.ImmutableList
@@ -69,6 +70,12 @@ internal class DataStoreFeatureUsageRepository(
      * time-zone change re-rolls the whole set. A rolling window keeps the daily cadence the product
      * asked for without either of those, and it needs no time zone at all. The interval is named
      * here, in one place, so the product can change it in one line if U10 resolves the other way.
+     *
+     * **A feature this release cannot carry out is never stale**, because "stale" is the input to two
+     * suggestion surfaces — the home exit offer and the clean-result recommendations — and suggesting
+     * an entry point that is drawn locked is an invitation to a door that does not open
+     * (`FeatureAvailability`). It is filtered here rather than at each of the two call sites so a
+     * third one cannot be written without it.
      */
     override fun staleFeatures(): Flow<ImmutableList<FeatureId>> = store.data
         .readSafely()
@@ -76,6 +83,7 @@ internal class DataStoreFeatureUsageRepository(
             val horizon = clock.now() - STALE_AFTER
             FeatureId.entries
                 .filter { feature ->
+                    if (!FeatureAvailability.isAvailable(feature)) return@filter false
                     val last = prefs[FeatureUsagePrefs.lastUsedAt(feature)]
                     last == null || Instant.fromEpochMilliseconds(last) < horizon
                 }
@@ -83,10 +91,19 @@ internal class DataStoreFeatureUsageRepository(
         }
         .distinctUntilChanged()
 
-    /** A random stale feature, or a random one of all twenty when none is stale (§5.3). */
+    /**
+     * A random stale feature, or a random one of the rest when none is stale (§5.3).
+     *
+     * The fallback set is the openable features, not all twenty: [staleFeatures] already drops the
+     * ones `FeatureAvailability` locks, and a fallback that put them back would hand the exit offer
+     * exactly the destination the filter above exists to keep out. `ifEmpty` is unreachable while any
+     * feature is available and is here so this cannot throw if the last one is ever taken away.
+     */
     override suspend fun recommend(): FeatureId {
         val stale = staleFeatures().first()
-        return if (stale.isEmpty()) FeatureId.entries.random(random) else stale.random(random)
+        if (stale.isNotEmpty()) return stale.random(random)
+        val openable = FeatureId.entries.filter(FeatureAvailability::isAvailable)
+        return openable.ifEmpty { FeatureId.entries }.random(random)
     }
 
     /**

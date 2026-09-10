@@ -75,6 +75,7 @@ internal fun WhatsAppCleanerState.withCleanProgress(
             deletedBytes = progress.freedBytes,
             deletedCount = progress.deletedCount,
             failedCount = progress.failedCount,
+            recoverable = progress.recoverable,
         )
 
         // Handled as an Effect by the ViewModel; the counters do not move on a consent request.
@@ -95,24 +96,28 @@ internal fun WhatsAppCleanerState.withDeleted(ids: Set<String>): WhatsAppCleaner
     )
 }
 
+/** `MovedToTrash` only once something was actually deleted (plan `260908-0801-trash-bin`, Phase 07). */
 internal fun WhatsAppCleanerState.cleanSummary(): CleanupSummary {
     val progress = cleaning
     return CleanupSummary(
         feature = FeatureId.WhatsAppCleaner,
         freedBytes = progress?.deletedBytes ?: 0L,
         itemCount = progress?.deletedCount ?: 0,
-        outcome = if ((progress?.deletedCount ?: 0) == 0) {
-            CleanupOutcome.NothingFound
-        } else {
-            CleanupOutcome.Cleaned
+        outcome = when {
+            (progress?.deletedCount ?: 0) == 0 -> CleanupOutcome.NothingFound
+            progress?.recoverable == true -> CleanupOutcome.MovedToTrash
+            else -> CleanupOutcome.Cleaned
         },
     )
 }
 
-/** Every sibling tool confirms before deleting; this one deletes chat media (§6.5). */
-internal fun cleanConfirmSpec(fileCount: Int): ConfirmSpec = ConfirmSpec(
+/**
+ * Every sibling tool confirms before deleting; this one deletes chat media (§6.5). [trashEligible] is
+ * the confirmed operation mode. The use case never downgrades a refused move to permanent deletion.
+ */
+internal fun cleanConfirmSpec(fileCount: Int, trashEligible: Boolean): ConfirmSpec = ConfirmSpec(
     titleRes = R.string.whatsapp_confirm_title,
-    bodyRes = R.plurals.whatsapp_confirm_body,
+    bodyRes = if (trashEligible) R.plurals.whatsapp_confirm_trash_body else R.plurals.whatsapp_confirm_body,
     count = fileCount,
     confirmRes = com.pion.phonecleaner.core.ui.R.string.action_delete,
 )

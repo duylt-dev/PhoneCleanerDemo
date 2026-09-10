@@ -17,6 +17,7 @@ import com.pion.phonecleaner.core.ui.component.header.PageHeader
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.notification.R
 import com.pion.phonecleaner.feature.notification.component.AppRowSkeletonList
 import com.pion.phonecleaner.feature.notification.hidingsettings.component.MasterHidingCard
@@ -36,7 +37,7 @@ internal fun NotificationHidingSettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.notification_hiding_settings_title),
                 onBack = { onIntent(NotificationHidingSettingsIntent.BackPressed) },

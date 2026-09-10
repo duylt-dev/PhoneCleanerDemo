@@ -2,9 +2,9 @@ package com.pion.phonecleaner.data.di
 
 import com.pion.phonecleaner.data.junk.DefaultJunkDeleter
 import com.pion.phonecleaner.data.junk.DefaultJunkRepository
-import com.pion.phonecleaner.data.junk.EmptyJunkRuleCatalog
 import com.pion.phonecleaner.data.junk.InMemoryJunkSessionStore
 import com.pion.phonecleaner.data.junk.JunkEstimateCache
+import com.pion.phonecleaner.data.junk.KotlinJunkRuleCatalog
 import com.pion.phonecleaner.data.junk.RuleJunkScanner
 import com.pion.phonecleaner.domain.repository.JunkDeleter
 import com.pion.phonecleaner.domain.repository.JunkRepository
@@ -43,12 +43,15 @@ import org.koin.dsl.module
  */
 val junkDataModule = module {
 
-    // PENDING OWNER DECISION (1) — the catalogue fork. `EmptyJunkRuleCatalog` carries no rule data;
-    // an `AssetJunkRuleCatalog` (bundled JSON) or a `KotlinJunkRuleCatalog` (rules in code) replaces
-    // exactly this line and nothing else. See the class KDoc.
-    single<JunkRuleCatalog> { EmptyJunkRuleCatalog() }
+    // PENDING OWNER DECISION (1) is CLOSED (2026-09-06): branch B, our own rules in code. The
+    // competitor's 41-rule / 208-app table is not carried and may not be added — see the class KDoc
+    // for the reason and for what that costs. Swapping this one line is still the whole change.
+    single<JunkRuleCatalog> { KotlinJunkRuleCatalog() }
 
-    single<JunkScanner> { RuleJunkScanner(get(), get(), get(), get(), get()) }
+    // The fifth `get()` is `InstalledAppsRepository`, declared once in `coreDataModule`. Pass 2's
+    // rule is inverted — a residual folder is junk only when its app is GONE — so the scanner cannot
+    // answer it without the installed list.
+    single<JunkScanner> { RuleJunkScanner(get(), get(), get(), get(), get(), get()) }
 
     single<JunkDeleter> { DefaultJunkDeleter(androidContext(), get(), get()) }
 

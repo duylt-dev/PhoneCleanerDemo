@@ -10,22 +10,15 @@
   a review risk with no feature behind it.
 
   What is deliberately NOT here:
-
-  * MANAGE_EXTERNAL_STORAGE — never assumed grantable (system-architecture §8.1, owner decision).
-    The default branch is MediaStore + the Storage Access Framework, which is what storageDataModule
-    binds. Declaring it would make the manifest state a branch the code does not take, and it still
-    would not reach Android/data or Android/obb on API 30+, which is where the catalogue most wants
-    to look (§8.2). It belongs only in a build whose store declaration covers it, and never as the
-    only path.
-  * PACKAGE_USAGE_STATS, SYSTEM_ALERT_WINDOW, RECEIVE_BOOT_COMPLETED, POST_NOTIFICATIONS —
-    each sits behind a pending owner decision (running-apps, App Lock, out-of-app assertiveness).
-    Nothing here declares a permission on a decision's behalf.
-  * QUERY_ALL_PACKAGES — no code in this module enumerates packages. It belongs to whichever module
-    writes InstalledAppsRepository / AppPermissionScanRepository.
+  * SYSTEM_ALERT_WINDOW, RECEIVE_BOOT_COMPLETED, POST_NOTIFICATIONS — each sits behind a pending
+    owner decision (App Lock overlay, out-of-app assertiveness). Nothing here declares a permission
+    on a decision's behalf. PACKAGE_USAGE_STATS was on this list and no longer is; its own block
+    below states exactly what that line settles and what it leaves open.
   * ACCESS_MEDIA_LOCATION — MediaStoreQuery reads no EXIF location; the photo cluster declares it if
     its own code does.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
       Read access for MediaStoreQuery / DefaultMediaStoreRepository — strategy 3 of §8.3.
@@ -48,6 +41,108 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+
+    <!--
+      ALL-FILES ACCESS. Declared by owner decision of 2026-09-06, which REVERSES the 2026-08-26 ruling
+      that this permission is never assumed grantable (system-architecture §8.1). The reversal was made
+      with the trade-off on the table, so do not re-litigate it: re-read this comment instead.
+
+      WHY IT HAD TO BE DECLARED. The junk scan is a filesystem walk, not a MediaStore query. Without
+      this grant `AndroidStorageRootProvider.readableRoots()` returns exactly three directories — the
+      app's own cacheDir, externalCacheDir and filesDir — so every pass walked this app's own
+      sandbox and reported 0 B on a device that really holds hundreds of megabytes of stale `.apk`
+      files. That is worse than a missing feature: the screen said "scanned, nothing found".
+      A `.apk` belonging to another app is a NON-MEDIA file, so neither READ_MEDIA_* nor
+      MediaStore.Files can see it, and since Android 11 ACTION_OPEN_DOCUMENT_TREE refuses the internal
+      volume root and the Download directory. There is no third path.
+
+      WHAT IT STILL DOES NOT BUY. Android/data and Android/obb stay unreadable on API 30+ even holding
+      this permission (gioi-han-android §1) — which is where a modern app's cache actually lives, and it
+      is the single biggest bucket on any real device. An app-residual root that points there carries
+      `AppRuleRoot.scoped = true` in JunkAppResidualRules.kt and is skipped knowably; the system-cache
+      list simply has no rule for it, because there is nothing there we can size or delete.
+
+      WHAT IT COSTS. Google Play reviews MANAGE_EXTERNAL_STORAGE against the core function declared and
+      promoted on the store listing, not against the code. The declaration must be justified there
+      before this build is submitted. Below API 30 there is no such permission: on API 28 the legacy
+      read + write pair is the equivalent, and on API 29 scoped storage means there is no all-files
+      access to have — `StorageAccessChecks.allFiles()` spells out both branches.
+
+      tools:ignore="ScopedStorage" — lint flags every declaration of this permission on principle; the
+      justification is the six paragraphs above rather than a suppression with no reason beside it.
+    -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
+    <!--
+      Read by `PackageManagerInstalledAppsRepository.lastUsedByPackage`
+      (`UsageStatsManager.queryUsageStats`) and checked by `AndroidPermissionRepository.appOpAllowed`
+      and `ForegroundAppResolver.hasUsageAccess` — code in THIS module, which is the rule every other
+      line here follows.
+
+      IT MUST BE DECLARED EVEN THOUGH NO DIALOG ASKS FOR IT. The user gives this grant by hand on the
+      system Usage Access page, and that page lists ONLY apps whose manifest declares the permission.
+      Without this line App Manager's "Open settings" button opened a page the app could never appear
+      on: the grant was unreachable, `isGranted(UsageStats)` read false on every device, and the
+      screen's rationale card pointed at a dead end.
+
+      SCOPE. This closes the App Manager half of pending owner decision 3 — the *Last used* column and
+      its sort chip, where `docs/screens/14` §5 already makes the grant optional and opens the screen
+      without it. It settles nothing about the running-apps screen: that fork
+      (`docs/system-architecture.md` §10.1 P1) is still open, nothing in `:feature:device` reads a
+      usage statistic, and declaring the permission does not make it do so.
+
+      tools:ignore="ProtectedPermissions" — the protection level is signature|privileged|appop and
+      lint reads the first two without the third. `appop` is precisely what makes it user-grantable.
+    -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!--
+      PACKAGE VISIBILITY — without these two declarations App Manager lists TWO rows.
+
+      `targetSdk` is 36, so the API 30 filtering applies in full: `PackageManager` answers
+      `getInstalledPackages` and `queryIntentActivities` with only the packages this app is allowed
+      to see, and says nothing about the rest. It is not an error and not an empty list — it is a
+      shorter list, which is why `PackageManagerInstalledAppsRepository.enumerate` cannot detect it
+      and no `SecurityException` arm fires. Measured on device RF8Y60B9NCZ (SM-A165F, Android 16):
+      `dumpsys package com.pion.phonecleaner` reported `system apps queryable: false` with empty
+      forceQueryable and package-name query lists, and the screen showed 2 apps where
+      `pm list packages -3` counts 72. The competitor shows 71 on the same device — 72 minus itself —
+      and it gets there with exactly the two declarations below (`decompiler/app-src/AndroidManifest.xml:107`
+      and its `<queries>` block).
+
+      BOTH are declared, because they cover different halves of the list and fail differently.
+
+      `<queries>` is the half that needs no store justification. ACTION_MAIN + CATEGORY_LAUNCHER is
+      the literal query `launchablePackages()` runs, so without it `includeWithoutLauncher = false`
+      — the Permission Manager's enumeration — returns near-nothing on its own terms. Bare ACTION_MAIN
+      widens that to apps whose entry activity carries no LAUNCHER category.
+
+      QUERY_ALL_PACKAGES is the half that does. It is the only thing that reveals a user-installed
+      package with no MAIN activity at all, which is precisely what `includeWithoutLauncher = true`
+      — the App Manager — asks for; a keyboard, a plugin or a work-profile companion is invisible
+      without it. Play treats it as sensitive and requires a declared use case; a device cleaner with
+      an uninstall manager is one of the permitted ones. If it is ever stripped from a build, the
+      `<queries>` block above still carries the launchable majority, so the screen degrades to
+      "most apps" rather than back to two.
+    -->
+    <!-- The app-manager inventory above deliberately includes packages with no launcher;
+         a queries intent cannot express that inventory. Keep this one declared exception visible. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
 
     <!--
       POST_NOTIFICATIONS is deliberately ABSENT. It sits behind a pending owner decision

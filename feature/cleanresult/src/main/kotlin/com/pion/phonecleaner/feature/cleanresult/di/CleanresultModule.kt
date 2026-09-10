@@ -18,9 +18,12 @@ import org.koin.dsl.module
  *
  * | What | Declared in |
  * |---|---|
- * | `FeatureUsageRepository` · `CleanupLedger` · `AnalyticsRepository` | `coreDataModule` |
+ * | `CleanupLedger` | `coreDataModule` |
  * | `AppLogger` | `coreModule` |
- * | `FeatureDescriptors` | **nothing** — a pure object (§6.3) |
+ *
+ * `FeatureUsageRepository` and `AnalyticsRepository` were resolved here until the suggestion list was
+ * removed (owner decision 2026-09-03). Both still exist and are still declared in `coreDataModule`;
+ * this screen simply no longer has anything to ask them.
  *
  * `CleanupSummary` comes from `params`, not a `get()`: it is the route argument, and this module
  * cannot name the `@Serializable` route type that carries it (`LLM.md` §7.2).
@@ -28,5 +31,5 @@ import org.koin.dsl.module
  * Screens: cleanresult (phases Counting -> Revealed)
  */
 val cleanResultModule = module {
-    viewModel { params -> CleanResultViewModel(params.get(), get(), get(), get(), get()) }
+    viewModel { params -> CleanResultViewModel(params.get(), get(), get()) }
 }

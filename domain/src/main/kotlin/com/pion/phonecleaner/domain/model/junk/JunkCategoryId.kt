@@ -1,7 +1,7 @@
 package com.pion.phonecleaner.domain.model.junk
 
 /**
- * The three passes a junk scan makes, and the three sections the review screen renders.
+ * The four passes a junk scan makes, and the four sections the review screen renders.
  *
  * These are the competitor's three `xc.x` category constants — `system_cache`, `app_residual`,
  * `apk_files` (`docs/reverse-engineering/12-junk-cleaning.md` §6) — as an enum rather than as the
@@ -16,4 +16,5 @@ enum class JunkCategoryId {
     SystemCache,
     AppResidual,
     ApkFiles,
+    TemporaryFiles,
 }

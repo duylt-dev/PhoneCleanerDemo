@@ -3,12 +3,7 @@ package com.pion.phonecleaner.feature.cleanresult
 import com.pion.phonecleaner.core.common.log.AppLogger
 import com.pion.phonecleaner.core.mvi.MviViewModel
 import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
-import com.pion.phonecleaner.domain.model.feature.FeatureId
-import com.pion.phonecleaner.domain.repository.AnalyticsEvent
-import com.pion.phonecleaner.domain.repository.AnalyticsRepository
 import com.pion.phonecleaner.domain.repository.CleanupLedger
-import com.pion.phonecleaner.domain.repository.FeatureUsageRepository
-import kotlinx.collections.immutable.toImmutableList
 
 /**
  * The result screen (`docs/screens/14-file-tools-and-app-manager.md` §8).
@@ -17,6 +12,12 @@ import kotlinx.collections.immutable.toImmutableList
  * the route argument or is observed: the count-up is the composable's, and the lifetime total is the
  * ledger's. That is the whole point of folding the competitor's 3 500 ms "Cleaning" destination into
  * a phase — there is nothing left here that can outlive the screen.
+ *
+ * **It suggests nothing.** The screen reports the run that just finished and offers Done; it does not
+ * read `FeatureUsageRepository.staleFeatures()` and cannot navigate to another feature. That is an
+ * owner decision (2026-09-03): this build exists to exercise each feature on its own, so a
+ * cross-feature convenience layer would be surface with nothing behind it. `staleFeatures()` itself
+ * stays — `recommend()` is built on it and the home exit offer still calls that.
  *
  * [summary] is a **Koin parameter**, not a `SavedStateHandle` read: `:feature:cleanresult` cannot
  * name the `@Serializable` route type, which lives in `:app/navigation/Routes.kt` (`LLM.md` §7.2),
@@ -29,9 +30,7 @@ import kotlinx.collections.immutable.toImmutableList
  */
 class CleanResultViewModel(
     summary: CleanupSummary,
-    private val featureUsage: FeatureUsageRepository,
     ledger: CleanupLedger,
-    private val analytics: AnalyticsRepository,
     log: AppLogger,
 ) : MviViewModel<CleanResultState, CleanResultIntent, CleanResultEffect>(
     CleanResultState(summary),
@@ -44,17 +43,6 @@ class CleanResultViewModel(
         ledger.observeLifetimeFreedBytes().collectSafely { total ->
             setState { copy(lifetimeFreedBytes = total) }
         }
-        featureUsage.staleFeatures().collectSafely { stale ->
-            setState {
-                copy(
-                    suggestions = stale.asSequence()
-                        .filter { it != feature }
-                        .take(MAX_SUGGESTIONS)
-                        .toList()
-                        .toImmutableList(),
-                )
-            }
-        }
     }
 
     override fun onIntent(intent: CleanResultIntent) {
@@ -62,24 +50,8 @@ class CleanResultViewModel(
             CleanResultIntent.CountingAnimationFinished ->
                 setState { copy(phase = ResultPhase.Revealed) }
 
-            is CleanResultIntent.SuggestionTapped -> openSuggestion(intent.feature)
             CleanResultIntent.DonePressed -> sendEffect(CleanResultEffect.NavigateHome)
             CleanResultIntent.BackPressed -> sendEffect(CleanResultEffect.NavigateBack)
         }
-    }
-
-    /**
-     * `FeatureOpened` carries [FeatureId], and the wire id is `FeatureId.analyticsId` — on the enum,
-     * so a destination and its event can never be edited apart. The competitor keeps the two in
-     * unrelated tables and has already transposed a pair of them.
-     */
-    private fun openSuggestion(feature: FeatureId) {
-        analytics.track(AnalyticsEvent.FeatureOpened(feature))
-        sendEffect(CleanResultEffect.NavigateToFeature(feature))
-    }
-
-    private companion object {
-        /** Three tiles fit above the fold; a longer list is a menu, not a suggestion. */
-        const val MAX_SUGGESTIONS = 3
     }
 }

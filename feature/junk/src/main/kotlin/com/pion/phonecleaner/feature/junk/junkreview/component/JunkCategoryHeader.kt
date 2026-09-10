@@ -99,4 +99,5 @@ private fun JunkCategoryId.titleRes(): Int = when (this) {
     JunkCategoryId.SystemCache -> R.string.junk_category_system_cache
     JunkCategoryId.AppResidual -> R.string.junk_category_app_residual
     JunkCategoryId.ApkFiles -> R.string.junk_category_apk_files
+    JunkCategoryId.TemporaryFiles -> R.string.junk_category_temporary_files
 }

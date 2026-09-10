@@ -3,6 +3,7 @@ package com.pion.phonecleaner.feature.device.component
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Battery4Bar
 import androidx.compose.material.icons.filled.BatteryChargingFull
+import androidx.compose.material.icons.filled.BatteryStd
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Brightness6
 import androidx.compose.material.icons.filled.HealthAndSafety
@@ -21,7 +22,7 @@ import com.pion.phonecleaner.feature.device.R
  * (`docs/screens/18-device-battery-and-apps.md` §4.1, §5.3).
  *
  * **The mapping lives here, not on the model.** The competitor stores `nameResId` and `iconResId` on
- * its step objects, which puts `R` references into data and makes the same six facts describable two
+ * its step objects, which puts `R` references into data and makes the same facts describable two
  * different ways on the scan screen and the detail screen. One enum, one mapping, both screens.
  *
  * [batteryValue] is the whole point of the cluster's largest delta: a null field renders
@@ -35,6 +36,7 @@ internal fun batteryCheckLabel(check: BatteryCheck): String = stringResource(
         BatteryCheck.Temperature -> R.string.battery_check_temperature
         BatteryCheck.Voltage -> R.string.battery_check_voltage
         BatteryCheck.Technology -> R.string.battery_check_technology
+        BatteryCheck.CurrentCharge -> R.string.battery_check_current_charge
         BatteryCheck.Capacity -> R.string.battery_check_capacity
         BatteryCheck.Health -> R.string.battery_check_health
     },
@@ -45,6 +47,7 @@ internal fun batteryCheckIcon(check: BatteryCheck): ImageVector = when (check) {
     BatteryCheck.Temperature -> Icons.Filled.Thermostat
     BatteryCheck.Voltage -> Icons.Filled.Bolt
     BatteryCheck.Technology -> Icons.Filled.BatteryChargingFull
+    BatteryCheck.CurrentCharge -> Icons.Filled.BatteryStd
     BatteryCheck.Capacity -> Icons.Filled.Battery4Bar
     BatteryCheck.Health -> Icons.Filled.HealthAndSafety
 }
@@ -76,6 +79,11 @@ internal fun batteryValue(check: BatteryCheck, snapshot: BatterySnapshot?): Stri
 
         // OTHER renders the OEM's own word verbatim; a blank one is a gap, not "Li-ion".
         BatteryCheck.Technology -> technologyLabel(snapshot, unavailable)
+
+        // A second reading, not `capacityMah × percent`. The two rows are allowed to disagree.
+        BatteryCheck.CurrentCharge -> snapshot.currentChargeMah
+            ?.let { stringResource(R.string.battery_value_milliamp_hours, it) }
+            ?: unavailable
 
         BatteryCheck.Capacity -> snapshot.capacityMah
             ?.let { stringResource(R.string.battery_value_milliamp_hours, it) }

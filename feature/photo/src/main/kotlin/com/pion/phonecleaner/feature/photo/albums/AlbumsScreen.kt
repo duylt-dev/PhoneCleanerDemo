@@ -32,6 +32,7 @@ import com.pion.phonecleaner.core.ui.format.rememberByteFormat
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.photo.PhotoAlbum
 import com.pion.phonecleaner.feature.photo.R
 import com.pion.phonecleaner.feature.photo.component.PhotoCompletionPanel
@@ -51,7 +52,7 @@ internal fun AlbumsScreen(
     // One instance for the whole lane, hoisted above `items {}` (`LLM.md` §8).
     val onOpen: (String) -> Unit = { folder -> onIntent(AlbumsIntent.AlbumOpened(folder)) }
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(title = stringResource(R.string.photo_albums_title), onBack = { onIntent(AlbumsIntent.BackPressed) })
             when (state.phase) {
                 ToolPhase.Scanning -> PhotoScanPanel(

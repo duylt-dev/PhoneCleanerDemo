@@ -9,15 +9,17 @@ import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
 import com.pion.phonecleaner.domain.model.file.DuplicateScanProgress
-import com.pion.phonecleaner.domain.model.file.FileOrigin
+import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
+import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.FindDuplicatesUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
 import com.pion.phonecleaner.domain.usecase.MimeTypeUseCase
 import com.pion.phonecleaner.feature.files.component.cleanupSummaryFor
 import com.pion.phonecleaner.feature.files.component.deleteConfirmSpec
+import com.pion.phonecleaner.feature.files.component.previewUriOf
 import com.pion.phonecleaner.feature.files.component.restoreSelection
 import com.pion.phonecleaner.feature.files.component.storeSelection
 import kotlinx.collections.immutable.persistentSetOf
@@ -27,13 +29,13 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * `duplicates` (`docs/screens/14-file-tools-and-app-manager.md` §2.2). The five-stage pipeline —
- * collect, dedupe by path, sort newest first, group by exact size, digest — lives in
+ * collect, dedupe, group by exact size, digest twice, group by digest — lives in
  * `FindDuplicatesUseCase` behind `DuplicateFinder`: one place, one algorithm, and no dispatcher
  * named here, because the digest's bounded parallelism belongs to the finder.
  *
- * The bounded wait is `withTimeoutOrNull`, and its expiry lands with `scanTruncated` set and the
- * groups that completed still published — a `withTimeoutOrNull(4000)` that reports success is the
- * defect being removed (§2.2).
+ * The scan starts from the **storage gate** and from nothing else: the finder's corpus is a walk of
+ * every readable volume, so a screen that scanned before asking would scan its own sandbox and
+ * render "no duplicates" (`:core:ui/permission/StorageAccessGate.kt`).
  */
 class DuplicatesViewModel(
     private val savedState: SavedStateHandle,
@@ -42,6 +44,7 @@ class DuplicatesViewModel(
     private val markFeatureUsed: MarkFeatureUsedUseCase,
     private val mimeTypeOf: MimeTypeUseCase,
     private val analytics: AnalyticsRepository,
+    private val permissions: PermissionRepository,
     log: AppLogger,
 ) : MviViewModel<DuplicatesState, DuplicatesIntent, DuplicatesEffect>(DuplicatesState(), log) {
 
@@ -53,7 +56,11 @@ class DuplicatesViewModel(
 
     override fun onIntent(intent: DuplicatesIntent) {
         when (intent) {
-            DuplicatesIntent.ScreenStarted -> onScreenStarted()
+            is DuplicatesIntent.StorageAccessResolved -> onStorageAccessResolved(intent.granted)
+            DuplicatesIntent.GrantStoragePressed ->
+                sendEffect(DuplicatesEffect.RequestStorageAccess)
+            is DuplicatesIntent.FilterSelected -> setState { copy(filter = intent.kind) }
+            DuplicatesIntent.RetryPressed -> startScan()
             is DuplicatesIntent.RowToggled -> saveSelection { withToggled(intent.id) }
             DuplicatesIntent.DeselectAllPressed ->
                 saveSelection { copy(selectedIds = persistentSetOf()) }
@@ -63,7 +70,10 @@ class DuplicatesViewModel(
             is DuplicatesIntent.RowTapped -> setState { copy(previewingId = intent.id) }
             DuplicatesIntent.PreviewDismissed -> setState { copy(previewingId = null) }
             DuplicatesIntent.PreviewConfirmed -> openPreviewed()
-            DuplicatesIntent.DeletePressed -> onDeletePressed()
+            DuplicatesIntent.DeletePressed -> if (currentState.canDelete) {
+                val trashEligible = permissions.isGranted(AppPermission.AllFiles)
+                setState { copy(confirm = deleteConfirmSpec(selectedCount, trashEligible), trashEligible = trashEligible) }
+            }
             DuplicatesIntent.DeleteConfirmed -> runDelete(currentState.selectedIds)
             DuplicatesIntent.DeleteDismissed -> setState { copy(confirm = null) }
             DuplicatesIntent.CompletionAnimationFinished ->
@@ -74,24 +84,28 @@ class DuplicatesViewModel(
         }
     }
 
-    /** Idempotent: it arrives on every `ON_START`, so `init` observes and does not act (MVI §3). */
-    private fun onScreenStarted() {
+    /**
+     * Idempotent: it arrives on every `ON_START`, so `init` observes and does not act (MVI §3).
+     * Denial is a **state**, not an exit (`TaribrActivity.java:151` calls `finish()`), and the scan
+     * runs on the transition INTO the granted state only — re-running a 90-second full-volume digest
+     * on a return from an external preview would spend a minute of disk on an unchanged list.
+     */
+    private fun onStorageAccessResolved(granted: Boolean) {
+        if (!granted) {
+            scanJob?.cancel()
+            setState { copy(storageGranted = false, phase = ToolPhase.Idle) }
+            return
+        }
+        val wasBlocked = currentState.storageGranted != true
+        setState { copy(storageGranted = true) }
+        if (!wasBlocked) return
         launchSafely { markFeatureUsed(FeatureId.DuplicateFiles) }
-        if (!currentState.isBusy) startScan()
+        startScan()
     }
 
     private fun startScan() {
         scanJob?.cancel()
-        setState {
-            copy(
-                phase = ToolPhase.Scanning,
-                hashed = 0,
-                candidates = 0,
-                scanTruncated = false,
-                failedCount = 0,
-                error = null,
-            )
-        }
+        setState { withScanStarted() }
         scanJob = launchSafely(onError = ::onFailure) {
             val finished = withTimeoutOrNull(ScanTimeout) {
                 findDuplicates().collect(::reduceScan)
@@ -101,13 +115,8 @@ class DuplicatesViewModel(
         }
     }
 
-    private fun reduceScan(progress: DuplicateScanProgress) = when (progress) {
-        is DuplicateScanProgress.Hashing ->
-            setState { copy(hashed = progress.hashed, candidates = progress.candidates) }
-
-        is DuplicateScanProgress.Finished -> setState {
-            withScanFinished(progress.groups, progress.truncated, savedState.restoreSelection())
-        }
+    private fun reduceScan(progress: DuplicateScanProgress) = setState {
+        withScanProgress(progress, savedState.restoreSelection())
     }
 
     private fun saveSelection(reducer: DuplicatesState.() -> DuplicatesState) {
@@ -118,16 +127,12 @@ class DuplicatesViewModel(
     /** The MIME type is the `MediaStore` column the row carries, not a guess from the extension. */
     private fun openPreviewed() {
         val file = currentState.previewing ?: return
-        val uri = (file.origin as? FileOrigin.MediaStoreEntry)?.contentUri ?: file.path
         setState { copy(previewingId = null) }
-        sendEffect(DuplicatesEffect.OpenExternally(uri, mimeTypeOf(file)))
-    }
-
-    private fun onDeletePressed() {
-        if (currentState.canDelete) setState { copy(confirm = deleteConfirmSpec(selectedCount)) }
+        sendEffect(DuplicatesEffect.OpenExternally(previewUriOf(file), mimeTypeOf(file)))
     }
 
     private fun runDelete(ids: Set<String>) {
+        val requireTrash = currentState.trashEligible
         val targets = currentState.groups.flatMap { it.files }.filter { it.id in ids }
         if (targets.isEmpty()) {
             setState { copy(confirm = null) }
@@ -137,7 +142,7 @@ class DuplicatesViewModel(
         analytics.track(AnalyticsEvent.CleanRequested(targets.sumOf { it.sizeBytes }, targets.size))
         setState { copy(confirm = null, phase = ToolPhase.Deleting, failedCount = 0) }
         launchSafely(onError = ::onFailure) {
-            when (val result = deleteFiles(targets)) {
+            when (val result = deleteFiles(targets, FeatureId.DuplicateFiles, requireTrash = requireTrash)) {
                 is AppResult.Failure -> onFailure(result.error)
                 is AppResult.Success -> reduceDelete(result.value, targets.size)
             }
@@ -150,11 +155,8 @@ class DuplicatesViewModel(
                 pendingDeleteIds = emptySet()
                 savedState.storeSelection(emptySet())
                 setState { withDeleted(outcome) }
-                sendEffect(
-                    DuplicatesEffect.NavigateToCleanResult(
-                        cleanupSummaryFor(FeatureId.DuplicateFiles, outcome),
-                    ),
-                )
+                val summary = cleanupSummaryFor(FeatureId.DuplicateFiles, outcome)
+                sendEffect(DuplicatesEffect.NavigateToCleanResult(summary))
             }
 
             // The normal path in the default storage branch, and NOT an error (§0.2).
@@ -193,6 +195,10 @@ class DuplicatesViewModel(
         scanJob?.cancel()
     }
 
-    /** A bound, not a floor: the digest stops being useful long before this. */
-    private companion object { val ScanTimeout = 90.seconds }
+    /**
+     * A backstop, not the budget: `Md5DuplicateFinder.ScanBudget` is 90 s and publishes what it has
+     * on expiry, and this sits above it so the finder always wins. A timeout at the *collector*
+     * throws the partial groups away; one at the *producer* publishes them.
+     */
+    private companion object { val ScanTimeout = 120.seconds }
 }

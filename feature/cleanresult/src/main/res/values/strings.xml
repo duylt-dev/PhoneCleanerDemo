@@ -18,6 +18,9 @@
     <string name="clean_result_headline_threats_removed">Removed</string>
     <string name="clean_result_headline_data_cleared">Data removed</string>
     <string name="clean_result_headline_items_cleared">Cleared</string>
+    <!-- The bin's own arm (plan 260908-0801-trash-bin, Phase 07): the bytes moved, they were not
+         freed, so this headline is never paired with the lifetime total moving. -->
+    <string name="clean_result_headline_moved_to_trash">Moved to Trash</string>
 
     <plurals name="clean_result_item_count">
         <item quantity="one">%1$d item</item>
@@ -25,7 +28,8 @@
     </plurals>
 
     <string name="clean_result_lifetime">%1$s recovered since you installed this app</string>
+    <!-- The second line a MovedToTrash run owes, drawn only for that outcome. -->
+    <string name="clean_result_trash_note">Kept for 2 days, then removed for good.</string>
     <string name="clean_result_done">Done</string>
-    <string name="clean_result_suggestions_title">Other things you can look at</string>
 
 </resources>

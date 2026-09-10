@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:settings. Mirrors values/strings.xml — MINUS the seventeen endonyms.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale: no marketing claim and no performance
+  percentage figures. Nothing on these six screens reports a measurement at all, so every string below
+  either names a destination or explains what a permission is used for.
+
+  WHY settings_language_* IS ABSENT FROM THIS FILE
+  The seventeen endonyms are translatable="false" in values/strings.xml. An endonym is a language's
+  name IN THAT LANGUAGE, and its only job is to be readable by someone who cannot read the current UI
+  language — so "简体中文" must stay "简体中文" while the UI is Vietnamese, and "Tiếng Việt" must stay
+  "Tiếng Việt" while the UI is Japanese. Overriding any of them here would defeat the picker. They
+  resolve from values/ in every locale, which is exactly what translatable="false" asks for.
+
+  settings_permission_* keeps the rationale rule: it states what the app does with the grant, and
+  never that the user's device is at risk without it.
+-->
+<resources>
+
+    <!-- ── settings ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_title">Cài đặt</string>
+    <string name="settings_row_language">Ngôn ngữ</string>
+    <string name="settings_row_permission_centre">Quyền</string>
+    <string name="settings_trash_title">Thùng rác</string>
+    <string name="settings_trash_subtitle_empty">Trống</string>
+    <!-- Vietnamese has one CLDR plural category, "other" — an "one" item here is flagged by lint. -->
+    <plurals name="settings_trash_subtitle_count">
+        <item quantity="other">%1$d mục</item>
+    </plurals>
+    <string name="settings_row_about">Giới thiệu</string>
+    <string name="settings_row_resident_widget">Hiện lối tắt trên thanh trạng thái</string>
+    <string name="settings_row_resident_widget_supporting">Mặc định tắt. Bạn có thể tắt lại bất cứ lúc nào.</string>
+    <string name="settings_language_follow_system">Theo hệ thống</string>
+
+    <!-- ── language ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_language_title">Ngôn ngữ</string>
+    <string name="settings_language_save">Lưu</string>
+    <string name="settings_language_system_default">Theo hệ thống</string>
+
+    <!-- The seventeen endonyms are deliberately NOT here — see the header comment. -->
+
+    <!-- ── about ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_about_title">Giới thiệu</string>
+    <!-- Version name, then build number in brackets. Both come from the installed package. -->
+    <string name="settings_about_version">Phiên bản %1$s (%2$d)</string>
+    <string name="settings_about_terms_of_service">Điều khoản dịch vụ</string>
+    <string name="settings_about_privacy_policy">Chính sách quyền riêng tư</string>
+    <string name="settings_about_developer_tools">Công cụ nhà phát triển</string>
+
+    <!-- ── webview ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="settings_webview_terms_title">Điều khoản dịch vụ</string>
+    <string name="settings_webview_privacy_title">Chính sách quyền riêng tư</string>
+    <!-- Shown when this build has no URL configured for the document. It says so, plainly. -->
+    <string name="settings_webview_unavailable">Tài liệu này không có trong bản dựng hiện tại.</string>
+
+    <!-- ── permission centre ─────────────────────────────────────────────────────────────────── -->
+    <string name="settings_permissions_title">Quyền</string>
+    <string name="settings_permissions_all_granted">Mọi quyền ứng dụng này yêu cầu đều đã được cấp.</string>
+    <string name="settings_permissions_granted_section">Đã cấp</string>
+    <string name="settings_permissions_grant">Cấp quyền</string>
+    <string name="settings_permissions_open_settings">Mở Cài đặt</string>
+    <string name="settings_permissions_declined">Bạn đã quay lại mà chưa cấp quyền này. Bạn vẫn có thể bật nó trong phần Cài đặt.</string>
+    <string name="settings_permissions_cancel">Để sau</string>
+
+    <string name="settings_permission_storage_title">Tệp và nội dung nghe nhìn</string>
+    <string name="settings_permission_storage_body">Dùng để liệt kê các tệp trên thiết bị này, để chính bạn xem lại và xóa chúng. Không có gì được tải lên.</string>
+    <string name="settings_permission_media_title">Ảnh và video</string>
+    <string name="settings_permission_media_body">Dùng để đọc ảnh và video cho các công cụ ảnh. Không có gì được tải lên.</string>
+    <string name="settings_permission_notifications_title">Thông báo</string>
+    <string name="settings_permission_notifications_body">Dùng để báo cho bạn biết khi một tác vụ bạn khởi động đã hoàn tất.</string>
+    <string name="settings_permission_listener_title">Truy cập thông báo</string>
+    <string name="settings_permission_listener_body">Cần cho tính năng dọn thông báo để đọc và sắp xếp những thông báo đã có trên thiết bị này. Quyền này được cấp ở một màn hình của hệ thống.</string>
+
+    <!-- The steps a user follows in the system screen, shown BEFORE they leave. -->
+    <string name="settings_permission_steps_title">Trong màn hình sắp mở ra</string>
+    <string name="settings_permission_steps_listener">1. Tìm ứng dụng này trong danh sách.\n2. Bật công tắc của nó lên.\n3. Nhấn quay lại để trở về đây.</string>
+
+    <!-- ── developer tools (debug builds only) ───────────────────────────────────────────────── -->
+    <string name="settings_devtools_title">Công cụ nhà phát triển</string>
+    <string name="settings_devtools_push_header">Mô phỏng một thông điệp push</string>
+    <string name="settings_devtools_push_hint">Mỗi dòng một cặp key=value</string>
+    <string name="settings_devtools_push_send">Gửi</string>
+    <string name="settings_devtools_push_delivered">Đã gửi %1$d khóa dữ liệu tới PushRepository</string>
+    <string name="settings_devtools_push_invalid">Không nhận ra cặp key=value nào</string>
+    <string name="settings_devtools_push_failed">PushRepository báo lỗi</string>
+
+</resources>

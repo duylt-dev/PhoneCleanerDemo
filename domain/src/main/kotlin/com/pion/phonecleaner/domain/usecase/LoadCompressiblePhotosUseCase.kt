@@ -4,6 +4,7 @@ import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.core.common.result.map
 import com.pion.phonecleaner.domain.model.photo.PhotoGroup
 import com.pion.phonecleaner.domain.policy.PhotoGrouping
+import com.pion.phonecleaner.domain.repository.CompressedPhotoLedger
 import com.pion.phonecleaner.domain.repository.PhotoRepository
 import kotlinx.collections.immutable.ImmutableList
 
@@ -25,11 +26,29 @@ import kotlinx.collections.immutable.ImmutableList
  */
 class LoadCompressiblePhotosUseCase(
     private val photos: PhotoRepository,
+    private val compressed: CompressedPhotoLedger,
 ) {
+    /**
+     * A row is offered when it is big enough to be worth re-encoding **or** when this app has
+     * already re-encoded it.
+     *
+     * The second half is not a convenience. A successful re-encode routinely takes a photo below
+     * [MIN_COMPRESSIBLE_BYTES], so the size filter on its own removes from the next scan exactly the
+     * photos the user just compressed — the list silently shrinks after every run, with nothing on
+     * screen that explains it. [CompressedPhotoLedger] is what keeps them visible; they stay
+     * ordinary rows, selectable like any other, because the engine already refuses to write a
+     * re-encode that is not smaller (`PhotoCompressor`).
+     */
     suspend operator fun invoke(
         minBytes: Long = MIN_COMPRESSIBLE_BYTES,
-    ): AppResult<ImmutableList<PhotoGroup>> =
-        photos.photos().map { rows -> PhotoGrouping.byMonth(rows.filter { it.sizeBytes >= minBytes }) }
+    ): AppResult<ImmutableList<PhotoGroup>> {
+        val alreadyCompressed = compressed.compressedIds()
+        return photos.photos().map { rows ->
+            PhotoGrouping.byMonth(
+                rows.filter { it.sizeBytes >= minBytes || it.id in alreadyCompressed },
+            )
+        }
+    }
 
     companion object {
         /**

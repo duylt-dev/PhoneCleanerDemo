@@ -29,8 +29,8 @@ internal object JunkWalkBounds {
      */
     const val RULE_DIRECTORY_MAX_DEPTH: Int = 12
 
-    /** The `.apk` pass walks whole volumes, so its cap is the one that has to hold on a full device. */
-    const val APK_WALK_MAX_DEPTH: Int = 16
+    /** Whole-volume junk-file passes share the cap that has to hold on a full device. */
+    const val FILE_WALK_MAX_DEPTH: Int = 16
 
     /**
      * Items kept per category. A cap belongs here as well as on the ViewModel: `LLM.md` §8 caps
@@ -43,11 +43,11 @@ internal object JunkWalkBounds {
     const val TOTAL_UNKNOWN: Int = -1
 
     /**
-     * Wall-clock cap on the `.apk` walk. It exists so a device with a pathological tree finishes with
-     * a partial answer instead of never finishing; the two determinate passes are bounded by their
-     * candidate count instead.
+     * Wall-clock cap on whole-volume file walks. It exists so a device with a pathological tree
+     * finishes with a partial answer instead of never finishing; the two determinate passes are
+     * bounded by their candidate count instead.
      */
-    private val APK_WALK_TIME_LIMIT = 3.minutes
+    private val FILE_WALK_TIME_LIMIT = 3.minutes
 
     /** Sizing one rule's directory. */
     fun ruleDirectory(path: String): WalkConfig = WalkConfig(
@@ -58,7 +58,14 @@ internal object JunkWalkBounds {
     /** The `.apk` sweep over every root the grant state currently makes readable. */
     fun apkWalk(roots: List<String>): WalkConfig = WalkConfig(
         roots = roots.toImmutableList(),
-        maxDepth = APK_WALK_MAX_DEPTH,
-        timeLimit = APK_WALK_TIME_LIMIT,
+        maxDepth = FILE_WALK_MAX_DEPTH,
+        timeLimit = FILE_WALK_TIME_LIMIT,
+    )
+
+    /** The loose `.tmp` and `.log` sweep over every root the grant state currently makes readable. */
+    fun temporaryFileWalk(roots: List<String>): WalkConfig = WalkConfig(
+        roots = roots.toImmutableList(),
+        maxDepth = FILE_WALK_MAX_DEPTH,
+        timeLimit = FILE_WALK_TIME_LIMIT,
     )
 }

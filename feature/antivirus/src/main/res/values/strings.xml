@@ -101,7 +101,9 @@
 
     <string name="antivirus_remove_title">Remove %1$s?</string>
     <string name="antivirus_remove_installed_note">This opens the system uninstall screen. Nothing is removed until you confirm it there.</string>
-    <string name="antivirus_remove_file_note">This deletes the file from this device.</string>
+    <!-- Owner decision D5, plan 260908-0801-trash-bin: RemoveFindingUseCase never routes through the
+         bin, so this note says the removal is permanent before the user confirms it. -->
+    <string name="antivirus_remove_file_note">This deletes the file from this device permanently. It is not kept in Trash.</string>
     <string name="antivirus_remove_confirm">Remove</string>
     <string name="antivirus_remove_dismiss">Cancel</string>
 

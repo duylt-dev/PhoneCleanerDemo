@@ -36,12 +36,16 @@ internal class StorageAccessChecks(private val context: Context) {
         }
 
     /**
-     * **Never assumed grantable** (`docs/system-architecture.md` §8.1, an owner decision). The
-     * predicate exists so an all-files build can express the state; the default branch is
-     * `MediaStore` + SAF, and no default-branch feature may declare `AllFiles` as a precondition.
-     * `data/src/main/AndroidManifest.xml` therefore does not declare `MANAGE_EXTERNAL_STORAGE`, so on
-     * API 30+ this reads `false` until a build that does declare it is made — the intended answer,
-     * not a defect.
+     * `MANAGE_EXTERNAL_STORAGE` **is** declared as of the owner decision of 2026-09-06 — the six
+     * paragraphs beside the declaration in `data/src/main/AndroidManifest.xml` are the reasoning, and
+     * the short version is that a `.apk` belonging to another app is a non-media file that neither
+     * MediaStore nor SAF can reach. So on API 30+ this predicate now reads a grant the user can
+     * actually give, instead of a permission the manifest never asked for.
+     *
+     * "Never assumed grantable" survives the reversal and still binds: the grant is CHECKED here on
+     * every call and no feature may treat it as a precondition. A screen that finds it absent falls
+     * back to `MediaStore` + SAF and reports the smaller surface through
+     * `StorageRootProvider.coveredSurfaces()`; none of them refuses to open.
      *
      * Below API 30 the equivalent is the legacy read **and** write pair, which is what `od.z.x`
      * checks. On API 29 that reads `false`, because `WRITE_EXTERNAL_STORAGE` is capped at API 28 in

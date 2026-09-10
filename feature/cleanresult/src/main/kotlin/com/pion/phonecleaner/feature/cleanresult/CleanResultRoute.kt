@@ -8,13 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pion.phonecleaner.core.mvi.CollectEffects
 import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
-import com.pion.phonecleaner.domain.model.feature.FeatureId
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 /**
  * Callbacks in, nothing out (MVI §4). It never names another feature's route — that is what makes
  * `:feature:A -> :feature:B` unnecessary rather than merely forbidden (`LLM.md` §2, §7.1).
+ *
+ * **Both callbacks go backwards.** Since the suggestion list was removed (owner decision 2026-09-03)
+ * this route has no forward edge at all: the only ways out are Home and Back, so `:app` no longer has
+ * to resolve a `FeatureId` to a destination on its behalf.
  *
  * [summary] arrives as a navigation argument that `:app` unwraps from its `@Serializable` route type
  * and is handed to the ViewModel as a Koin parameter; this module cannot name that route type
@@ -27,7 +30,6 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun CleanResultRoute(
     summary: CleanupSummary,
-    onNavigateToFeature: (FeatureId) -> Unit,
     onNavigateHome: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -38,7 +40,6 @@ fun CleanResultRoute(
 
     CollectEffects(viewModel.effects) { effect ->
         when (effect) {
-            is CleanResultEffect.NavigateToFeature -> onNavigateToFeature(effect.feature)
             CleanResultEffect.NavigateHome -> onNavigateHome()
             CleanResultEffect.NavigateBack -> onNavigateBack()
         }

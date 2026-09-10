@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:antivirus. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §5) carries into every locale, and this is the cluster where it bites hardest:
+  not one string below claims, in our own voice, that anything was detected, removed, blocked or made
+  safe. The Vietnamese vocabulary mirrors the English one — kiểm tra, quét, phát hiện được ghi nhận,
+  mức rủi ro, đã xem lại, đã xóa — and never a Vietnamese rendering of the wording LLM.md §5 bans.
+  Those phrases are listed there and are deliberately not repeated here, so this comment cannot
+  itself trip the CI grep over **/src/**/res/values*/strings.xml.
+
+  antivirus_powered_by is NOT translated: LLM.md §5 makes "Powered by Trustlook" mandatory and
+  verbatim, an SDK attribution requirement rather than decoration.
+
+  antivirus_consent_body enumerates exactly what leaves the device, including the background upload
+  the SDK ships with (docs/screens/15-antivirus.md open item 3). A disclosure that omits a behaviour
+  in one locale and states it in another is the same defect §0.5 exists to prevent.
+
+  antivirus_scan_unavailable says the check CANNOT RUN, not that nothing was found — two different
+  claims, and only one of them is true in this build.
+
+  PLURALS — Vietnamese has one CLDR category, `other`.
+-->
+<resources>
+
+    <string name="antivirus_title">Kiểm tra an toàn ứng dụng</string>
+
+    <!-- ── scan ──────────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_scan_preparing">Đang chuẩn bị…</string>
+    <string name="antivirus_scan_network_hint">Các tệp được đối chiếu với một dịch vụ trực tuyến, nên việc này cần có kết nối.</string>
+    <string name="antivirus_scan_elapsed">Đã trôi qua %1$s</string>
+    <string name="antivirus_scan_idle">Sẵn sàng kiểm tra.</string>
+
+    <!-- Coverage is mandatory (system-architecture.md §8.4): a check that could not see everything
+         says so, in every locale. -->
+    <string name="antivirus_coverage_partial">Chỉ gồm các ứng dụng đã cài — không đọc được bộ nhớ, nên các tệp trên bộ nhớ không được đưa vào.</string>
+
+    <!-- Attribution. MANDATORY (LLM.md §5) — a licence term. Do not translate, do not reword. -->
+    <string name="antivirus_powered_by">Powered by Trustlook</string>
+
+    <!-- ── consent ───────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_consent_title">Trước khi lượt kiểm tra chạy</string>
+    <string name="antivirus_consent_body">Để chạy lượt kiểm tra, ứng dụng này gửi đi dấu vân tay của từng ứng dụng đã cài và của từng tệp ứng dụng mà nó đọc được: mã băm của tệp, tên gói, kích thước tệp và dấu vân tay của chứng chỉ ký. Bản thân một tệp ứng dụng cũng có thể được tải lên để phân tích khi thiết bị đang sạc và đang dùng mạng không giới hạn dữ liệu. Không có thông tin nào khác về bạn hay thiết bị của bạn được gửi đi.</string>
+    <string name="antivirus_consent_accept">Đồng ý và tiếp tục</string>
+    <string name="antivirus_consent_reject">Để sau</string>
+
+    <!-- ── gates ─────────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_gate_network_title">Không có kết nối</string>
+    <string name="antivirus_gate_network_body">Lượt kiểm tra đối chiếu các tệp với một dịch vụ trực tuyến. Hãy kết nối mạng rồi thử lại.</string>
+
+    <string name="antivirus_gate_consent_title">Lượt kiểm tra đã không chạy</string>
+    <string name="antivirus_gate_consent_body">Bạn đã chọn không chia sẻ dữ liệu mà lượt kiểm tra này cần, và lựa chọn đó được ghi nhớ. Không có gì được gửi đi.</string>
+
+    <string name="antivirus_gate_storage_title">Quyền truy cập bộ nhớ</string>
+    <string name="antivirus_gate_storage_body">Khi có quyền truy cập bộ nhớ, lượt kiểm tra cũng bao gồm các tệp ứng dụng lưu trên thiết bị này. Khi không có, nó chỉ gồm các ứng dụng đã cài — dù thế nào thì nó vẫn chạy.</string>
+    <string name="antivirus_gate_storage_grant">Cho phép truy cập</string>
+
+    <!-- ── stop ──────────────────────────────────────────────────────────────────────────────── -->
+    <string name="antivirus_stop_title">Dừng lượt kiểm tra?</string>
+    <string name="antivirus_stop_body">Lượt kiểm tra sẽ dừng lại và những gì ghi nhận được từ đầu đến giờ sẽ không được giữ.</string>
+    <string name="antivirus_stop_confirm">Dừng</string>
+    <string name="antivirus_stop_dismiss">Tiếp tục kiểm tra</string>
+
+    <!-- ── failures (one line per arm, never one for all) ────────────────────────────────────── -->
+    <string name="antivirus_failed_title">Lượt kiểm tra chưa hoàn tất</string>
+    <string name="antivirus_failed_no_network">Kết nối bị mất trước khi lượt kiểm tra hoàn tất.</string>
+    <string name="antivirus_failed_timeout">Lượt kiểm tra mất quá nhiều thời gian và đã bị dừng.</string>
+    <string name="antivirus_failed_bad_key">Dịch vụ không chấp nhận thông tin xác thực của ứng dụng này. Đây là vấn đề từ phía chúng tôi, không phải từ thiết bị của bạn.</string>
+    <string name="antivirus_failed_server">Không liên hệ được với dịch vụ.</string>
+    <string name="antivirus_failed_nothing">Không có gì để kiểm tra.</string>
+    <string name="antivirus_failed_unknown">Lượt kiểm tra đã dừng trước khi hoàn tất.</string>
+    <string name="antivirus_scan_unavailable">Thành phần kiểm tra không có trong bản dựng này, nên lượt kiểm tra không thể chạy. Không có gì được gửi đi và không có gì được kiểm tra.</string>
+
+    <!-- ── result ────────────────────────────────────────────────────────────────────────────── -->
+    <plurals name="antivirus_result_headline">
+        <item quantity="other">%1$d mục cần xem lại</item>
+    </plurals>
+    <string name="antivirus_result_scanned_at">Kiểm tra lần cuối %1$s</string>
+    <string name="antivirus_result_none">Không có mục nào bị đánh dấu trong phạm vi kiểm tra được.</string>
+    <string name="antivirus_result_never_scanned">Chưa có lượt kiểm tra nào hoàn tất, nên chưa có gì để hiển thị.</string>
+    <string name="antivirus_result_rescan">Kiểm tra lại</string>
+    <string name="antivirus_result_ignore">Bỏ qua</string>
+
+    <string name="antivirus_risk_elevated">Trung bình</string>
+    <string name="antivirus_risk_high">Cao</string>
+    <string name="antivirus_risk_clean">Thấp</string>
+
+    <string name="antivirus_remove_title">Xóa %1$s?</string>
+    <string name="antivirus_remove_installed_note">Thao tác này mở màn hình gỡ cài đặt của hệ thống. Không có gì bị xóa cho tới khi bạn xác nhận ở đó.</string>
+    <string name="antivirus_remove_file_note">Thao tác này xóa tệp khỏi thiết bị này vĩnh viễn. Tệp sẽ không được giữ trong Thùng rác.</string>
+    <string name="antivirus_remove_confirm">Xóa</string>
+    <string name="antivirus_remove_dismiss">Hủy</string>
+
+</resources>

@@ -47,6 +47,12 @@
         <item quantity="one">%1$d photo will be removed from this device.</item>
         <item quantity="other">%1$d photos will be removed from this device.</item>
     </plurals>
+    <!-- Shown instead of photo_album_delete_body when the bin is available. Reused by `similar`,
+         which shares this ConfirmSpec's title and body key (plan 260908-0801-trash-bin, Phase 07). -->
+    <plurals name="photo_album_trash_body">
+        <item quantity="one">%1$d photo will be moved to Trash. You can restore it there for 2 days.</item>
+        <item quantity="other">%1$d photos will be moved to Trash. You can restore them there for 2 days.</item>
+    </plurals>
     <plurals name="photo_delete_failed">
         <item quantity="one">%1$d photo could not be removed</item>
         <item quantity="other">%1$d photos could not be removed</item>
@@ -60,6 +66,32 @@
     <plurals name="photo_similar_skipped">
         <item quantity="one">%1$d photo could not be read and was left out</item>
         <item quantity="other">%1$d photos could not be read and were left out</item>
+    </plurals>
+
+    <!-- ── blurry ────────────────────────────────────────────────────────────────────────────── -->
+    <string name="photo_blurry_title">Blurry photos</string>
+    <string name="photo_blurry_empty">No blurry photos were found.</string>
+    <string name="photo_blurry_scoring">Checking how sharp your photos are…</string>
+    <string name="photo_blurry_tier_very">Very blurry</string>
+    <string name="photo_blurry_tier_slight">Slightly blurry</string>
+    <!-- Shown once above the grid. The rows arrive already ticked, so this says so before a delete. -->
+    <string name="photo_blurry_preselected_notice">Everything found is already ticked. Open a photo to check it before you delete.</string>
+    <string name="photo_blurry_delete_title">Remove the selected photos?</string>
+    <plurals name="photo_blurry_delete_body">
+        <item quantity="one">%1$d photo will be removed. This cannot be undone.</item>
+        <item quantity="other">%1$d photos will be removed. This cannot be undone.</item>
+    </plurals>
+    <!-- Shown instead of photo_blurry_delete_body when the bin is available (plan
+         260908-0801-trash-bin, Phase 07). -->
+    <plurals name="photo_blurry_trash_body">
+        <item quantity="one">%1$d photo will be moved to Trash. You can restore it there for 2 days.</item>
+        <item quantity="other">%1$d photos will be moved to Trash. You can restore them there for 2 days.</item>
+    </plurals>
+    <!-- Covers BOTH reasons a photo gets no score: unreadable, and too small to judge. Saying only
+         "could not be read" would be inaccurate for the second, which is the commoner one. -->
+    <plurals name="photo_blurry_skipped">
+        <item quantity="one">%1$d photo was left out — too small to judge, or unreadable</item>
+        <item quantity="other">%1$d photos were left out — too small to judge, or unreadable</item>
     </plurals>
 
     <!-- ── preview ───────────────────────────────────────────────────────────────────────────── -->

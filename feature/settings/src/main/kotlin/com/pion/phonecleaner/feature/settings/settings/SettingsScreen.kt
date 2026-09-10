@@ -9,8 +9,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.pion.phonecleaner.core.ui.component.header.PageHeader
+import com.pion.phonecleaner.core.ui.format.rememberByteFormat
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.feature.settings.R
 import com.pion.phonecleaner.feature.settings.component.AppIdentityBlock
 import com.pion.phonecleaner.feature.settings.component.appVersionLabel
@@ -22,11 +25,13 @@ import com.pion.phonecleaner.feature.settings.component.SettingsSwitchRow
 import com.pion.phonecleaner.feature.settings.language.endonymRes
 
 /**
- * `docs/screens/20-settings-language-and-push.md` §1.3. **No `LazyColumn`: four rows.**
+ * `docs/screens/20-settings-language-and-push.md` §1.3. **No `LazyColumn`: five rows.**
  *
  * The `0dp × 0dp` `gone` "Permission manager" `TextView` becomes a real row: the screen it names is
  * otherwise reachable only from the home toolbar, so the competitor's layout advertises an entry
- * point that does not exist (§1.4 delta 3).
+ * point that does not exist (§1.4 delta 3). The fifth row, Trash, has no competitor counterpart at
+ * all — it names an owner-decided feature (`LLM.md` §3.8) and sits beside Permissions rather than in
+ * that chapter's four-row layout.
  */
 @Composable
 internal fun SettingsScreen(
@@ -35,7 +40,7 @@ internal fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.settings_title),
                 onBack = { onIntent(SettingsIntent.BackPressed) },
@@ -76,6 +81,12 @@ private fun SettingsRows(state: SettingsState, onIntent: (SettingsIntent) -> Uni
             onClick = { onIntent(SettingsIntent.PermissionCentreRowTapped) },
             // `takeIf { it > 0 }`: a badge reading "0" claims something is wrong when nothing is.
             badge = state.missingPermissionCount.takeIf { it > 0 }?.toString(),
+        )
+        SettingsRowDivider()
+        SettingsRow(
+            label = stringResource(R.string.settings_trash_title),
+            onClick = { onIntent(SettingsIntent.TrashRowTapped) },
+            trailing = state.trashSubtitle(),
         )
         SettingsRowDivider()
         ResidentWidgetRow(state, onIntent)
@@ -121,3 +132,25 @@ private fun SettingsState.languageLabel(): String {
     val language = currentLanguage ?: return stringResource(R.string.settings_language_follow_system)
     return endonymRes(language.tag)?.let { stringResource(it) } ?: language.tag
 }
+
+/**
+ * "3 items · 12.4 MB", or the empty-state word. Composed at render time from the plural and
+ * [rememberByteFormat] rather than held as a formatted `String` on state, so an in-app language
+ * change re-renders it immediately instead of showing yesterday's locale (`LLM.md` §2).
+ *
+ * `:feature:settings` cannot see `:feature:trash`'s `R.plurals.trash_entry_file_count` (LLM.md §2),
+ * so this screen owns a plural of its own rather than reaching across the feature boundary.
+ */
+@Composable
+private fun SettingsState.trashSubtitle(): String {
+    if (trashSummary.isEmpty) return stringResource(R.string.settings_trash_subtitle_empty)
+    val count = pluralStringResource(
+        R.plurals.settings_trash_subtitle_count,
+        trashSummary.entryCount,
+        trashSummary.entryCount,
+    )
+    val size = rememberByteFormat(trashSummary.totalBytes)
+    return "$count$TrashSubtitleSeparator$size"
+}
+
+private const val TrashSubtitleSeparator = " · "

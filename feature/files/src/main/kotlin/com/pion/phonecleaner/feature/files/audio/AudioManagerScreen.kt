@@ -19,6 +19,7 @@ import com.pion.phonecleaner.core.ui.component.state.EmptyState
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.feature.files.R
 import com.pion.phonecleaner.feature.files.component.ConfirmDialogHost
@@ -42,7 +43,7 @@ internal fun AudioManagerScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().screenInsetsPadding()) {
             Column(Modifier.fillMaxSize()) {
                 PageHeader(
                     title = stringResource(R.string.audio_title),

@@ -36,7 +36,7 @@ import com.pion.phonecleaner.feature.device.component.batteryCheckLabel
 /**
  * One checklist row (`docs/screens/18-device-battery-and-apps.md` §4.3).
  *
- * Every parameter is stable, so five of the six rows skip on every tick.
+ * Every parameter is stable, so every row but the one that changed skips on each tick.
  *
  * Two competitor mechanisms disappear rather than being ported:
  *

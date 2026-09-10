@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:trash. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale. Nothing below claims to protect, speed up or
+  free anything, and no string carries a percentage. A trashed file has freed zero bytes, so "giải
+  phóng" never appears on this path — deleting forever is the only place bytes actually leave the
+  device.
+
+  PLURALS — Vietnamese has ONE CLDR plural category, `other`. A `one` item here would never be
+  selected and lint flags it (UnusedQuantity), so every plural below carries `other` alone.
+-->
+<resources>
+
+    <string name="trash_title">Thùng rác</string>
+
+    <string name="trash_retention_note">Mọi thứ ở đây sẽ tự động bị xoá sau 2 ngày.</string>
+
+    <string name="trash_empty">Chưa có gì ở đây. Tệp bạn xoá trong ứng dụng này sẽ chờ ở đây trước khi mất hẳn.</string>
+
+    <string name="trash_unavailable_title">Thùng rác đang tắt</string>
+    <string name="trash_unavailable_body">Nếu không có quyền quản lý tất cả tệp, ứng dụng không thể chuyển tệp sang một chỗ khác trước khi xoá, nên việc xoá sẽ là vĩnh viễn. Hãy cấp quyền để bật lại thùng rác.</string>
+    <string name="trash_unavailable_action">Cho phép truy cập</string>
+
+    <plurals name="trash_entry_file_count">
+        <item quantity="other">%1$d tệp</item>
+    </plurals>
+
+    <plurals name="trash_expires_in_days">
+        <item quantity="other">Còn %1$d ngày</item>
+    </plurals>
+    <string name="trash_expires_today">Còn chưa đến một ngày</string>
+
+    <string name="trash_action_restore">Khôi phục</string>
+    <string name="trash_action_delete_forever">Xoá vĩnh viễn</string>
+    <string name="trash_action_empty">Dọn sạch thùng rác</string>
+    <string name="trash_action_select_all">Chọn tất cả</string>
+
+    <string name="trash_confirm_restore_title">Khôi phục?</string>
+    <plurals name="trash_confirm_restore_body">
+        <item quantity="other">%1$d mục sẽ trở về vị trí cũ. Mục nào trùng tên với tệp đang có ở đó sẽ được đổi tên chứ không ghi đè.</item>
+    </plurals>
+
+    <string name="trash_confirm_delete_title">Xoá vĩnh viễn?</string>
+    <plurals name="trash_confirm_delete_body">
+        <item quantity="other">%1$d mục sẽ bị xoá khỏi thiết bị này. Không thể hoàn tác.</item>
+    </plurals>
+
+    <string name="trash_confirm_empty_title">Dọn sạch thùng rác?</string>
+    <plurals name="trash_confirm_empty_body">
+        <item quantity="other">%1$d mục sẽ bị xoá khỏi thiết bị này. Không thể hoàn tác.</item>
+    </plurals>
+
+    <plurals name="trash_restored_count">
+        <item quantity="other">Đã khôi phục %1$d mục</item>
+    </plurals>
+    <plurals name="trash_restored_renamed">
+        <item quantity="other">%1$d mục được đổi tên vì đã có tệp trùng tên ở vị trí cũ</item>
+    </plurals>
+    <plurals name="trash_failed_count">
+        <item quantity="other">%1$d mục không thể chuyển đi</item>
+    </plurals>
+
+    <plurals name="trash_delete_failed_count">
+        <item quantity="other">%1$d mục không thể xoá</item>
+    </plurals>
+    <string name="trash_entry_source">Từ %1$s</string>
+
+</resources>

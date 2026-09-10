@@ -68,6 +68,10 @@
     <string name="feature_notification_cleaner_description">Collect incoming notifications in one list instead of the status bar.</string>
     <string name="feature_similar_photos_title">Similar photos</string>
     <string name="feature_similar_photos_description">Group photos that look alike so you can keep the one you want.</string>
+    <string name="feature_blurry_photos_title">Blurry photos</string>
+    <string name="feature_blurry_photos_description">Find photos that came out blurred so you can remove the ones you do not want.</string>
+    <string name="feature_video_compressor_title">Compress videos</string>
+    <string name="feature_video_compressor_description">Make a smaller copy of a video, then remove the original if you want to.</string>
     <string name="feature_photo_compressor_title">Photo compressor</string>
     <string name="feature_photo_compressor_description">Save a smaller copy of a photo.</string>
     <string name="feature_permission_manager_title">Permission manager</string>
@@ -90,5 +94,9 @@
     <string name="feature_network_traffic_description">See how much data each app has used.</string>
     <string name="feature_network_test_title">Connection test</string>
     <string name="feature_network_test_description">Measure the connection this device is using now.</string>
+    <string name="feature_trash_title">Trash</string>
+    <string name="feature_trash_description">Files you remove are kept here for 2 days, then they go for good.</string>
+    <string name="feature_zip_files_title">Zip files</string>
+    <string name="feature_zip_files_description">Pick up to 10 files and save them as one ZIP in Downloads.</string>
 
 </resources>

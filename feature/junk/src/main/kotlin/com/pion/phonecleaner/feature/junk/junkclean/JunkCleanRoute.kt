@@ -32,7 +32,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun JunkCleanRoute(
-    onCleaned: (freedBytes: Long, failedCount: Int) -> Unit,
+    onCleaned: (freedBytes: Long, failedCount: Int, recoverable: Boolean) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: JunkCleanViewModel = koinViewModel(),
@@ -54,7 +54,8 @@ fun JunkCleanRoute(
 
     CollectEffects(viewModel.effects) { effect ->
         when (effect) {
-            is JunkCleanEffect.NavigateToResult -> onCleaned(effect.freedBytes, effect.failedCount)
+            is JunkCleanEffect.NavigateToResult ->
+                onCleaned(effect.freedBytes, effect.failedCount, effect.recoverable)
             JunkCleanEffect.NavigateBack -> onNavigateBack()
             JunkCleanEffect.RequestStoragePermission ->
                 permissionLauncher.launch(storageReadPermissions())

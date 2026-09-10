@@ -55,8 +55,9 @@ internal fun ColumnVolumeRows(totalBytes: Long?, availableBytes: Long?) {
 }
 
 /**
- * The battery card reuses the same six `BatteryCheck` cells the battery screens use, so a reading is
- * described identically wherever it appears. Only the three that fit a two-line card are shown.
+ * The battery card reuses the same `BatteryCheck` cells the battery screens use, so a reading is
+ * described identically wherever it appears. Five of the seven are shown; [BATTERY_CARD_CHECKS] says
+ * which, and why the other two are not.
  */
 @Composable
 internal fun ColumnBatteryRows(snapshot: BatterySnapshot?) {
@@ -96,11 +97,23 @@ internal fun ColumnCpuRows(cpu: CpuInfo?) {
         )
         // A DELTA between two /proc/stat samples. The competitor's number is a lifetime ratio that
         // stops moving hours after boot, and `25` whenever the parse fails.
+        //
+        // Idle is `100 - used`, derived here rather than carried on CpuInfo: /proc/stat's idle column
+        // is the same subtraction one field earlier, so a second nullable would be a second chance
+        // for the two rows to contradict each other. They are one reading shown two ways, and when
+        // the reading is missing BOTH rows say so.
         LabelValueRow(
             icon = null,
-            label = stringResource(R.string.device_status_row_busy),
+            label = stringResource(R.string.device_status_row_cpu_used),
             value = cpu?.busyPercent
                 ?.let { stringResource(R.string.device_status_value_percent, it) }
+                ?: if (cpu == null) unread else unavailable,
+        )
+        LabelValueRow(
+            icon = null,
+            label = stringResource(R.string.device_status_row_cpu_idle),
+            value = cpu?.busyPercent
+                ?.let { stringResource(R.string.device_status_value_percent, 100 - it) }
                 ?: if (cpu == null) unread else unavailable,
         )
     }
@@ -131,10 +144,18 @@ internal fun ColumnDisplayRows(display: DisplayInfo?) {
     }
 }
 
+/**
+ * *Brightness* and *Technology* stay off this card: neither is a battery *level*, and the card's
+ * progress track is a level. The two capacity rows are last and adjacent because they read as one
+ * sentence — what is in the pack now, out of what the pack holds — and separating them turns a
+ * comparison into two unrelated numbers. All seven remain on `batteryinfo`, one tap away.
+ */
 private val BATTERY_CARD_CHECKS = listOf(
     BatteryCheck.Health,
     BatteryCheck.Temperature,
     BatteryCheck.Voltage,
+    BatteryCheck.CurrentCharge,
+    BatteryCheck.Capacity,
 )
 
 private fun batteryCardLabelRes(check: BatteryCheck): Int = when (check) {
@@ -142,6 +163,7 @@ private fun batteryCardLabelRes(check: BatteryCheck): Int = when (check) {
     BatteryCheck.Temperature -> R.string.battery_check_temperature
     BatteryCheck.Voltage -> R.string.battery_check_voltage
     BatteryCheck.Technology -> R.string.battery_check_technology
+    BatteryCheck.CurrentCharge -> R.string.battery_check_current_charge
     BatteryCheck.Capacity -> R.string.battery_check_capacity
     BatteryCheck.Health -> R.string.battery_check_health
 }

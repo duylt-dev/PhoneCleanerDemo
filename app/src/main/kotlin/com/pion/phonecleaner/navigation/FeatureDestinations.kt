@@ -7,7 +7,7 @@ import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.junk.JunkScanMode
 
 /**
- * The one `when` over the twenty feature ids (`docs/screens/11-home.md` §3).
+ * The one `when` over every feature id (`docs/screens/11-home.md` §3).
  *
  * It exists so `:feature:home` never names another cluster's route — that is what makes a
  * `:feature:A -> :feature:B` Gradle edge unnecessary rather than merely forbidden (`LLM.md` §2, §7.1).
@@ -34,12 +34,16 @@ fun FeatureId.destination(): Route = when (this) {
     FeatureId.BigFiles -> Route.BigFiles
     FeatureId.DuplicateFiles -> Route.Duplicates
     FeatureId.VideoManager -> Route.VideoManager
+    FeatureId.VideoCompressor -> Route.VideoCompressor
     FeatureId.AudioManager -> Route.AudioManager
     FeatureId.AppManager -> Route.AppManager
     FeatureId.WhatsAppCleaner -> Route.WhatsAppCleaner
+    FeatureId.Trash -> Route.Trash
+    FeatureId.ZipFiles -> Route.ZipFiles
 
     FeatureId.ImageManager -> Route.PhotoAlbums
     FeatureId.SimilarPhotos -> Route.SimilarPhotos
+    FeatureId.BlurryPhotos -> Route.BlurryPhotos
     FeatureId.PhotoCompressor -> Route.PhotoCompressor
     FeatureId.PhotoPrivacy -> Route.PhotoPrivacy
 

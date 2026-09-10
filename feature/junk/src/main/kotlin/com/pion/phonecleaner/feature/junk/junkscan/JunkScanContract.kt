@@ -29,8 +29,8 @@ enum class JunkScanPhase {
 /** `Candidate.total` when the pass genuinely cannot know it — the `.apk` walk (§1.2 point 2). */
 const val CANDIDATE_COUNT_UNKNOWN: Int = -1
 
-/** The three passes. `progress` divides by this, and `JunkScanner` runs exactly this many. */
-private const val PASS_COUNT: Int = 3
+/** The four passes. `progress` divides by this, and `JunkScanner` runs exactly this many. */
+private const val PASS_COUNT: Int = 4
 
 data class JunkScanState(
     /** The route argument. See `JunkScanMode` — Express has no screen design of its own. */
@@ -42,7 +42,7 @@ data class JunkScanState(
     val scannedCount: Int = 0,
     val candidateCount: Int = CANDIDATE_COUNT_UNKNOWN,
     val foundBytes: Long = 0L,
-    /** 0..3 — the only honest progress source. */
+    /** 0..4 — the only honest progress source. */
     val passesFinished: Int = 0,
     val isStopConfirmVisible: Boolean = false,
     val completionAnimationFinished: Boolean = false,
@@ -64,6 +64,7 @@ data class JunkScanState(
             phase == JunkScanPhase.Finished -> 1f
             phase != JunkScanPhase.Scanning -> null
             currentCategory == JunkCategoryId.ApkFiles -> null
+            currentCategory == JunkCategoryId.TemporaryFiles -> null
             candidateCount <= 0 -> passesFinished / PASS_COUNT.toFloat()
             else -> (passesFinished + scannedCount.toFloat() / candidateCount) / PASS_COUNT
         }

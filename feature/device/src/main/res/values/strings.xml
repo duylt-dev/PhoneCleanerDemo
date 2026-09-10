@@ -47,7 +47,10 @@
     <string name="device_status_row_architecture">Architecture</string>
     <string name="device_status_row_cores">Cores</string>
     <string name="device_status_row_frequency">Clock</string>
-    <string name="device_status_row_busy">Busy over the last half second</string>
+    <!-- The CPU pair. Both are the same /proc/stat delta over the last half second; idle is
+         100 - used, so the two never disagree. -->
+    <string name="device_status_row_cpu_used">Used</string>
+    <string name="device_status_row_cpu_idle">Idle</string>
     <string name="device_status_row_resolution">Resolution</string>
     <string name="device_status_row_density">Density</string>
     <string name="device_status_unread">Not read yet</string>
@@ -76,7 +79,10 @@
     <string name="battery_check_temperature">Temperature</string>
     <string name="battery_check_voltage">Voltage</string>
     <string name="battery_check_technology">Technology</string>
-    <string name="battery_check_capacity">Capacity</string>
+    <!-- Two separate readings, never one divided by the other: current charge is
+         BATTERY_PROPERTY_CHARGE_COUNTER, total is the design capacity. -->
+    <string name="battery_check_current_charge">Current capacity</string>
+    <string name="battery_check_capacity">Total capacity</string>
     <string name="battery_check_health">Health</string>
 
     <string name="battery_value_celsius">%1$.1f °C</string>
@@ -123,8 +129,9 @@
 
     <!--
       PENDING OWNER DECISION 3 — docs/screens/18 §0.1 / system-architecture §10.1 P1, UNSETTLED.
-      This copy describes what the list IS and what usage access WOULD add. It does not claim the app
-      reads usage statistics, because it does not: PACKAGE_USAGE_STATS is declared in no manifest.
+      This copy describes what the list IS and what usage access WOULD add. It does not claim this
+      screen reads usage statistics, because it does not — the permission is declared for App
+      Manager's Last used column, and nothing in this cluster reads a usage statistic.
     -->
     <string name="running_apps_usage_access_title">This list shows installed apps</string>
     <string name="running_apps_usage_access_body">Android does not let an app see which apps are running without usage access. Without it, this list is the third-party apps on this device that Android reports as not already stopped.</string>

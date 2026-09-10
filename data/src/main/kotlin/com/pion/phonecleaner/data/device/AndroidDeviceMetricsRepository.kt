@@ -77,19 +77,29 @@ internal class AndroidDeviceMetricsRepository(
     override suspend fun storage(): AppResult<StorageInfo> = storageInfo.current()
 
     /**
-     * Two `/proc/stat` samples [ProcStatSampler.SAMPLE_GAP_MILLIS] apart, so the number is the busy
-     * share of *that interval* and not of the time since boot. The `delay` is why this call is worth
-     * hiding behind the scan animation — which is exactly what §2.5 makes the animation do.
+     * Two samples [SAMPLE_GAP_MILLIS] apart, so the number is the busy share of *that interval* and
+     * not of the time since boot. The `delay` is why this call is worth hiding behind the scan
+     * animation — which is exactly what §2.5 makes the animation do.
+     *
+     * **Both sources are sampled at both instants, and `/proc/stat` is preferred where it is
+     * readable.** On this project's test device it is not: measured 2026-09-03 on `RF8Y60B9NCZ`
+     * (SM-A165F, Android 16), an app-process `open("/proc/stat")` returns `EACCES`, which is why the
+     * card showed "Not available" on both CPU rows and why [CpuIdleSampler] exists. `/proc/stat` is
+     * still tried first because where the policy does allow it, it is the exact figure rather than
+     * one reconstructed from per-core idle residency — and one failed `open` costs microseconds.
      */
     override suspend fun cpu(): AppResult<CpuInfo> = read {
-        val first = ProcStatSampler.read()
-        delay(ProcStatSampler.SAMPLE_GAP_MILLIS)
-        val second = ProcStatSampler.read()
+        val statBefore = ProcStatSampler.read()
+        val idleBefore = CpuIdleSampler.read()
+        delay(SAMPLE_GAP_MILLIS)
+        val statAfter = ProcStatSampler.read()
+        val idleAfter = CpuIdleSampler.read()
         CpuInfo(
             abis = Build.SUPPORTED_ABIS.orEmpty().toList().toImmutableList(),
             cores = Runtime.getRuntime().availableProcessors(),
             currentFrequencyMhz = CpuFrequencyReader.currentMhz(),
-            busyPercent = ProcStatSampler.busyPercent(first, second),
+            busyPercent = ProcStatSampler.busyPercent(statBefore, statAfter)
+                ?: CpuIdleSampler.busyPercent(idleBefore, idleAfter),
         )
     }
 
@@ -127,4 +137,12 @@ internal class AndroidDeviceMetricsRepository(
                 AppError.Unexpected(throwable.message).asFailure()
             }
         }
+
+    private companion object {
+        /**
+         * ~500 ms, per §3.5 — long enough for the counters to move, short enough to hide behind a
+         * scan. It lives here and not on either sampler because both take their pair across it.
+         */
+        const val SAMPLE_GAP_MILLIS = 500L
+    }
 }

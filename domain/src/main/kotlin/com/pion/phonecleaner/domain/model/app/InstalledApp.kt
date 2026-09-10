@@ -43,4 +43,29 @@ data class InstalledApp(
      * assumes either outcome.
      */
     val lastUsedAtMillis: Long = 0L,
+    /**
+     * `PackageInfo.firstInstallTime`, `0` when it could not be read.
+     *
+     * It is a DATE and it is read from a date field. The competitor has no install-time field at all:
+     * its row formats [apkBytes] through a `yyyy-MM-dd` formatter and labels the result *"installation
+     * time"*, so a 25 MB APK renders as a 1970 date (`docs/screens/14` §5.5). `0` here means the
+     * `PackageManager` lookup failed, never "installed at the epoch"; a caller must render it as
+     * unknown rather than as a date.
+     */
+    val firstInstallAtMillis: Long = 0L,
+    /**
+     * True for a package the platform ships — `FLAG_SYSTEM`, or `FLAG_UPDATED_SYSTEM_APP` for one
+     * that shipped and was later updated by the store.
+     *
+     * OWNER DECISION (2026-09-03): the App Manager **never lists a system app**, and there is no
+     * switch that changes it — `LoadInstalledAppsUseCase` drops them. That closes the UNKNOWN the
+     * port carried: the list used to include them because no appendix stated a rule, and every such
+     * row offered an uninstall the platform then refused.
+     *
+     * The flag is on the model rather than applied inside the port because the other three callers
+     * of `InstalledAppsRepository` — app-lock, notification and network — were not part of that
+     * decision and still see the whole list. A caller that wants the App Manager's rule filters on
+     * this flag; the port never filters for it.
+     */
+    val isSystem: Boolean = false,
 )

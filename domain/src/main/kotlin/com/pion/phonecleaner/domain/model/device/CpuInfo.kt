@@ -17,9 +17,13 @@ data class CpuInfo(
     /** null when neither cpufreq node is readable — the UI renders a dash, never a zero. */
     val currentFrequencyMhz: Int?,
     /**
-     * A DELTA between two `/proc/stat` samples, not a lifetime figure. The competitor's
-     * `(sum − idle) / sum` runs over counters that have been accumulating since boot, so it converges
-     * to a constant within hours and never moves again. null when either read failed.
+     * A DELTA across a ~500 ms window, not a lifetime figure. The competitor's `(sum − idle) / sum`
+     * runs over counters that have been accumulating since boot, so it converges to a constant within
+     * hours and never moves again — and on a device where the read is refused it prints a flat `25`.
+     *
+     * The data layer reads it from `/proc/stat` where policy allows and from per-core cpuidle
+     * residency where it does not; **on Android 8+ it is normally the latter**, `/proc/stat` being
+     * `EACCES` to an untrusted app. null when neither source could be sampled twice.
      */
     val busyPercent: Int?,
 )

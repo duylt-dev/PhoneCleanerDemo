@@ -26,7 +26,7 @@ import kotlinx.collections.immutable.persistentListOf
  * | Excluded | Why |
  * |---|---|
  * | `AllFiles` | `MANAGE_EXTERNAL_STORAGE` is **never assumed grantable** (`docs/system-architecture.md` §8.1, owner decision). A card that asks for it makes the default `MediaStore` + SAF branch look like a fallback |
- * | `UsageStats` | **PENDING OWNER DECISION 3** — whether the user is asked to grant `PACKAGE_USAGE_STATS` by hand. A card asking for it closes that decision |
+ * | `UsageStats` | The ask lives in **App Manager**, beside the *Last used* column that needs it, where the reason is on screen (`docs/screens/14` §5). A settings row asking for it out of context is the ask this catalogue does not make, and the running-apps half of decision 3 is still open |
  * | `Overlay` | the App Lock overlay is a Play-policy decision, not an engineering one (`LLM.md` §7.5). `SYSTEM_ALERT_WINDOW` is not declared in `:data`'s manifest for the same reason |
  * | `WhatsAppFolder` | a SAF tree grant, taken in the WhatsApp screen's own flow against a specific directory. There is nothing for a settings row to open |
  * | `WriteSettings` · `DoNotDisturb` · `IgnoreBatteryOptimizations` | no code in this app requests or reads them, and no feature declares them in `FeatureCatalog`. A card for a permission nothing uses is a grant asked for nothing |

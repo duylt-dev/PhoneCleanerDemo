@@ -2,12 +2,11 @@ package com.pion.phonecleaner.feature.cleanresult
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,14 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.pion.phonecleaner.core.ui.catalog.FeatureDescriptors
 import com.pion.phonecleaner.core.ui.component.header.PageHeader
-import com.pion.phonecleaner.core.ui.component.list.SectionHeader
-import com.pion.phonecleaner.core.ui.component.tile.RecommendationCard
 import com.pion.phonecleaner.core.ui.format.rememberByteFormat
 import com.pion.phonecleaner.core.ui.token.PageSpacing
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.cleanup.CleanupOutcome
 import com.pion.phonecleaner.feature.cleanresult.component.CountingHeadline
 
@@ -34,6 +31,11 @@ import com.pion.phonecleaner.feature.cleanresult.component.CountingHeadline
  *
  * The back arrow is present and works. The competitor's equivalent has no arrow at all and blocks
  * the system key with a toast, because its own navigation cannot survive being left early.
+ *
+ * **It offers no onward feature.** The headline, the lifetime total and Done are the whole page —
+ * the suggestion list this screen used to draw was removed by owner decision (2026-09-03), so there
+ * is nothing here that can name another feature. `ResultPhase` survives that removal because the
+ * count-up still needs it: `isRevealed` is what stops [CountingHeadline] animating.
  */
 @Composable
 internal fun CleanResultScreen(
@@ -42,46 +44,23 @@ internal fun CleanResultScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.clean_result_title),
                 onBack = { onIntent(CleanResultIntent.BackPressed) },
             )
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                contentPadding = PaddingValues(bottom = PageSpacing.listBottom),
+            // A `Column` that scrolls, not a `LazyColumn`: with the suggestion list gone this page
+            // holds ONE block of fixed height. Lazy machinery for a single item buys nothing and
+            // costs a key and a `contentType` that no longer identify anything.
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = PageSpacing.listBottom),
                 verticalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
-                item(key = HeadlineKey, contentType = HeadlineType) {
-                    ResultHeadline(state, onIntent)
-                }
-                if (state.isRevealed && state.suggestions.isNotEmpty()) {
-                    item(key = SuggestionsHeaderKey, contentType = SectionType) {
-                        SectionHeader(
-                            title = stringResource(R.string.clean_result_suggestions_title),
-                            modifier = Modifier.padding(horizontal = ScreenGutter),
-                        )
-                    }
-                    items(
-                        items = state.suggestions,
-                        // The `FeatureId` IS the identity; nothing here is keyed by position.
-                        key = { it.name },
-                        contentType = { SuggestionType },
-                    ) { feature ->
-                        val descriptor = FeatureDescriptors.of(feature)
-                        RecommendationCard(
-                            icon = descriptor.resultIcon,
-                            title = stringResource(descriptor.titleRes),
-                            subtitle = stringResource(descriptor.descriptionRes),
-                            ctaLabel = stringResource(descriptor.exitCtaRes),
-                            // `onIntent` is passed through a stable lambda that captures only the
-                            // feature; a `RecommendationCard` takes `() -> Unit`, so this is the one
-                            // shape it admits.
-                            onClick = { onIntent(CleanResultIntent.SuggestionTapped(feature)) },
-                            modifier = Modifier.padding(horizontal = ScreenGutter),
-                        )
-                    }
-                }
+                ResultHeadline(state, onIntent)
             }
             Button(
                 onClick = { onIntent(CleanResultIntent.DonePressed) },
@@ -123,6 +102,17 @@ private fun ResultHeadline(state: CleanResultState, onIntent: (CleanResultIntent
             // A run that freed nothing still reports honestly, and reports it without an animation
             // to sit through — the photo-privacy strip removes location data and frees zero bytes.
             NoBytesHeadline(state, itemLine, onIntent)
+        }
+        // The second line a MovedToTrash run owes: the bytes just counted up are not gone yet
+        // (plan 260908-0801-trash-bin, Phase 07) — CleanupLedger was not written for this run.
+        if (state.summary.outcome == CleanupOutcome.MovedToTrash) {
+            Text(
+                text = stringResource(R.string.clean_result_trash_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = ScreenGutter),
+            )
         }
         if (state.lifetimeFreedBytes > 0L) {
             Text(
@@ -169,10 +159,5 @@ private fun CleanResultState.outcomeHeadlineRes(): Int = when (summary.outcome) 
     CleanupOutcome.ThreatsRemoved -> R.string.clean_result_headline_threats_removed
     CleanupOutcome.DataCleared -> R.string.clean_result_headline_data_cleared
     CleanupOutcome.ItemsCleared -> R.string.clean_result_headline_items_cleared
+    CleanupOutcome.MovedToTrash -> R.string.clean_result_headline_moved_to_trash
 }
-
-private const val HeadlineKey = "cleanResultHeadline"
-private const val SuggestionsHeaderKey = "cleanResultSuggestionsHeader"
-private const val HeadlineType = "cleanResultHeadline"
-private const val SectionType = "cleanResultSection"
-private const val SuggestionType = "cleanResultSuggestion"

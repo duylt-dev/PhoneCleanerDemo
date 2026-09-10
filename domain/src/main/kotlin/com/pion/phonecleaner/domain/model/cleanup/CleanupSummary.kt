@@ -32,6 +32,12 @@ data class CleanupSummary(
  * `DataCleared` is why the shared result screen can render a run that freed nothing and still be
  * correct — the photo-privacy strip clears location data and frees zero bytes
  * (`docs/screens/13-photo-and-media.md:633`).
+ *
+ * `MovedToTrash` is the arm that keeps this screen honest once the bin exists (plan
+ * `260908-0801-trash-bin`, Phase 07). The bytes in [CleanupSummary.freedBytes] have **not** left the
+ * device — they are in the app's bin for two days — so the headline says so and `CleanupLedger` is
+ * not written. Crediting them here would make the lifetime figure count the same bytes twice: once
+ * on the move and once on the purge.
  */
 @Serializable
 enum class CleanupOutcome {
@@ -40,4 +46,5 @@ enum class CleanupOutcome {
     ThreatsRemoved,
     DataCleared,
     ItemsCleared,
+    MovedToTrash,
 }

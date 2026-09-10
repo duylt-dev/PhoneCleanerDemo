@@ -24,7 +24,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "PhoneCleanerDemo"
 
-// Module graph — LLM.md §3.1. Nineteen Gradle projects.
+// Module graph — LLM.md §3.1. Twenty Gradle projects.
 // The edges are enforced by each module's own dependency block; §2 lists the four edges that must never exist.
 include(":app")
 
@@ -35,7 +35,7 @@ include(":core:ui")       // android-library + Compose
 include(":domain")        // kotlin("jvm"), no Android, no Compose
 include(":data")          // android-library, no Compose
 
-// feature — thirteen clusters, one module each (LLM.md §3.8)
+// feature — fourteen clusters, one module each (LLM.md §3.8)
 include(":feature:onboarding")
 include(":feature:home")
 include(":feature:junk")
@@ -49,4 +49,4 @@ include(":feature:notification")
 include(":feature:device")
 include(":feature:network")
 include(":feature:settings")
- 
+include(":feature:trash")

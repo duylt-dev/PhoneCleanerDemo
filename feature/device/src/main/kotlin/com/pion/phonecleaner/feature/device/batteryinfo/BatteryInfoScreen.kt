@@ -23,6 +23,7 @@ import com.pion.phonecleaner.core.ui.component.header.PageHeader
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.token.ScreenGutter
 import com.pion.phonecleaner.core.ui.token.Spacing
+import com.pion.phonecleaner.core.ui.token.screenInsetsPadding
 import com.pion.phonecleaner.domain.model.device.BatteryCheck
 import com.pion.phonecleaner.domain.model.device.BatterySnapshot
 import com.pion.phonecleaner.feature.device.R
@@ -33,13 +34,13 @@ import com.pion.phonecleaner.feature.device.component.batteryValue
 /**
  * `batteryinfo` (`docs/screens/18-device-battery-and-apps.md` §5.3).
  *
- * **`BatteryCheck` is reused verbatim from the scan screen.** The checklist's six steps and this
- * grid's six cells are the same six things in the same order, so a seventh metric is added in one
- * place instead of two.
+ * **`BatteryCheck` is reused verbatim from the scan screen.** The checklist's steps and this grid's
+ * cells are the same facts in the same order, so a metric is added in one place instead of two —
+ * which is how *Current capacity* reached both screens as a single enum constant.
  *
- * The grid does not scroll — six cells always fit — but it is a `LazyVerticalGrid` because that is
- * what gives each cell its own `key`, so a 1 Hz charging broadcast recomposes the cells that changed
- * and skips the four that did not.
+ * The grid does not scroll — seven cells over three columns are three rows, which fit — but it is a
+ * `LazyVerticalGrid` because that is what gives each cell its own `key`, so a 1 Hz charging
+ * broadcast recomposes the cells that changed and skips the ones that did not.
  */
 @Composable
 internal fun BatteryInfoScreen(
@@ -48,7 +49,7 @@ internal fun BatteryInfoScreen(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(
                 title = stringResource(R.string.battery_info_title),
                 onBack = { onIntent(BatteryInfoIntent.BackPressed) },

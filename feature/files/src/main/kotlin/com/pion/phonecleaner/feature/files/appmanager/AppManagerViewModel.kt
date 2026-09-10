@@ -148,11 +148,26 @@ class AppManagerViewModel(
         }
     }
 
+    /**
+     * **The result screen is reached only when Android actually removed something.**
+     *
+     * A queue that ends with `removed` empty is the user having declined every system dialog, and
+     * `CleanResultRoute` has no arm that says so: the run renders as `NothingFound` — *"Nothing was
+     * found to remove"* — which is a false statement about a list where apps were found, selected
+     * and then deliberately kept. Cancelling the last step of a flow must leave the user on the
+     * screen they cancelled from, not on a report of a run that did not happen.
+     *
+     * The selection is written back rather than cleared, so the packages the user declined stay
+     * ticked and the retry is one tap. On a partial run this stores exactly what the list still
+     * shows selected — `withQueueFinished` has already dropped the removed ones — where the previous
+     * `emptySet()` disagreed with the rows on screen.
+     */
     private fun finishQueue() {
         val summary = currentState.uninstallSummary()
+        val removedAny = currentState.uninstalling?.removed?.isNotEmpty() == true
         setState { withQueueFinished() }
-        savedState.storeSelection(emptySet())
-        sendEffect(AppManagerEffect.NavigateToCleanResult(summary))
+        savedState.storeSelection(currentState.selectedPackages)
+        if (removedAny) sendEffect(AppManagerEffect.NavigateToCleanResult(summary))
     }
 
     private fun onBackPressed() {

@@ -37,6 +37,11 @@ import com.pion.phonecleaner.core.ui.token.Spacing
  * [icon] is an `ImageVector` rather than the `@DrawableRes iconRes` §4.7's table names — see
  * `FeatureDescriptor`'s KDoc for why: this repository has none of the competitor's icon assets, and
  * inventing drawable files would be inventing content.
+ *
+ * [enabled] takes Material's own disabled container and content colours rather than an alpha at the
+ * call site (MVI §11), and it stops the ripple too — a tile that dims but still flashes under a
+ * finger reads as broken rather than as not ready. Say WHY it is disabled in [value]; the tile itself
+ * holds no opinion about that.
  */
 @Composable
 fun QuickToolTile(
@@ -46,8 +51,9 @@ fun QuickToolTile(
     modifier: Modifier = Modifier,
     badge: String? = null,
     value: String? = null,
+    enabled: Boolean = true,
 ) {
-    Card(onClick = onClick, modifier = modifier.aspectRatio(TileAspectRatio)) {
+    Card(onClick = onClick, modifier = modifier.aspectRatio(TileAspectRatio), enabled = enabled) {
         Box(Modifier.fillMaxWidth().padding(Spacing.md)) {
             Column(
                 modifier = Modifier.fillMaxWidth().align(Alignment.Center),

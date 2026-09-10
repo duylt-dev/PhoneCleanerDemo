@@ -23,6 +23,12 @@ import com.pion.phonecleaner.domain.repository.SecurityScanRepository
  *
  * Registered `factoryOf(::RemoveFindingUseCase)` in `domainModule`; that file belongs to another
  * owner, so the line is reported rather than added here (`LLM.md` §6.4).
+ *
+ * **This use case deliberately does NOT go through `TrashRepository`** (owner decision D5, plan
+ * `260908-0801-trash-bin`). Two reasons, either sufficient: a security feature with a "restore the
+ * threat" button contradicts itself, and routing a removal here through the bin would park the file
+ * inside this app's own directory for two days. The removal is permanent, and
+ * `R.string.antivirus_remove_file_note` says so before the user confirms it.
  */
 class RemoveFindingUseCase(
     private val repository: SecurityScanRepository,

@@ -16,6 +16,18 @@ sealed interface DeleteOutcome {
         val freedBytes: Long,
         /** Paths the delete could not remove. Reported, never swallowed. */
         val failedPaths: ImmutableList<String>,
+        /**
+         * True when [freedBytes] went into the bin instead of leaving the device (plan
+         * `260908-0801-trash-bin`, Phase 07). `freedBytes` is then "bytes moved", and NOTHING may
+         * credit them to `CleanupLedger` or call them freed — the file is still on the volume.
+         * Defaulted so the eleven existing construction sites compile unchanged; only the call sites
+         * that branch on the trash path read it.
+         *
+         * [failedPaths] means the same thing on both branches: that path is untouched, on disk,
+         * ownerless to no database row. A failed move is never a reason to fall back to a permanent
+         * delete of that path — the whole point of the bin is that a failure here costs nothing.
+         */
+        val recoverable: Boolean = false,
     ) : DeleteOutcome
 
     /**

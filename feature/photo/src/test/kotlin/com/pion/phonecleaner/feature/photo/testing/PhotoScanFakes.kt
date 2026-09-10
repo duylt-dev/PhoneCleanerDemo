@@ -1,11 +1,14 @@
 package com.pion.phonecleaner.feature.photo.testing
 
+import com.pion.phonecleaner.domain.model.photo.BlurScanProgress
 import com.pion.phonecleaner.domain.model.photo.GeotagScanProgress
 import com.pion.phonecleaner.domain.model.photo.PhotoGroup
 import com.pion.phonecleaner.domain.model.photo.PhotoId
-import com.pion.phonecleaner.domain.model.photo.SimilarPhotoSession
+import com.pion.phonecleaner.domain.model.photo.PhotoSession
 import com.pion.phonecleaner.domain.model.photo.SimilarScanProgress
 import com.pion.phonecleaner.domain.model.photo.StripStep
+import com.pion.phonecleaner.domain.repository.BlurryPhotoScanner
+import com.pion.phonecleaner.domain.repository.BlurryPhotoSessionStore
 import com.pion.phonecleaner.domain.repository.ExifRepository
 import com.pion.phonecleaner.domain.repository.SimilarPhotoScanner
 import com.pion.phonecleaner.domain.repository.SimilarPhotoSessionStore
@@ -28,6 +31,12 @@ internal class FakeSimilarPhotoScanner(
     var emissions: List<SimilarScanProgress> = emptyList(),
 ) : SimilarPhotoScanner {
     override fun scan(): Flow<SimilarScanProgress> = flow { emissions.forEach { emit(it) } }
+}
+
+internal class FakeBlurryPhotoScanner(
+    var emissions: List<BlurScanProgress> = emptyList(),
+) : BlurryPhotoScanner {
+    override fun scan(): Flow<BlurScanProgress> = flow { emissions.forEach { emit(it) } }
 }
 
 /**
@@ -57,11 +66,11 @@ internal class FakeExifRepository(
  * falls to a single member.
  */
 internal class FakeSimilarPhotoSessionStore : SimilarPhotoSessionStore {
-    private val _session = MutableStateFlow<SimilarPhotoSession?>(null)
-    override val session: StateFlow<SimilarPhotoSession?> = _session.asStateFlow()
+    private val _session = MutableStateFlow<PhotoSession?>(null)
+    override val session: StateFlow<PhotoSession?> = _session.asStateFlow()
 
     override fun put(groups: ImmutableList<PhotoGroup>, skipped: Int) {
-        _session.value = SimilarPhotoSession(
+        _session.value = PhotoSession(
             groups = groups,
             selectedIds = groups.asSequence()
                 .flatMap { it.photos.asSequence().drop(1) }
@@ -82,6 +91,51 @@ internal class FakeSimilarPhotoSessionStore : SimilarPhotoSessionStore {
             val groups = current.groups
                 .map { g -> g.copy(photos = g.photos.filterNot { it.id in ids }.toImmutableList()) }
                 .filter { it.photos.size > 1 }
+                .toImmutableList()
+            val alive = groups.flatMap { it.photos }.map { it.id }.toSet()
+            current.copy(
+                groups = groups,
+                selectedIds = current.selectedIds.filter { it in alive }.toImmutableSet(),
+            )
+        }
+    }
+
+    override fun clear() {
+        _session.value = null
+    }
+}
+
+/**
+ * Mirrors the real `InMemoryBlurryPhotoSessionStore`, including the two rules that are the exact
+ * inverse of the similar store's: `put` pre-selects **everything**, and `remove` keeps a tier that
+ * has fallen to a single member.
+ */
+internal class FakeBlurryPhotoSessionStore : BlurryPhotoSessionStore {
+    private val _session = MutableStateFlow<PhotoSession?>(null)
+    override val session: StateFlow<PhotoSession?> = _session.asStateFlow()
+
+    override fun put(groups: ImmutableList<PhotoGroup>, skipped: Int) {
+        _session.value = PhotoSession(
+            groups = groups,
+            selectedIds = groups.asSequence()
+                .flatMap { it.photos.asSequence() }
+                .map { it.id }
+                .toImmutableSet(),
+            skipped = skipped,
+        )
+    }
+
+    override fun select(ids: Set<PhotoId>) {
+        _session.update { it?.copy(selectedIds = ids.toImmutableSet()) }
+    }
+
+    override fun remove(ids: Set<PhotoId>) {
+        if (ids.isEmpty()) return
+        _session.update { current ->
+            current ?: return@update null
+            val groups = current.groups
+                .map { g -> g.copy(photos = g.photos.filterNot { it.id in ids }.toImmutableList()) }
+                .filter { it.photos.isNotEmpty() }
                 .toImmutableList()
             val alive = groups.flatMap { it.photos }.map { it.id }.toSet()
             current.copy(

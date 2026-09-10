@@ -11,12 +11,14 @@ import com.pion.phonecleaner.core.mvi.UiIntent
 import com.pion.phonecleaner.core.ui.component.dialog.ConfirmSpec
 import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
 import com.pion.phonecleaner.domain.model.file.DuplicateGroup
+import com.pion.phonecleaner.domain.model.file.FileKind
 import com.pion.phonecleaner.domain.model.file.PendingIntentToken
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * `duplicates` (`docs/screens/14-file-tools-and-app-manager.md` §2). Replaces `MassutoActivity`
@@ -38,6 +40,32 @@ data class DuplicatesState(
     val groups: ImmutableList<DuplicateGroup> = persistentListOf(),
     val selectedIds: ImmutableSet<String> = persistentSetOf(),
 
+    /**
+     * The shared volumes are readable. `null` = not asked yet, which is NOT the same as denied: on
+     * the first composition the gate has not run, and drawing the denial panel there would flash a
+     * permission screen at a user who already granted (`LLM.md` §7.4).
+     *
+     * Denial is a **state with a reason and a button**, never `finish()` — the competitor's answer
+     * to the same problem (`TaribrActivity.java:151`).
+     */
+    val storageGranted: Boolean? = null,
+
+    /**
+     * Rows collected so far, before any byte is hashed. With all-files access the corpus is a walk
+     * of every volume, which takes long enough that a screen showing only "compared 0 of 0" would
+     * look hung.
+     */
+    val collected: Int = 0,
+
+    /**
+     * Which kind the list is narrowed to; `null` = all. The corpus now holds every extension on the
+     * device, so a filter is what keeps a 900-row result usable.
+     *
+     * It is `FileKind` itself rather than a new screen-local enum: a finer split — Document versus
+     * Archive — is asserted by no source and is not invented here (`FileKind` KDoc).
+     */
+    val filter: FileKind? = null,
+
     /** Live progress from the finder. The competitor shows none. */
     val hashed: Int = 0,
     val candidates: Int = 0,
@@ -53,6 +81,8 @@ data class DuplicatesState(
 
     /** A dialog is STATE, never an Effect (`LLM.md` §7.4). */
     val confirm: ConfirmSpec? = null,
+    /** Mode stated by the confirmation; retained through the system consent round trip. */
+    val trashEligible: Boolean = false,
 
     /** The "View" sheet holds an **id**, not the object; `null` = closed (§2.1). */
     val previewingId: String? = null,
@@ -60,6 +90,21 @@ data class DuplicatesState(
 ) : FileToolState {
 
     val selectedCount: Int get() = selectedIds.size
+
+    /**
+     * What the list renders. The filter narrows the VIEW and never the selection: a user who filters
+     * to Images after the pre-selection landed still deletes the videos they had selected, and a
+     * filter that silently dropped them would delete less than the button said.
+     */
+    val visibleGroups: ImmutableList<DuplicateGroup>
+        get() = filter?.let { kind -> groups.filter { it.kind == kind }.toImmutableList() } ?: groups
+
+    /** The kinds actually present, so the chip row offers no filter that would empty the list. */
+    val availableKinds: ImmutableList<FileKind>
+        get() = groups.map(DuplicateGroup::kind).distinct().toImmutableList()
+
+    /** Denial is a screen, so nothing else on it may draw while it is up. */
+    val showPermissionPanel: Boolean get() = storageGranted == false
 
     val selectedBytes: Long
         get() = groups.sumOf { group ->
@@ -71,7 +116,7 @@ data class DuplicatesState(
 
     val canDelete: Boolean get() = phase == ToolPhase.Ready && selectedCount > 0
 
-    val showEmptyState: Boolean get() = phase == ToolPhase.Ready && groups.isEmpty()
+    val showEmptyState: Boolean get() = phase == ToolPhase.Ready && visibleGroups.isEmpty()
 
     val isBusy: Boolean get() = phase == ToolPhase.Scanning || phase == ToolPhase.Deleting
 
@@ -82,8 +127,22 @@ data class DuplicatesState(
 }
 
 sealed interface DuplicatesIntent : UiIntent {
-    /** Raised on every `ON_START`, so a return from any round trip re-enters the same reducer. */
-    data object ScreenStarted : DuplicatesIntent, FileToolIntent.Rescan
+    /**
+     * Raised on every `ON_START` with the gate's own answer, so a return from the Settings page
+     * re-enters the same reducer. It replaces a bare `ScreenStarted`: the scan starts from
+     * `granted = true` and from nothing else, which is what stops the screen scanning its own
+     * sandbox and reporting "no duplicates" (`:core:ui/permission/StorageAccessGate.kt`).
+     */
+    data class StorageAccessResolved(val granted: Boolean) :
+        DuplicatesIntent, FileToolIntent.Rescan
+
+    /** The button on the denial panel. The Route owns which of the two grant shapes it launches. */
+    data object GrantStoragePressed : DuplicatesIntent
+
+    data class FilterSelected(val kind: FileKind?) : DuplicatesIntent
+
+    /** The retry on the error card. A rescan the user asked for, not one an `ON_START` implied. */
+    data object RetryPressed : DuplicatesIntent
     data class RowToggled(override val id: String) : DuplicatesIntent, FileToolIntent.ToggleItem
     data object DeselectAllPressed : DuplicatesIntent
 
@@ -101,6 +160,9 @@ sealed interface DuplicatesIntent : UiIntent {
 }
 
 sealed interface DuplicatesEffect : UiEffect {
+    /** Only an Activity can launch either grant shape, so this is an Effect, not a state flag. */
+    data object RequestStorageAccess : DuplicatesEffect
+
     data class OpenExternally(val uri: String, val mimeType: String?) : DuplicatesEffect
     data class RequestDeleteConsent(val token: PendingIntentToken) : DuplicatesEffect
 

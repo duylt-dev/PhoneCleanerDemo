@@ -39,10 +39,10 @@ import kotlinx.coroutines.withContext
  * and no copy is invented. A UID with no resolvable package is the one row that does not survive —
  * rendering a raw package id to a user is not a fallback, it is a leak of an internal name.
  *
- * PENDING OWNER DECISION 3 — whether the app asks for `PACKAGE_USAGE_STATS` at all. The manifest does
- * not declare it, so on a real device this repository answers `PermissionDenied` and the screen
- * renders its ungranted state. That is the honest outcome of an undecided question, and nothing here
- * decides it.
+ * PENDING OWNER DECISION 3 — whether *this* screen asks for `PACKAGE_USAGE_STATS`. The manifest now
+ * declares the permission (for App Manager's *Last used* column), so the grant is reachable; nothing
+ * here asks for it. Until the user gives it this repository answers `PermissionDenied` and the screen
+ * renders its ungranted state, which is still the honest outcome of an undecided question.
  */
 internal class NetworkStatsTrafficRepository(
     context: Context,

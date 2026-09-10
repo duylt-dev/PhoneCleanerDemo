@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vietnamese (vi) for :feature:applock. Mirrors values/strings.xml key for key.
+
+  WORDING BAN (LLM.md §1, §5) carries into every locale: no performance, memory or security claim,
+  and no percentage.
+
+  app_lock_clear_body still says, BEFORE the action runs, that the locked-app list goes with the PIN.
+  A confirmation that hides half of what it does is not a confirmation in any language.
+
+  lock_screen_prompt still substitutes the target app's own label, so the screen asking for a PIN
+  names what it is guarding.
+-->
+<resources>
+
+    <string name="app_lock_title">Khóa ứng dụng</string>
+    <string name="app_lock_settings_action">Cài đặt khóa ứng dụng</string>
+
+    <!-- ── applock home ──────────────────────────────────────────────────────────────────────── -->
+    <string name="app_lock_scanning">Đang đọc danh sách ứng dụng…</string>
+    <string name="app_lock_tab_all">Tất cả</string>
+    <string name="app_lock_tab_locked">Đã khóa</string>
+    <string name="app_lock_tab_locked_count">Đã khóa (%1$d)</string>
+    <string name="app_lock_empty_all">Không có ứng dụng nào để hiển thị.</string>
+    <string name="app_lock_empty_locked">Chưa có ứng dụng nào bị khóa. Hãy chọn một ứng dụng ở tab Tất cả.</string>
+    <string name="app_lock_row_locked">Đã khóa</string>
+    <string name="app_lock_row_unlocked">Chưa khóa</string>
+
+    <string name="app_lock_unlock_title">Ngừng hỏi mã PIN trước khi mở %1$s?</string>
+    <string name="app_lock_unlock_body">%1$s sẽ mở mà không cần mã PIN cho tới khi bạn khóa lại.</string>
+    <string name="app_lock_unlock_confirm">Mở khóa</string>
+
+    <string name="app_lock_permission_title">Cần hai thiết lập trước đã</string>
+    <string name="app_lock_permission_body">Để hỏi mã PIN trước khi một ứng dụng khác mở lên, ứng dụng này cần biết ứng dụng nào đang ở phía trước, và cần vẽ màn hình PIN lên trên ứng dụng đó. Cả hai đều được cấp trong cài đặt hệ thống, lần lượt từng mục một.</string>
+    <string name="app_lock_permission_usage">Cho phép truy cập dữ liệu sử dụng</string>
+    <string name="app_lock_permission_overlay">Cho phép vẽ lên ứng dụng khác</string>
+    <string name="app_lock_permission_granted">Đã cấp</string>
+
+    <!-- ── pin ───────────────────────────────────────────────────────────────────────────────── -->
+    <string name="pin_title_set">Đặt mã PIN</string>
+    <string name="pin_title_change">Đổi mã PIN</string>
+    <string name="pin_title_verify">Nhập mã PIN của bạn</string>
+    <string name="pin_prompt_verify_old">Nhập mã PIN hiện tại của bạn</string>
+    <string name="pin_prompt_enter">Nhập mã PIN gồm 4 chữ số</string>
+    <string name="pin_prompt_confirm">Nhập lại lần nữa</string>
+    <string name="pin_prompt_unlock">Nhập mã PIN của bạn</string>
+    <string name="pin_error_wrong">Mã PIN đó không đúng.</string>
+    <string name="pin_error_mismatch">Hai lần nhập không khớp nhau. Hãy bắt đầu lại.</string>
+    <string name="pin_step_indicator">Bước %1$d trên 2</string>
+    <string name="pin_lockout_notice">Đã thử quá nhiều lần. Hãy thử lại sau %1$s.</string>
+    <string name="pin_lockout_seconds">%1$d giây</string>
+
+    <!-- ── lockscreen ────────────────────────────────────────────────────────────────────────── -->
+    <string name="lock_screen_prompt">%1$s đang bị khóa</string>
+
+    <!-- ── settings ──────────────────────────────────────────────────────────────────────────── -->
+    <string name="app_lock_settings_title">Cài đặt khóa ứng dụng</string>
+    <string name="app_lock_enabled_title">Khóa ứng dụng</string>
+    <string name="app_lock_enabled_subtitle">Hỏi mã PIN trước khi một ứng dụng đã khóa được mở.</string>
+    <string name="app_lock_new_app_title">Ứng dụng mới cài</string>
+    <string name="app_lock_new_app_subtitle">Đề nghị khóa một ứng dụng sau khi bạn cài nó.</string>
+    <string name="app_lock_change_pin_title">Đổi mã PIN</string>
+    <string name="app_lock_change_pin_subtitle">Bạn sẽ được hỏi mã PIN hiện tại trước.</string>
+    <string name="app_lock_clear_title">Xóa khóa ứng dụng</string>
+    <string name="app_lock_clear_body">Thao tác này xóa mã PIN và làm trống danh sách ứng dụng đã khóa. Cả hai đi cùng nhau, và không thứ nào khôi phục lại được.</string>
+    <string name="app_lock_clear_confirm">Xóa</string>
+
+    <!-- Read by TalkBack as the switch's stateDescription. -->
+    <string name="app_lock_state_on">Bật</string>
+    <string name="app_lock_state_off">Tắt</string>
+
+</resources>

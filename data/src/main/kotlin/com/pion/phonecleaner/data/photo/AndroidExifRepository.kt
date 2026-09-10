@@ -32,6 +32,12 @@ import kotlinx.coroutines.flow.flowOn
  *     a new name and the model still holds the old path — a second pass then finds nothing.
  *  3. **A failure is reported.** `nd/e.a` catches, prints, and counts the row as a success anyway,
  *     which is what makes its own "Delete Failed" toast unreachable.
+ *
+ * **Out of scope for the bin** (owner decision D7, plan `260908-0801-trash-bin`). [strip]'s write at
+ * `openFileDescriptor(uri, "rw")` plus `exif.saveAttributes()` overwrites the original in place; it
+ * issues no delete, so there is nothing for `TrashRepository` to intercept. A copy-first backup was
+ * rejected: it doubles the write on a device the user is trying to free space on, and an overwrite is
+ * not a delete. Recorded here so a later reader does not conclude the path was missed.
  */
 internal class AndroidExifRepository(
     private val context: Context,

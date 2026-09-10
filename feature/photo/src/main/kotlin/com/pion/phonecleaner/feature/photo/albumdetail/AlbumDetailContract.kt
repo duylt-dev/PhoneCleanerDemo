@@ -32,21 +32,9 @@ data class AlbumDetailState(
     /** Selection is a set of ids on State — never an `isSelected` field on `Photo` (`LLM.md` §8). */
     val selectedIds: ImmutableSet<PhotoId> = persistentSetOf(),
     val isDeleteConfirmVisible: Boolean = false,
-
-    /**
-     * The rows the system consent dialog is deciding about, by `Photo.contentUri` — which is exactly
-     * what `DeleteOutcome` hands back, so the reducer prunes without ever parsing a URI.
-     *
-     * `DeleteOutcome.PendingConsent` is a **state the UI renders**, not an error: on API 30+
-     * `MediaStore.createDeleteRequest` raising a system dialog is the ordinary path
-     * (`docs/system-architecture.md` §8.4).
-     */
+    val trashEligible: Boolean = false,
     val pendingConsentUris: ImmutableSet<String> = persistentSetOf(),
-
-    /** The arm the competitor does not have: a cancelled consent dialog says so (§7.5). */
     val consentDeclined: Boolean = false,
-
-    /** Rows the deleter reported it could not remove. Surfaced, never swallowed. */
     val failedCount: Int = 0,
     val error: AppError? = null,
 ) : UiState {
@@ -65,20 +53,10 @@ sealed interface AlbumDetailIntent : UiIntent {
     data object DeletePressed : AlbumDetailIntent
     data object DeleteConfirmed : AlbumDetailIntent
     data object DeleteDismissed : AlbumDetailIntent
-
-    /** Reported by the Route's `ActivityResultLauncher`. Was `onActivityResult` in the competitor. */
     data class DeleteConsentResult(val granted: Boolean) : AlbumDetailIntent
     data object BackPressed : AlbumDetailIntent
 }
 
-/**
- * UNKNOWN — §7.1 also declares `ShowMessage(val text: UiText)`. **No `UiText` type exists** anywhere
- * in the repository (grepped `core/`, `domain/` and `feature/` for `class UiText` and
- * `interface UiText`; `:core:ui/error/ErrorMessages.kt` resolves an `AppError` to a string resource
- * instead). Rather than invent one, the two things §7.5 wants said — the failed rows and the
- * declined consent — are fields on [AlbumDetailState] that the screen renders. If a `UiText` lands
- * in `:core:ui`, this is the arm to add back.
- */
 sealed interface AlbumDetailEffect : UiEffect {
     data class RequestDeleteConsent(val token: PendingIntentToken) : AlbumDetailEffect
     data class NavigateToCleanResult(val summary: CleanupSummary) : AlbumDetailEffect
