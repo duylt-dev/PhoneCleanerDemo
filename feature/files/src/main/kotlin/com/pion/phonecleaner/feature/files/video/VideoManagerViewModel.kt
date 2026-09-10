@@ -64,6 +64,7 @@ class VideoManagerViewModel(
             VideoManagerIntent.GrantMorePressed ->
                 sendEffect(VideoManagerEffect.RequestMediaPermission)
 
+            is VideoManagerIntent.FolderSelected -> setState { copy(selectedFolderPath = intent.folderPath) }
             is VideoManagerIntent.SortSelected -> setState { withSort(intent.sort) }
             is VideoManagerIntent.RowToggled ->
                 saveSelection { copy(files = files.toggle(intent.id)) }

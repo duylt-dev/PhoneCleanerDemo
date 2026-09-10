@@ -138,6 +138,7 @@
     <string name="media_sort_newest">Mới nhất</string>
     <string name="media_sort_largest">Lớn nhất</string>
     <string name="media_sort_name">Tên</string>
+    <string name="media_folder_all">ALL</string>
 
     <!-- ── appmanager ────────────────────────────────────────────────────────────────────────── -->
     <string name="app_manager_title">Quản lý ứng dụng</string>

@@ -15,7 +15,9 @@ import com.pion.phonecleaner.domain.model.file.PendingIntentToken
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.feature.files.component.MediaAccess
 import com.pion.phonecleaner.feature.files.component.MediaSort
+import com.pion.phonecleaner.feature.files.component.filteredByFolder
 import com.pion.phonecleaner.feature.files.component.selectableFiles
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * `audio` (`docs/screens/14-file-tools-and-app-manager.md` §4). Replaces `ScreatisActivity` (433 L)
@@ -35,6 +37,7 @@ data class AudioManagerState(
     override val phase: ToolPhase = ToolPhase.Idle,
     val files: SelectableFiles<ScannedFile> = selectableFiles(),
     val access: MediaAccess = MediaAccess.Unknown,
+    val selectedFolderPath: String? = null,
     val sort: MediaSort = MediaSort.NewestFirst,
 
     /** The cursor read hit its bound and published what it had. Never reported as success. */
@@ -55,15 +58,19 @@ data class AudioManagerState(
     val canDelete: Boolean get() = phase == ToolPhase.Ready && selectedCount > 0
 
     val showEmptyState: Boolean
-        get() = phase == ToolPhase.Ready && files.items.isEmpty() && access.canLoad
+        get() = phase == ToolPhase.Ready && visibleItems.isEmpty() && access.canLoad
 
     val showPermissionState: Boolean get() = access == MediaAccess.Denied
+
+    val visibleItems: ImmutableList<ScannedFile>
+        get() = files.items.filteredByFolder(selectedFolderPath)
 }
 
 sealed interface AudioManagerIntent : UiIntent {
     data object ScreenStarted : AudioManagerIntent, FileToolIntent.Rescan
     data class PermissionResolved(val access: MediaAccess) : AudioManagerIntent
     data object GrantPressed : AudioManagerIntent
+    data class FolderSelected(val folderPath: String?) : AudioManagerIntent
     data class SortSelected(val sort: MediaSort) : AudioManagerIntent
     data class RowToggled(override val id: String) : AudioManagerIntent, FileToolIntent.ToggleItem
     data object SelectAllToggled : AudioManagerIntent, FileToolIntent.ToggleSelectAll

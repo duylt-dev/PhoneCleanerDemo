@@ -96,6 +96,24 @@ class AlbumsViewModelTest {
     }
 
     @Test
+    fun `folder and sort intents update the visible album list`() = main.runVmTest {
+        repository.albums.value = AppResult.Success(
+            persistentListOf(
+                album("/DCIM/Camera", count = 2, totalBytes = 400L),
+                album("/Download", count = 5, totalBytes = 200L),
+            ),
+        )
+        val vm = ready()
+
+        vm.onIntent(AlbumsIntent.SortSelected(AlbumSort.LargestFirst))
+        vm.onIntent(AlbumsIntent.FolderSelected("/DCIM/Camera"))
+
+        assertEquals(AlbumSort.LargestFirst, vm.state.value.sort)
+        assertEquals(listOf("/DCIM/Camera"), vm.state.value.visibleAlbums.map { it.folderName })
+        assertEquals(listOf(400L, 200L), vm.state.value.albums.map { it.totalBytes })
+    }
+
+    @Test
     fun `a denied read is an error the screen renders, not a crash out of an unhandled scope`() =
         main.runVmTest {
             repository.albums.value = AppResult.Failure(AppError.PermissionDenied())

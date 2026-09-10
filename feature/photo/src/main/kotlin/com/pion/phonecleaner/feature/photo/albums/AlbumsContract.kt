@@ -8,6 +8,13 @@ import com.pion.phonecleaner.core.mvi.UiState
 import com.pion.phonecleaner.domain.model.photo.PhotoAlbum
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+
+enum class AlbumSort {
+    MostItems,
+    LargestFirst,
+    Name,
+}
 
 /**
  * `albums` — `docs/screens/13-photo-and-media.md` §6.1. Replaces `ExeestiaActivity` (327 L).
@@ -18,15 +25,22 @@ import kotlinx.collections.immutable.persistentListOf
 data class AlbumsState(
     val phase: ToolPhase = ToolPhase.Idle,
     val albums: ImmutableList<PhotoAlbum> = persistentListOf(),
+    val selectedFolderName: String? = null,
+    val sort: AlbumSort = AlbumSort.MostItems,
     val error: AppError? = null,
 ) : UiState {
-    val showEmptyState: Boolean get() = phase == ToolPhase.Ready && albums.isEmpty()
+    val visibleAlbums: ImmutableList<PhotoAlbum>
+        get() = if (selectedFolderName == null) albums else albums.filter { it.folderName == selectedFolderName }.toImmutableList()
+
+    val showEmptyState: Boolean get() = phase == ToolPhase.Ready && visibleAlbums.isEmpty()
     val totalBytes: Long get() = albums.sumOf { it.totalBytes }
 }
 
 sealed interface AlbumsIntent : UiIntent {
     data object ScreenStarted : AlbumsIntent
     data class AlbumOpened(val folderName: String) : AlbumsIntent
+    data class FolderSelected(val folderName: String?) : AlbumsIntent
+    data class SortSelected(val sort: AlbumSort) : AlbumsIntent
     data object CompletionAnimationFinished : AlbumsIntent
     data object BackPressed : AlbumsIntent
 }

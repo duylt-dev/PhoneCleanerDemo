@@ -20,6 +20,7 @@
     <string name="action_retry">Thử lại</string>
     <string name="action_select_all">Chọn tất cả</string>
     <string name="action_clear_selection">Bỏ chọn</string>
+    <string name="action_sort">Sắp xếp</string>
     <string name="state_loading">Đang xử lý…</string>
 
     <plurals name="selection_count">

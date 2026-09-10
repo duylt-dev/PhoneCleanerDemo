@@ -12,7 +12,6 @@ import com.pion.phonecleaner.domain.repository.AnalyticsRepository
 import com.pion.phonecleaner.domain.usecase.LoadAlbumsUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 
 /**
  * `docs/screens/13-photo-and-media.md` §6.2.
@@ -42,6 +41,8 @@ class AlbumsViewModel(
         when (intent) {
             AlbumsIntent.ScreenStarted -> onScreenStarted()
             is AlbumsIntent.AlbumOpened -> sendEffect(AlbumsEffect.OpenAlbum(intent.folderName))
+            is AlbumsIntent.FolderSelected -> setState { copy(selectedFolderName = intent.folderName) }
+            is AlbumsIntent.SortSelected -> setState { copy(sort = intent.sort, albums = albums.sortedBy(intent.sort)) }
             AlbumsIntent.CompletionAnimationFinished -> setState { copy(phase = ToolPhase.Ready) }
             AlbumsIntent.BackPressed -> sendEffect(AlbumsEffect.NavigateBack)
         }
@@ -63,7 +64,7 @@ class AlbumsViewModel(
             copy(
                 // "by count descending, in the reducer" (§6.2). Sorting is deliberately not in the
                 // repository: the fold there has no opinion about how a screen orders its rows.
-                albums = result.value.sortedByDescending { it.count }.toImmutableList(),
+                albums = result.value.sortedBy(sort),
                 // The completion sweep plays once. A later emission from the feed must not send a
                 // Ready screen back through it.
                 phase = if (phase == ToolPhase.Ready) ToolPhase.Ready else ToolPhase.Completing,

@@ -152,6 +152,7 @@
     <string name="media_sort_newest">Newest</string>
     <string name="media_sort_largest">Largest</string>
     <string name="media_sort_name">Name</string>
+    <string name="media_folder_all">ALL</string>
 
     <!-- ── appmanager ────────────────────────────────────────────────────────────────────────── -->
     <string name="app_manager_title">App manager</string>

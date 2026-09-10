@@ -1,5 +1,6 @@
 package com.pion.phonecleaner.feature.files.component
 
+import com.pion.phonecleaner.core.ui.component.list.FolderFilterTab
 import com.pion.phonecleaner.domain.model.file.ScannedFile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -50,3 +51,22 @@ internal fun ImmutableList<ScannedFile>.sortedBy(sort: MediaSort): ImmutableList
         MediaSort.LargestFirst -> sortedByDescending(ScannedFile::sizeBytes)
         MediaSort.Name -> sortedBy { it.name.lowercase() }
     }.toImmutableList()
+
+internal fun ImmutableList<ScannedFile>.filteredByFolder(folderPath: String?): ImmutableList<ScannedFile> =
+    if (folderPath == null) this else filter { it.folderPath == folderPath }.toImmutableList()
+
+internal fun ImmutableList<ScannedFile>.folderTabs(allLabel: String): ImmutableList<FolderFilterTab> {
+    val folders = groupBy { it.folderPath }
+        .entries
+        .sortedWith(
+            compareByDescending<Map.Entry<String, List<ScannedFile>>> { it.value.size }
+                .thenBy { it.key.folderLabel().lowercase() },
+        )
+        .map { (path, rows) -> FolderFilterTab(key = path, label = path.folderLabel(), count = rows.size) }
+    return (listOf(FolderFilterTab(key = null, label = allLabel, count = size)) + folders).toImmutableList()
+}
+
+private val ScannedFile.folderPath: String
+    get() = path.substringBeforeLast('/', missingDelimiterValue = "").ifEmpty { "/" }
+
+private fun String.folderLabel(): String = trimEnd('/').substringAfterLast('/').ifEmpty { this }

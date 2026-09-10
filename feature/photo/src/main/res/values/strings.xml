@@ -35,6 +35,10 @@
     <!-- ── albums ────────────────────────────────────────────────────────────────────────────── -->
     <string name="photo_albums_title">Images</string>
     <string name="photo_albums_empty">No images were found in the folders that could be read.</string>
+    <string name="photo_folder_all">ALL</string>
+    <string name="photo_sort_most_items">Most images</string>
+    <string name="photo_sort_largest">Largest</string>
+    <string name="photo_sort_name">Name</string>
     <plurals name="photo_album_count">
         <item quantity="one">%1$d photo</item>
         <item quantity="other">%1$d photos</item>

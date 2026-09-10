@@ -60,6 +60,7 @@ class AudioManagerViewModel(
 
             is AudioManagerIntent.PermissionResolved -> onAccess(intent.access)
             AudioManagerIntent.GrantPressed -> sendEffect(AudioManagerEffect.RequestMediaPermission)
+            is AudioManagerIntent.FolderSelected -> setState { copy(selectedFolderPath = intent.folderPath) }
             is AudioManagerIntent.SortSelected -> setState { withSort(intent.sort) }
             is AudioManagerIntent.RowToggled ->
                 saveSelection { copy(files = files.toggle(intent.id)) }

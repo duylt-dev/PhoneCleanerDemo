@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.core.ui.component.header.PageHeader
+import com.pion.phonecleaner.core.ui.component.list.FolderFilterBar
+import com.pion.phonecleaner.core.ui.component.list.SortMenuItem
 import com.pion.phonecleaner.core.ui.component.state.EmptyState
 import com.pion.phonecleaner.core.ui.component.state.ErrorCard
 import com.pion.phonecleaner.core.ui.format.rememberByteFormat
@@ -54,6 +56,14 @@ internal fun AlbumsScreen(
     Surface(modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().screenInsetsPadding()) {
             PageHeader(title = stringResource(R.string.photo_albums_title), onBack = { onIntent(AlbumsIntent.BackPressed) })
+            FolderFilterBar(
+                tabs = state.albums.folderTabs(stringResource(R.string.photo_folder_all)),
+                selectedKey = state.selectedFolderName,
+                sort = state.sort,
+                sortItems = albumSortItems(),
+                onFolderSelected = { onIntent(AlbumsIntent.FolderSelected(it)) },
+                onSortSelected = { onIntent(AlbumsIntent.SortSelected(it)) },
+            )
             when (state.phase) {
                 ToolPhase.Scanning -> PhotoScanPanel(
                     label = stringResource(R.string.photo_scanning),
@@ -86,7 +96,7 @@ internal fun AlbumsScreen(
                     ),
                 ) {
                     items(
-                        items = state.albums,
+                        items = state.visibleAlbums,
                         key = { it.folderName },
                         contentType = { AlbumRowContentType },
                     ) { album ->
@@ -134,6 +144,13 @@ private fun AlbumRow(album: PhotoAlbum, onOpen: (String) -> Unit) {
         )
     }
 }
+
+@Composable
+private fun albumSortItems(): List<SortMenuItem<AlbumSort>> = listOf(
+    SortMenuItem(AlbumSort.MostItems, stringResource(R.string.photo_sort_most_items)),
+    SortMenuItem(AlbumSort.LargestFirst, stringResource(R.string.photo_sort_largest)),
+    SortMenuItem(AlbumSort.Name, stringResource(R.string.photo_sort_name)),
+)
 
 /**
  * The cover square. A *position*, not a gap, so it is a named value rather than a `Spacing` step
