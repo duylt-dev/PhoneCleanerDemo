@@ -17,12 +17,14 @@
     <string name="clean_result_headline_threats_removed">Đã xóa</string>
     <string name="clean_result_headline_data_cleared">Đã xóa dữ liệu</string>
     <string name="clean_result_headline_items_cleared">Đã dọn</string>
+    <string name="clean_result_headline_moved_to_trash">Đã chuyển vào Thùng rác</string>
 
     <plurals name="clean_result_item_count">
         <item quantity="other">%1$d mục</item>
     </plurals>
 
     <string name="clean_result_lifetime">Đã thu hồi %1$s kể từ khi bạn cài ứng dụng này</string>
+    <string name="clean_result_trash_note">Được giữ trong 2 ngày, sau đó sẽ bị xóa vĩnh viễn.</string>
     <string name="clean_result_done">Xong</string>
 
 </resources>

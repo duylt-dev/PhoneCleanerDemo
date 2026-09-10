@@ -10,9 +10,11 @@ import com.pion.phonecleaner.domain.model.cleanup.CleanupOutcome
 import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.model.photo.PhotoId
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
+import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
 import com.pion.phonecleaner.domain.usecase.LoadAlbumPhotosUseCase
 import kotlinx.collections.immutable.persistentSetOf
@@ -34,6 +36,7 @@ class AlbumDetailViewModel(
     private val loadAlbumPhotos: LoadAlbumPhotosUseCase,
     private val deletePhotos: DeletePhotosUseCase,
     private val analytics: AnalyticsRepository,
+    private val permissions: PermissionRepository,
     log: AppLogger = AppLogger.NoOp,
 ) : MviViewModel<AlbumDetailState, AlbumDetailIntent, AlbumDetailEffect>(
     AlbumDetailState(folderName = savedStateHandle[FOLDER_NAME_ARG] ?: ""),
@@ -48,7 +51,12 @@ class AlbumDetailViewModel(
             AlbumDetailIntent.ScreenStarted -> onScreenStarted()
             is AlbumDetailIntent.PhotoToggled -> toggle(intent.id)
             AlbumDetailIntent.SelectAllToggled -> toggleAll()
-            AlbumDetailIntent.DeletePressed -> setState { copy(isDeleteConfirmVisible = true) }
+            AlbumDetailIntent.DeletePressed -> setState {
+                copy(
+                    isDeleteConfirmVisible = true,
+                    trashEligible = permissions.isGranted(AppPermission.AllFiles),
+                )
+            }
             AlbumDetailIntent.DeleteDismissed -> setState { copy(isDeleteConfirmVisible = false) }
             AlbumDetailIntent.DeleteConfirmed -> onDeleteConfirmed()
             is AlbumDetailIntent.DeleteConsentResult -> onConsentResult(intent.granted)
@@ -94,12 +102,13 @@ class AlbumDetailViewModel(
     }
 
     private fun onDeleteConfirmed() {
+        val requireTrash = currentState.trashEligible
         val ids = currentState.selectedIds.toList()
         setState { copy(isDeleteConfirmVisible = false) }
         if (ids.isEmpty()) return
         setState { copy(phase = ToolPhase.Deleting, consentDeclined = false, failedCount = 0) }
         launchSafely(onError = ::onFailure) {
-            when (val result = deletePhotos(ids)) {
+            when (val result = deletePhotos(ids, FeatureId.ImageManager, requireTrash = requireTrash)) {
                 is AppResult.Failure -> onFailure(result.error)
                 is AppResult.Success -> onOutcome(result.value)
             }
@@ -107,7 +116,8 @@ class AlbumDetailViewModel(
     }
 
     private fun onOutcome(outcome: DeleteOutcome) = when (outcome) {
-        // The ordinary API 30+ path: the system, not this app, asks the user.
+        // The ordinary API 30+ path: the system, not this app, asks the user. Unreachable on the
+        // trash path — no delete request is ever built there.
         is DeleteOutcome.PendingConsent -> {
             setState { copy(pendingConsentUris = outcome.ids.toImmutableSet()) }
             sendEffect(AlbumDetailEffect.RequestDeleteConsent(outcome.request))
@@ -115,7 +125,7 @@ class AlbumDetailViewModel(
 
         is DeleteOutcome.Deleted -> {
             val removed = outcome.ids.toSet()
-            prune(removed, outcome.freedBytes, outcome.failedPaths.size)
+            prune(removed, outcome.freedBytes, outcome.failedPaths.size, outcome.recoverable)
         }
 
         DeleteOutcome.NothingResolved -> setState { copy(phase = ToolPhase.Ready) }
@@ -137,14 +147,16 @@ class AlbumDetailViewModel(
             return
         }
         val freed = currentState.photos.filter { it.contentUri in pending }.sumOf { it.sizeBytes }
-        prune(pending, freed, failedCount = 0)
+        // The system already removed the rows permanently: this path is only reached on the
+        // no-trash branch (`PendingConsent` cannot happen once the bin is available).
+        prune(pending, freed, failedCount = 0, recoverable = false)
     }
 
     /**
      * Prunes in place **before** the navigation Effect, so the list is already correct if the user
      * comes back. The competitor never refreshes its adapter; it leaves the screen.
      */
-    private fun prune(removedUris: Set<String>, freedBytes: Long, failedCount: Int) {
+    private fun prune(removedUris: Set<String>, freedBytes: Long, failedCount: Int, recoverable: Boolean) {
         val remaining = currentState.photos.filterNot { it.contentUri in removedUris }
         val removedIds = currentState.photos.filter { it.contentUri in removedUris }.map { it.id }.toSet()
         setState {
@@ -163,7 +175,11 @@ class AlbumDetailViewModel(
                     feature = FeatureId.ImageManager,
                     freedBytes = freedBytes,
                     itemCount = removedUris.size,
-                    outcome = if (freedBytes > 0L) CleanupOutcome.Cleaned else CleanupOutcome.NothingFound,
+                    outcome = when {
+                        freedBytes <= 0L -> CleanupOutcome.NothingFound
+                        recoverable -> CleanupOutcome.MovedToTrash
+                        else -> CleanupOutcome.Cleaned
+                    },
                 ),
             ),
         )

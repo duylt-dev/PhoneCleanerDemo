@@ -51,6 +51,7 @@ appcompat                   = "1.8.0"         # ONLY for AppCompatDelegate local
 firebaseBom                 = "34.18.0"       # messaging only; SDK internals out of scope
 turbine                     = "1.2.1"
 robolectric                 = "4.16.1"
+androidTestRunner           = "1.7.0"     # androidx.test:runner for androidTest on devices
 # trustlook = UNKNOWN — no Maven coordinate exists anywhere in the corpus, only decompiled classes.
 #             :feature:antivirus cannot build until procurement resolves it (r3-04:1222).
 
@@ -122,6 +123,7 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 # ------------------------------------------------------------------ Test (no mocking library — hand-written fakes only, LLM.md §9)
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidTestRunner" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

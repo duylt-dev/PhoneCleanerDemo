@@ -7,12 +7,14 @@ import com.pion.phonecleaner.core.mvi.MviViewModel
 import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.model.photo.BlurScanProgress
 import com.pion.phonecleaner.domain.model.photo.PhotoId
 import com.pion.phonecleaner.domain.model.photo.PhotoSession
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
 import com.pion.phonecleaner.domain.repository.BlurryPhotoSessionStore
+import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
 import com.pion.phonecleaner.domain.usecase.ScanBlurryPhotosUseCase
@@ -41,6 +43,7 @@ class BlurryPhotosViewModel(
     private val session: BlurryPhotoSessionStore,
     private val markFeatureUsed: MarkFeatureUsedUseCase,
     private val analytics: AnalyticsRepository,
+    private val permissions: PermissionRepository,
     log: AppLogger = AppLogger.NoOp,
 ) : MviViewModel<BlurryPhotosState, BlurryPhotosIntent, BlurryPhotosEffect>(
     BlurryPhotosState(),
@@ -62,7 +65,12 @@ class BlurryPhotosViewModel(
             is BlurryPhotosIntent.TierToggled ->
                 currentState.selectionAfterTierToggle(intent.groupKey)?.let(session::select)
             BlurryPhotosIntent.SelectAllToggled -> session.select(currentState.selectionAfterSelectAll())
-            BlurryPhotosIntent.DeletePressed -> setState { copy(isDeleteConfirmVisible = true) }
+            BlurryPhotosIntent.DeletePressed -> setState {
+                copy(
+                    isDeleteConfirmVisible = true,
+                    trashEligible = permissions.isGranted(AppPermission.AllFiles),
+                )
+            }
             BlurryPhotosIntent.DeleteDismissed -> setState { copy(isDeleteConfirmVisible = false) }
             BlurryPhotosIntent.DeleteConfirmed -> onDeleteConfirmed()
             BlurryPhotosIntent.CompletionAnimationFinished -> setState { copy(phase = ToolPhase.Ready) }
@@ -131,12 +139,13 @@ class BlurryPhotosViewModel(
     }
 
     private fun onDeleteConfirmed() {
+        val requireTrash = currentState.trashEligible
         val ids = currentState.selectedIds.toList()
         setState { copy(isDeleteConfirmVisible = false) }
         if (ids.isEmpty()) return
         setState { copy(phase = ToolPhase.Deleting, consentDeclined = false, failedCount = 0) }
         launchSafely(onError = ::onFailure) {
-            when (val result = deletePhotos(ids)) {
+            when (val result = deletePhotos(ids, FeatureId.BlurryPhotos, requireTrash = requireTrash)) {
                 is AppResult.Failure -> onFailure(result.error)
                 is AppResult.Success -> onOutcome(result.value)
             }
@@ -144,14 +153,15 @@ class BlurryPhotosViewModel(
     }
 
     private fun onOutcome(outcome: DeleteOutcome) = when (outcome) {
-        // The ordinary API 30+ path: the system, not this app, asks the user.
+        // The ordinary API 30+ path: the system, not this app, asks the user. Unreachable on the
+        // trash path — no delete request is ever built there.
         is DeleteOutcome.PendingConsent -> {
             setState { copy(pendingConsentUris = outcome.ids.toImmutableSet()) }
             sendEffect(BlurryPhotosEffect.RequestDeleteConsent(outcome.request))
         }
 
         is DeleteOutcome.Deleted ->
-            prune(outcome.ids.toSet(), outcome.freedBytes, outcome.failedPaths.size)
+            prune(outcome.ids.toSet(), outcome.freedBytes, outcome.failedPaths.size, outcome.recoverable)
         DeleteOutcome.NothingResolved -> setState { copy(phase = ToolPhase.Ready) }
     }
 
@@ -163,8 +173,9 @@ class BlurryPhotosViewModel(
             }
             return
         }
-        // The system has already removed the rows; the freed bytes are what this screen still holds.
-        prune(pending, currentState.bytesForUris(pending), failedCount = 0)
+        // The system has already removed the rows permanently; this path is only reached on the
+        // no-trash branch. The freed bytes are what this screen still holds.
+        prune(pending, currentState.bytesForUris(pending), failedCount = 0, recoverable = false)
     }
 
     /**
@@ -172,7 +183,7 @@ class BlurryPhotosViewModel(
      * tier emptied by the delete goes with them; a tier that falls to **one** member stays — where
      * `InMemoryBlurryPhotoSessionStore.remove` parts company with the similar store's.
      */
-    private fun prune(removedUris: Set<String>, freedBytes: Long, failedCount: Int) {
+    private fun prune(removedUris: Set<String>, freedBytes: Long, failedCount: Int, recoverable: Boolean) {
         val removedIds = currentState.idsForUris(removedUris)
         session.remove(removedIds)
         setState {
@@ -184,7 +195,7 @@ class BlurryPhotosViewModel(
         )
         sendEffect(
             BlurryPhotosEffect.NavigateToCleanResult(
-                blurryCleanupSummary(freedBytes, removedIds.size),
+                blurryCleanupSummary(freedBytes, removedIds.size, recoverable),
             ),
         )
     }

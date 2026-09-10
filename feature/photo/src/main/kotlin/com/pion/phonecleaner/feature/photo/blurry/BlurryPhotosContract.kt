@@ -48,6 +48,12 @@ data class BlurryPhotosState(
     val skipped: Int = 0,
     val isDeleteConfirmVisible: Boolean = false,
     /**
+     * Set when the delete confirm opens, from `permissions.isGranted(AppPermission.AllFiles)` — the
+     * same permission read the files cluster's confirms use (plan `260908-0801-trash-bin`, Phase 07).
+     * The confirmed mode is binding: a refused move leaves the original intact.
+     */
+    val trashEligible: Boolean = false,
+    /**
      * The `contentUri`s the system is currently asking the user about. `DeleteOutcome.PendingConsent`
      * is the **normal** API 30+ path, not an error, and this is the state that renders it (§0.1).
      */

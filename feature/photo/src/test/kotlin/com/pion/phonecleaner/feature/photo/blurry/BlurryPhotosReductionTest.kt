@@ -90,7 +90,16 @@ class BlurryPhotosReductionTest {
     fun `a cleanup that freed nothing is NothingFound, not Cleaned`() {
         assertEquals(
             com.pion.phonecleaner.domain.model.cleanup.CleanupOutcome.NothingFound,
-            blurryCleanupSummary(freedBytes = 0L, itemCount = 0).outcome,
+            blurryCleanupSummary(freedBytes = 0L, itemCount = 0, recoverable = false).outcome,
+        )
+    }
+
+    /** A recoverable run is MovedToTrash, never Cleaned — the bytes have not left the device. */
+    @Test
+    fun `a recoverable cleanup is MovedToTrash, not Cleaned`() {
+        assertEquals(
+            com.pion.phonecleaner.domain.model.cleanup.CleanupOutcome.MovedToTrash,
+            blurryCleanupSummary(freedBytes = 900L, itemCount = 2, recoverable = true).outcome,
         )
     }
 }

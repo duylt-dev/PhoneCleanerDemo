@@ -9,8 +9,10 @@ import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
 import com.pion.phonecleaner.domain.model.file.FileOrigin
+import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
+import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.LoadVideosUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
@@ -40,6 +42,7 @@ class VideoManagerViewModel(
     private val markFeatureUsed: MarkFeatureUsedUseCase,
     private val mimeTypeOf: MimeTypeUseCase,
     private val analytics: AnalyticsRepository,
+    private val permissions: PermissionRepository,
     log: AppLogger,
 ) : MviViewModel<VideoManagerState, VideoManagerIntent, VideoManagerEffect>(
     VideoManagerState(),
@@ -129,10 +132,14 @@ class VideoManagerViewModel(
     }
 
     private fun onDeletePressed() {
-        if (currentState.canDelete) setState { copy(confirm = deleteConfirmSpec(selectedCount)) }
+        if (currentState.canDelete) {
+            val trashEligible = permissions.isGranted(AppPermission.AllFiles)
+            setState { copy(confirm = deleteConfirmSpec(selectedCount, trashEligible), trashEligible = trashEligible) }
+        }
     }
 
     private fun runDelete(ids: Set<String>) {
+        val requireTrash = currentState.trashEligible
         val targets = currentState.files.items.filter { it.id in ids }
         if (targets.isEmpty()) {
             setState { copy(confirm = null) }
@@ -142,7 +149,7 @@ class VideoManagerViewModel(
         analytics.track(AnalyticsEvent.CleanRequested(targets.sumOf { it.sizeBytes }, targets.size))
         setState { copy(confirm = null, phase = ToolPhase.Deleting, failedCount = 0) }
         launchSafely(onError = ::onFailure) {
-            when (val result = deleteFiles(targets)) {
+            when (val result = deleteFiles(targets, FeatureId.VideoManager, requireTrash = requireTrash)) {
                 is AppResult.Failure -> onFailure(result.error)
                 is AppResult.Success -> reduceDelete(result.value, targets.size)
             }

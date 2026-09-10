@@ -81,6 +81,8 @@ data class DuplicatesState(
 
     /** A dialog is STATE, never an Effect (`LLM.md` §7.4). */
     val confirm: ConfirmSpec? = null,
+    /** Mode stated by the confirmation; retained through the system consent round trip. */
+    val trashEligible: Boolean = false,
 
     /** The "View" sheet holds an **id**, not the object; `null` = closed (§2.1). */
     val previewingId: String? = null,

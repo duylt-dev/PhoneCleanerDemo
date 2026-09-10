@@ -116,7 +116,8 @@ internal object MediaStoreQuery {
             LEGACY_EXTERNAL_VOLUME
         }
 
-    private const val LEGACY_EXTERNAL_VOLUME = "external"
+    /** `internal`, not `private`: `MediaStoreAbsolutePath.kt`'s fallback path needs the same volume name. */
+    internal const val LEGACY_EXTERNAL_VOLUME = "external"
 }
 
 /**

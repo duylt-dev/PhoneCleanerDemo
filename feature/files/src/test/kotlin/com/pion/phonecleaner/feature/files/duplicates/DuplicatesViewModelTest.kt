@@ -21,6 +21,8 @@ import com.pion.phonecleaner.feature.files.testing.FakeCleanupLedger
 import com.pion.phonecleaner.feature.files.testing.FakeDuplicateFinder
 import com.pion.phonecleaner.feature.files.testing.FakeFeatureUsageRepository
 import com.pion.phonecleaner.feature.files.testing.FakeFileDeleter
+import com.pion.phonecleaner.feature.files.testing.FakePermissionRepository
+import com.pion.phonecleaner.feature.files.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.files.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.files.testing.runVmTest
 import com.pion.phonecleaner.feature.files.testing.settle
@@ -45,10 +47,11 @@ internal class DuplicatesViewModelTest {
     private fun viewModel(savedState: SavedStateHandle = SavedStateHandle()) = DuplicatesViewModel(
         savedState = savedState,
         findDuplicates = FindDuplicatesUseCase(finder),
-        deleteFiles = DeleteFilesUseCase(deleter, FakeCleanupLedger()),
+        deleteFiles = DeleteFilesUseCase(deleter, FakeTrashRepository(), FakeCleanupLedger()),
         markFeatureUsed = MarkFeatureUsedUseCase(featureUsage),
         mimeTypeOf = MimeTypeUseCase(),
         analytics = analytics,
+        permissions = FakePermissionRepository(),
         log = AppLogger.NoOp,
     )
 

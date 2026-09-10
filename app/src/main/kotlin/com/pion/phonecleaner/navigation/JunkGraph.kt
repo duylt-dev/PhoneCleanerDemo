@@ -43,15 +43,20 @@ internal fun NavGraphBuilder.junkGraph(navController: NavHostController) {
             // UNKNOWN — the deleted-item count. `JunkCleanEffect` carries bytes and failures,
             // not a count, and `docs/screens/12-junk-cleaning.md:618` names only `freedBytes`.
             // `itemCount = 0` renders no item line rather than a fabricated one.
-            onCleaned = { freedBytes, _ ->
+            //
+            // `recoverable` comes from `CleanOutcome.recoverable` — `TrashRepository.isAvailable()`
+            // at the moment the paths actually moved, not a permission guess. Without it this
+            // builder can only say `Cleaned`, and a run that moved every path into the bin would
+            // report "Removed" for files still sitting on the volume (plan 260908-0801 phase 07).
+            onCleaned = { freedBytes, _, recoverable ->
                 navController.navigate(
                     Route.CleanResult(
                         feature = FeatureId.JunkClean,
                         freedBytes = freedBytes,
-                        outcome = if (freedBytes > 0L) {
-                            CleanupOutcome.Cleaned
-                        } else {
-                            CleanupOutcome.NothingFound
+                        outcome = when {
+                            freedBytes <= 0L -> CleanupOutcome.NothingFound
+                            recoverable -> CleanupOutcome.MovedToTrash
+                            else -> CleanupOutcome.Cleaned
                         },
                     ),
                 ) { popUpTo<Route.JunkClean> { inclusive = true } }

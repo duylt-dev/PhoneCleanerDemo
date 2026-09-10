@@ -59,6 +59,9 @@ data class CleanResultState(
         CleanupOutcome.ThreatsRemoved -> false
         CleanupOutcome.DataCleared -> false
         CleanupOutcome.ItemsCleared -> summary.freedBytes > 0L
+        // A size is still what the run was about — the bytes just went to the bin instead of
+        // leaving the device (plan 260908-0801-trash-bin, Phase 07).
+        CleanupOutcome.MovedToTrash -> true
     }
 }
 

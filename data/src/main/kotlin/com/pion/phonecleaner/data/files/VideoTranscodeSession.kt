@@ -1,5 +1,3 @@
-@file:OptIn(UnstableApi::class)
-
 package com.pion.phonecleaner.data.files
 
 import android.content.Context
@@ -38,6 +36,7 @@ import kotlin.coroutines.resumeWithException
  * `IllegalStateException` off the application thread (`Transformer.java:1147-1154`, verified in
  * `reports/researcher-01-media3-transformer-api.md` §8, §10).
  */
+@androidx.annotation.OptIn(UnstableApi::class)
 internal class VideoTranscodeSession(
     private val context: Context,
     private val log: AppLogger,

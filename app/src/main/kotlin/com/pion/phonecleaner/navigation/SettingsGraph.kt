@@ -16,6 +16,7 @@ internal fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
             onNavigateToLanguage = { navController.navigate(Route.Language) },
             onNavigateToAbout = { navController.navigate(Route.About) },
             onNavigateToPermissionCentre = { navController.navigate(Route.PermissionCentre) },
+            onNavigateToTrash = { navController.navigate(Route.Trash) },
             onNavigateBack = { navController.popBackStack() },
         )
     }

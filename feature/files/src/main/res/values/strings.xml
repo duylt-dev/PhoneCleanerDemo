@@ -31,6 +31,12 @@
         <item quantity="one">%1$d file will be removed from this device. This cannot be undone.</item>
         <item quantity="other">%1$d files will be removed from this device. This cannot be undone.</item>
     </plurals>
+    <!-- Shown instead of files_confirm_delete_body when the bin is available: the reducer picks by
+         AppPermission.AllFiles (docs/plans/260908-0801-trash-bin, Phase 07). -->
+    <plurals name="files_confirm_trash_body">
+        <item quantity="one">%1$d file will be moved to Trash. You can restore it there for 2 days.</item>
+        <item quantity="other">%1$d files will be moved to Trash. You can restore them there for 2 days.</item>
+    </plurals>
 
     <!-- ── bigfiles ──────────────────────────────────────────────────────────────────────────── -->
     <string name="big_files_title">Large files</string>
@@ -116,6 +122,9 @@
     <string name="video_compress_delete_originals">Remove originals and free %1$s</string>
     <string name="video_compress_delete_confirm_title">Remove the original videos?</string>
     <string name="video_compress_delete_confirm_body">The smaller copies stay. This cannot be undone.</string>
+    <!-- Shown instead of video_compress_delete_confirm_body when the bin is available (plan
+         260908-0801-trash-bin, Phase 07). -->
+    <string name="video_compress_delete_trash_body">The smaller copies stay. The originals go to Trash for 2 days.</string>
     <string name="video_compress_no_space">Not enough free space. About %1$s more is needed before this can run.</string>
 
     <!-- ── audio ─────────────────────────────────────────────────────────────────────────────── -->
@@ -172,6 +181,12 @@
     <plurals name="whatsapp_confirm_body">
         <item quantity="one">%1$d file will be removed from this device. This cannot be undone.</item>
         <item quantity="other">%1$d files will be removed from this device. This cannot be undone.</item>
+    </plurals>
+    <!-- Shown instead of whatsapp_confirm_body when the bin is available (plan 260908-0801-trash-bin,
+         Phase 07). -->
+    <plurals name="whatsapp_confirm_trash_body">
+        <item quantity="one">%1$d file will be moved to Trash. You can restore it there for 2 days.</item>
+        <item quantity="other">%1$d files will be moved to Trash. You can restore them there for 2 days.</item>
     </plurals>
     <string name="whatsapp_stop_title">Stop removing?</string>
     <plurals name="whatsapp_stop_body">

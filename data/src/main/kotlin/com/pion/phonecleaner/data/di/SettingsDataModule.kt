@@ -49,19 +49,23 @@ val settingsDataModule = module {
     /**
      * PENDING OWNER DECISION 4, and a **binding that must be reconciled, not duplicated**.
      *
-     * §7.1 assigns `ResidentWidgetSettingsRepository` to `backgroundModule`, which does not exist
-     * yet; §8 open item 1 records that the name is not in `docs/system-architecture.md` §4.1's alias
-     * table because the widget became opt-in after the research closed. It is declared here so the
-     * settings switch works at all. **When `backgroundModule` is written, move this line — do not
-     * add a second one:** `WidgetRefreshWorker` and this switch must read the same flag, and two
-     * `single`s over one key is a load-order coin flip (`LLM.md` §6.4).
+     * §7.1 assigns `ResidentWidgetSettingsRepository` to `backgroundModule`. That module now EXISTS
+     * (`BackgroundModule.kt`, written 2026-09-08 for `TrashPurgeWorker`) and this line has still not
+     * moved — deliberately, and recorded as `LLM.md` §11 row 16. §8 open item 1 records that the name
+     * is not in `docs/system-architecture.md` §4.1's alias table because the widget became opt-in
+     * after the research closed. **Move this line — do not add a second one:** `WidgetRefreshWorker`
+     * and this switch must read the same flag, and two `single`s over one key is a load-order coin
+     * flip (`LLM.md` §6.4). The move belongs to a change that owns the settings cluster; the trash
+     * change did not, and relocating a working binding it could not test would have been the riskier
+     * half of the same rule.
      */
     single<ResidentWidgetSettingsRepository> { DataStoreResidentWidgetSettings(get(), get(), get()) }
 
     /**
-     * Likewise `backgroundModule`'s by §7.1, and likewise homeless until it exists. `PushRepository`
-     * is bound here because `PushMessagingService` — a manifest component in this module — resolves
-     * it, and because the debug bench drives the same method. **Move, do not duplicate.**
+     * Likewise `backgroundModule`'s by §7.1, and likewise still here now that it exists (`LLM.md`
+     * §11 row 16). `PushRepository` is bound here because `PushMessagingService` — a manifest
+     * component in this module — resolves it, and because the debug bench drives the same method.
+     * **Move, do not duplicate.**
      */
     single<PushRepository> { InertPushRepository(get()) }
 }

@@ -27,6 +27,9 @@
     <plurals name="files_confirm_delete_body">
         <item quantity="other">%1$d tệp sẽ bị xóa khỏi thiết bị này. Việc này không thể hoàn tác.</item>
     </plurals>
+    <plurals name="files_confirm_trash_body">
+        <item quantity="other">%1$d tệp sẽ được chuyển vào Thùng rác. Bạn có thể khôi phục trong 2 ngày.</item>
+    </plurals>
 
     <!-- ── bigfiles ──────────────────────────────────────────────────────────────────────────── -->
     <string name="big_files_title">Tệp dung lượng lớn</string>
@@ -107,6 +110,7 @@
     <string name="video_compress_delete_originals">Xoá bản gốc, giải phóng %1$s</string>
     <string name="video_compress_delete_confirm_title">Xoá các video gốc?</string>
     <string name="video_compress_delete_confirm_body">Bản nhỏ hơn vẫn được giữ. Không thể hoàn tác.</string>
+    <string name="video_compress_delete_trash_body">Bản nhỏ hơn vẫn được giữ. Bản gốc sẽ được chuyển vào Thùng rác trong 2 ngày.</string>
     <string name="video_compress_no_space">Không đủ dung lượng trống. Cần thêm khoảng %1$s trước khi chạy.</string>
 
     <!-- ── audio ─────────────────────────────────────────────────────────────────────────────── -->
@@ -158,6 +162,9 @@
     <string name="whatsapp_confirm_title">Xóa những nội dung WhatsApp đã chọn?</string>
     <plurals name="whatsapp_confirm_body">
         <item quantity="other">%1$d tệp sẽ bị xóa khỏi thiết bị này. Việc này không thể hoàn tác.</item>
+    </plurals>
+    <plurals name="whatsapp_confirm_trash_body">
+        <item quantity="other">%1$d tệp sẽ được chuyển vào Thùng rác. Bạn có thể khôi phục trong 2 ngày.</item>
     </plurals>
     <string name="whatsapp_stop_title">Dừng xóa?</string>
     <plurals name="whatsapp_stop_body">

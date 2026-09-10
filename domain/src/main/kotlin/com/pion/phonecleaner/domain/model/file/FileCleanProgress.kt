@@ -32,5 +32,11 @@ sealed interface FileCleanProgress {
         val freedBytes: Long,
         val deletedCount: Int,
         val failedCount: Int,
+        /**
+         * True when [freedBytes] went into the bin instead of leaving the device (plan
+         * `260908-0801-trash-bin`, Phase 07) — "bytes moved", never credited to `CleanupLedger`.
+         * Defaulted so existing construction sites compile unchanged.
+         */
+        val recoverable: Boolean = false,
     ) : FileCleanProgress
 }

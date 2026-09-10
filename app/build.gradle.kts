@@ -74,10 +74,15 @@ dependencies {
     implementation(project(":feature:device"))
     implementation(project(":feature:network"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:trash"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.bundles.koin)
+    // workManagerFactory() is an extension from koin-androidx-workmanager, which :data declares with
+    // `implementation` — a scope Gradle does NOT expose to consumers. :app calls the extension, so
+    // :app needs its own line. The version still comes from the catalogue (LLM.md §10.3).
+    implementation(libs.koin.androidx.workmanager)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlinx.serialization.json)

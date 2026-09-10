@@ -51,7 +51,10 @@ val storageDataModule = module {
 
     single<StorageRootProvider> { AndroidStorageRootProvider(androidContext(), get(), get()) }
 
-    single<StorageScanner> { DefaultStorageScanner(androidContext(), get()) }
+    // The third argument is `TrashRoots` (plan 260908-0801 phase 03). Without it the scanner's
+    // exclusion is inert and an all-files walk lists every trashed file straight back into big files,
+    // duplicates and the junk rules — so the junk cleaner would delete what the user can still restore.
+    single<StorageScanner> { DefaultStorageScanner(androidContext(), get(), get()) }
 
     single<MediaStoreRepository> { DefaultMediaStoreRepository(androidContext(), get()) }
 

@@ -58,6 +58,9 @@
     <string name="junk_clean_finished">Finished</string>
     <string name="junk_clean_stop_title">Stop cleaning?</string>
     <string name="junk_clean_stop_body">Files already removed stay removed. The rest are left alone.</string>
+    <!-- Shown instead of junk_clean_stop_body when the bin is available (plan 260908-0801-trash-bin,
+         Phase 07). -->
+    <string name="junk_clean_stop_body_trash">What has already moved stays in Trash. The rest is left alone.</string>
     <string name="junk_clean_stop_confirm">Stop</string>
     <string name="junk_clean_access_lost_title">Storage access is no longer granted</string>
     <string name="junk_clean_access_lost_body">Nothing has been removed. Allow access again to continue.</string>

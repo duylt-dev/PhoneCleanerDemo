@@ -4,6 +4,9 @@ import com.pion.phonecleaner.core.common.error.AppError
 import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.file.FileKind
+import com.pion.phonecleaner.domain.model.file.FileOrigin
+import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.domain.model.photo.CompressStep
 import com.pion.phonecleaner.domain.model.photo.CompressionEstimate
 import com.pion.phonecleaner.domain.model.photo.Photo
@@ -84,7 +87,31 @@ internal class FakePhotoRepository(
         deletedIds = ids
         return nextDelete
     }
+
+    /**
+     * The same `Photo -> ScannedFile` shape `MediaStorePhotoRepository.resolve` builds — `id =
+     * contentUri`, so `DeleteOutcome.Deleted.ids` still maps back to `photo.contentUri in outcome.ids`
+     * in every reducer under test (plan `260908-0801-trash-bin`, Phase 07).
+     */
+    override suspend fun resolve(ids: List<PhotoId>): AppResult<ImmutableList<ScannedFile>> {
+        val wanted = ids.toSet()
+        return AppResult.Success(
+            library.filter { it.id in wanted }.map { it.toFakeScannedFile() }.toImmutableList(),
+        )
+    }
 }
+
+private fun Photo.toFakeScannedFile(): ScannedFile = ScannedFile(
+    id = contentUri,
+    path = "$folderName/$displayName",
+    name = displayName,
+    sizeBytes = sizeBytes,
+    kind = FileKind.Image,
+    origin = FileOrigin.MediaStoreEntry(contentUri),
+)
+
+// FakeTrashRepository and FakePermissionRepository live in PhotoTrashFakes.kt — split out the way
+// PhotoScanFakes.kt already is, one file per concern (plan 260908-0801-trash-bin, Phase 07).
 
 internal class FakePhotoCompressor(
     var steps: List<CompressStep> = emptyList(),

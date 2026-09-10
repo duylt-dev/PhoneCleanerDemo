@@ -45,6 +45,7 @@
     <string name="junk_clean_finished">Đã xong</string>
     <string name="junk_clean_stop_title">Dừng dọn?</string>
     <string name="junk_clean_stop_body">Những tệp đã xóa vẫn ở trạng thái đã xóa. Phần còn lại được giữ nguyên.</string>
+    <string name="junk_clean_stop_body_trash">Những gì đã được chuyển vẫn ở trong Thùng rác. Phần còn lại được giữ nguyên.</string>
     <string name="junk_clean_stop_confirm">Dừng</string>
     <string name="junk_clean_access_lost_title">Quyền truy cập bộ nhớ không còn được cấp</string>
     <string name="junk_clean_access_lost_body">Chưa có gì bị xóa. Hãy cho phép truy cập lại để tiếp tục.</string>

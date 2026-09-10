@@ -63,6 +63,15 @@ internal object HomeSections {
      * [FeatureId.VideoCompressor] sits directly after [FeatureId.VideoManager] for the same reason
      * [FeatureId.BlurryPhotos] sits after [FeatureId.SimilarPhotos] — a reader who just listed their
      * videos is the reader looking for a way to shrink them. It has no counterpart in `x1()`.
+     *
+     * [FeatureId.Trash] closes the run rather than opening it: every tile above it can put something
+     * in the bin, so it is where a reader looks after using one. It has no counterpart in `x1()` — the
+     * competitor has no bin.
+     *
+     * **Placement is an owner decision, not an inference from what this tile does.** A trash does not
+     * itself save space — it holds bytes back for a retention window rather than freeing them — so
+     * "Privacy and access" below was the more literal fit. Shown that distinction, the owner still
+     * chose to close this run with it (plan 260908-0801, open question 2).
      */
     private val saveSpaceFeatures = persistentListOf(
         FeatureId.BigFiles,
@@ -75,6 +84,7 @@ internal object HomeSections {
         FeatureId.VideoManager,
         FeatureId.VideoCompressor,
         FeatureId.AudioManager,
+        FeatureId.Trash,
     )
 
     /** `x1()` row 4 — the privacy and access tiles. */

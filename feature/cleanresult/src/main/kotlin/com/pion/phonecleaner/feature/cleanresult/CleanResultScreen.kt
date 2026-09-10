@@ -103,6 +103,17 @@ private fun ResultHeadline(state: CleanResultState, onIntent: (CleanResultIntent
             // to sit through — the photo-privacy strip removes location data and frees zero bytes.
             NoBytesHeadline(state, itemLine, onIntent)
         }
+        // The second line a MovedToTrash run owes: the bytes just counted up are not gone yet
+        // (plan 260908-0801-trash-bin, Phase 07) — CleanupLedger was not written for this run.
+        if (state.summary.outcome == CleanupOutcome.MovedToTrash) {
+            Text(
+                text = stringResource(R.string.clean_result_trash_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = ScreenGutter),
+            )
+        }
         if (state.lifetimeFreedBytes > 0L) {
             Text(
                 text = stringResource(
@@ -148,4 +159,5 @@ private fun CleanResultState.outcomeHeadlineRes(): Int = when (summary.outcome) 
     CleanupOutcome.ThreatsRemoved -> R.string.clean_result_headline_threats_removed
     CleanupOutcome.DataCleared -> R.string.clean_result_headline_data_cleared
     CleanupOutcome.ItemsCleared -> R.string.clean_result_headline_items_cleared
+    CleanupOutcome.MovedToTrash -> R.string.clean_result_headline_moved_to_trash
 }

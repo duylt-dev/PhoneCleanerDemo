@@ -18,6 +18,7 @@ import com.pion.phonecleaner.feature.files.testing.FakeCleanupLedger
 import com.pion.phonecleaner.feature.files.testing.FakeFeatureUsageRepository
 import com.pion.phonecleaner.feature.files.testing.FakeFileDeleter
 import com.pion.phonecleaner.feature.files.testing.FakePermissionRepository
+import com.pion.phonecleaner.feature.files.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.files.testing.FakeWhatsAppScanner
 import com.pion.phonecleaner.feature.files.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.files.testing.runVmTest
@@ -43,7 +44,7 @@ internal class WhatsAppCleanerViewModelTest {
 
     private fun viewModel() = WhatsAppCleanerViewModel(
         scanWhatsApp = ScanWhatsAppUseCase(scanner),
-        cleanFiles = CleanFilesUseCase(deleter, ledger),
+        cleanFiles = CleanFilesUseCase(deleter, FakeTrashRepository(), ledger),
         appControl = appControl,
         permissions = FakePermissionRepository(),
         markFeatureUsed = MarkFeatureUsedUseCase(FakeFeatureUsageRepository()),

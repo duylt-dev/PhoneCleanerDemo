@@ -11,6 +11,12 @@ import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.domain.model.file.WalkConfig
 import com.pion.phonecleaner.domain.model.file.WhatsAppScanProgress
 import com.pion.phonecleaner.domain.model.permission.AppPermission
+import com.pion.phonecleaner.domain.model.trash.TrashDirectoryRequest
+import com.pion.phonecleaner.domain.model.trash.TrashEntry
+import com.pion.phonecleaner.domain.model.trash.TrashMoveOutcome
+import com.pion.phonecleaner.domain.model.trash.TrashPurgeOutcome
+import com.pion.phonecleaner.domain.model.trash.TrashRestoreOutcome
+import com.pion.phonecleaner.domain.model.trash.TrashSummary
 import com.pion.phonecleaner.domain.model.video.VideoCandidate
 import com.pion.phonecleaner.domain.model.video.VideoCodecOption
 import com.pion.phonecleaner.domain.model.video.VideoCompressProgress
@@ -30,6 +36,7 @@ import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.repository.StorageInfoRepository
 import com.pion.phonecleaner.domain.repository.StorageRootProvider
 import com.pion.phonecleaner.domain.repository.StorageScanner
+import com.pion.phonecleaner.domain.repository.TrashRepository
 import com.pion.phonecleaner.domain.repository.VideoCandidateRepository
 import com.pion.phonecleaner.domain.repository.VideoCompressor
 import com.pion.phonecleaner.domain.repository.VideoEncoderCapabilities
@@ -86,6 +93,61 @@ internal class FakeFileDeleter(
                 ),
             )
     }
+}
+
+/**
+ * [available] answers `isAvailable()`; defaults to `false` so an existing test that never sets it
+ * keeps exercising the permanent-delete branch unchanged (plan `260908-0801-trash-bin`, Phase 07).
+ * [moveOutcomes] is a queue, the same shape as [FakeFileDeleter.outcomes]. Only [isAvailable],
+ * [trashFiles] and [trashDirectory] are exercised from this module; the rest of [TrashRepository]
+ * belongs to `:feature:trash` and is stubbed only enough to implement the interface.
+ */
+internal class FakeTrashRepository(
+    var available: Boolean = false,
+    var moveOutcomes: MutableList<AppResult<TrashMoveOutcome>> = mutableListOf(),
+) : TrashRepository {
+    val trashFilesCalls = mutableListOf<Pair<List<ScannedFile>, FeatureId>>()
+    val trashDirectoryCalls = mutableListOf<TrashDirectoryRequest>()
+
+    override suspend fun isAvailable(): Boolean = available
+
+    override suspend fun trashFiles(
+        files: List<ScannedFile>,
+        source: FeatureId,
+    ): AppResult<TrashMoveOutcome> {
+        trashFilesCalls += files to source
+        return moveOutcomes.removeFirstOrNull()
+            ?: AppResult.Success(
+                TrashMoveOutcome(
+                    movedIds = files.map(ScannedFile::id).toImmutableList(),
+                    movedBytes = files.sumOf(ScannedFile::sizeBytes),
+                    failedPaths = persistentListOf(),
+                ),
+            )
+    }
+
+    override suspend fun trashDirectory(request: TrashDirectoryRequest): AppResult<TrashMoveOutcome> {
+        trashDirectoryCalls += request
+        return moveOutcomes.removeFirstOrNull()
+            ?: AppResult.Success(
+                TrashMoveOutcome(movedIds = persistentListOf(request.path), movedBytes = 0L, failedPaths = persistentListOf()),
+            )
+    }
+
+    override fun observeEntries(): Flow<ImmutableList<TrashEntry>> = MutableStateFlow(persistentListOf())
+    override fun observeSummary(): Flow<TrashSummary> = MutableStateFlow(TrashSummary())
+    override suspend fun restore(ids: List<String>): AppResult<TrashRestoreOutcome> =
+        AppResult.Success(TrashRestoreOutcome(persistentListOf(), persistentListOf(), 0))
+
+    override suspend fun deleteForever(ids: List<String>): AppResult<TrashPurgeOutcome> =
+        AppResult.Success(TrashPurgeOutcome(persistentListOf(), 0L, persistentListOf()))
+
+    override suspend fun deleteAllForever(): AppResult<TrashPurgeOutcome> = deleteForever(emptyList())
+
+    override suspend fun purgeExpired(): AppResult<TrashPurgeOutcome> =
+        AppResult.Success(TrashPurgeOutcome(persistentListOf(), 0L, persistentListOf()))
+
+    override suspend fun reconcile(): AppResult<Int> = AppResult.Success(0)
 }
 
 internal class FakeCleanupLedger : CleanupLedger {

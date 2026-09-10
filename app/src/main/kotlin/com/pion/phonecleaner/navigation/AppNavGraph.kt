@@ -74,5 +74,6 @@ fun AppNavGraph(
         deviceGraph(navController)
         networkGraph(navController)
         settingsGraph(navController)
+        trashGraph(navController, onRequestSpecialAccess)
     }
 }

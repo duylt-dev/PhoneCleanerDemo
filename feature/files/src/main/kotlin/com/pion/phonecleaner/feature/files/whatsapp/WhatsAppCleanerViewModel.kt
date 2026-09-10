@@ -100,11 +100,13 @@ class WhatsAppCleanerViewModel(
 
     private fun onCleanPressed() {
         if (currentState.canClean) {
-            setState { copy(confirm = cleanConfirmSpec(selectedFileCount)) }
+            val trashEligible = permissions.isGranted(AppPermission.AllFiles)
+            setState { copy(confirm = cleanConfirmSpec(selectedFileCount, trashEligible), trashEligible = trashEligible) }
         }
     }
 
     private fun runClean(files: List<ScannedFile>) {
+        val requireTrash = currentState.trashEligible
         if (files.isEmpty()) {
             setState { copy(confirm = null) }
             return
@@ -122,7 +124,7 @@ class WhatsAppCleanerViewModel(
             )
         }
         cleanJob = launchSafely(onError = ::onFailure) {
-            cleanFiles(files).collect(::reduceClean)
+            cleanFiles(files, FeatureId.WhatsAppCleaner, requireTrash = requireTrash).collect(::reduceClean)
         }
     }
 

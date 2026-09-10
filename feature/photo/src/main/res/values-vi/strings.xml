@@ -39,6 +39,9 @@
     <plurals name="photo_album_delete_body">
         <item quantity="other">%1$d ảnh sẽ bị xóa khỏi thiết bị này.</item>
     </plurals>
+    <plurals name="photo_album_trash_body">
+        <item quantity="other">%1$d ảnh sẽ được chuyển vào Thùng rác. Bạn có thể khôi phục trong 2 ngày.</item>
+    </plurals>
     <plurals name="photo_delete_failed">
         <item quantity="other">Không xóa được %1$d ảnh</item>
     </plurals>
@@ -62,6 +65,9 @@
     <string name="photo_blurry_delete_title">Xoá những ảnh đã chọn?</string>
     <plurals name="photo_blurry_delete_body">
         <item quantity="other">Sẽ xoá %1$d ảnh. Không thể hoàn tác.</item>
+    </plurals>
+    <plurals name="photo_blurry_trash_body">
+        <item quantity="other">%1$d ảnh sẽ được chuyển vào Thùng rác. Bạn có thể khôi phục trong 2 ngày.</item>
     </plurals>
     <plurals name="photo_blurry_skipped">
         <item quantity="other">Đã bỏ qua %1$d ảnh — quá nhỏ để đánh giá, hoặc không đọc được</item>

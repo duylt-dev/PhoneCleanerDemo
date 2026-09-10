@@ -24,7 +24,9 @@ import com.pion.phonecleaner.feature.files.testing.FakeAnalyticsRepository
 import com.pion.phonecleaner.feature.files.testing.FakeCleanupLedger
 import com.pion.phonecleaner.feature.files.testing.FakeCompressedVideoLedger
 import com.pion.phonecleaner.feature.files.testing.FakeFileDeleter
+import com.pion.phonecleaner.feature.files.testing.FakePermissionRepository
 import com.pion.phonecleaner.feature.files.testing.FakeStorageInfoRepository
+import com.pion.phonecleaner.feature.files.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.files.testing.FakeVideoCandidateRepository
 import com.pion.phonecleaner.feature.files.testing.FakeVideoCompressor
 import com.pion.phonecleaner.feature.files.testing.MainDispatcherRule
@@ -70,9 +72,10 @@ internal class VideoCompressRunViewModelTest {
         compressVideos = CompressVideosUseCase(compressor, ledger),
         estimateCompression = EstimateVideoCompressionUseCase(),
         checkSpace = CheckSpaceForCompressionUseCase(storage),
-        deleteFiles = DeleteFilesUseCase(deleter, FakeCleanupLedger()),
+        deleteFiles = DeleteFilesUseCase(deleter, FakeTrashRepository(), FakeCleanupLedger()),
         videos = videoCandidates,
         analytics = analytics,
+        permissions = FakePermissionRepository(),
         log = AppLogger.NoOp,
     )
 
@@ -98,9 +101,10 @@ internal class VideoCompressRunViewModelTest {
             compressVideos = CompressVideosUseCase(compressor, ledger),
             estimateCompression = EstimateVideoCompressionUseCase(),
             checkSpace = CheckSpaceForCompressionUseCase(storage),
-            deleteFiles = DeleteFilesUseCase(deleter, FakeCleanupLedger()),
+            deleteFiles = DeleteFilesUseCase(deleter, FakeTrashRepository(), FakeCleanupLedger()),
             videos = videoCandidates,
             analytics = analytics,
+            permissions = FakePermissionRepository(),
             log = AppLogger.NoOp,
         )
         assertEquals(VideoQualityPreset.Quality, fromList.state.value.preset)
@@ -118,9 +122,10 @@ internal class VideoCompressRunViewModelTest {
             compressVideos = CompressVideosUseCase(compressor, ledger),
             estimateCompression = EstimateVideoCompressionUseCase(),
             checkSpace = CheckSpaceForCompressionUseCase(storage),
-            deleteFiles = DeleteFilesUseCase(deleter, FakeCleanupLedger()),
+            deleteFiles = DeleteFilesUseCase(deleter, FakeTrashRepository(), FakeCleanupLedger()),
             videos = videoCandidates,
             analytics = analytics,
+            permissions = FakePermissionRepository(),
             log = AppLogger.NoOp,
         )
         assertEquals(VideoQualityPreset.Saver, fromArray.state.value.preset)

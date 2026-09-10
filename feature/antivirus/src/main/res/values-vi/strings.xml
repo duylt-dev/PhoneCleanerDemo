@@ -87,7 +87,7 @@
 
     <string name="antivirus_remove_title">Xóa %1$s?</string>
     <string name="antivirus_remove_installed_note">Thao tác này mở màn hình gỡ cài đặt của hệ thống. Không có gì bị xóa cho tới khi bạn xác nhận ở đó.</string>
-    <string name="antivirus_remove_file_note">Thao tác này xóa tệp khỏi thiết bị này.</string>
+    <string name="antivirus_remove_file_note">Thao tác này xóa tệp khỏi thiết bị này vĩnh viễn. Tệp sẽ không được giữ trong Thùng rác.</string>
     <string name="antivirus_remove_confirm">Xóa</string>
     <string name="antivirus_remove_dismiss">Hủy</string>
 

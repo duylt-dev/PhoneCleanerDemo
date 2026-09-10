@@ -4,6 +4,9 @@ import com.pion.phonecleaner.core.common.concurrent.DispatcherProvider
 import com.pion.phonecleaner.core.common.error.AppError
 import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.file.FileKind
+import com.pion.phonecleaner.domain.model.file.FileOrigin
+import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.domain.model.photo.BlurScanProgress
 import com.pion.phonecleaner.domain.model.photo.BlurTier
 import com.pion.phonecleaner.domain.model.photo.Photo
@@ -197,6 +200,23 @@ class DefaultBlurryPhotoScannerTest {
 
         override suspend fun delete(ids: List<PhotoId>): AppResult<DeleteOutcome> =
             AppResult.Success(DeleteOutcome.NothingResolved)
+
+        /** Not exercised by this test (the blur scan never deletes); kept honest rather than stubbed. */
+        override suspend fun resolve(ids: List<PhotoId>): AppResult<ImmutableList<ScannedFile>> {
+            val wanted = ids.toSet()
+            return AppResult.Success(
+                rows.filter { it.id in wanted }.map {
+                    ScannedFile(
+                        id = it.contentUri,
+                        path = "${it.folderName}/${it.displayName}",
+                        name = it.displayName,
+                        sizeBytes = it.sizeBytes,
+                        kind = FileKind.Image,
+                        origin = FileOrigin.MediaStoreEntry(it.contentUri),
+                    )
+                }.toImmutableList(),
+            )
+        }
     }
 
     private object TestDispatchers : DispatcherProvider {

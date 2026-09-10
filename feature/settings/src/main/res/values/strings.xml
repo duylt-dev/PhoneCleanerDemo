@@ -23,6 +23,14 @@
     <string name="settings_title">Settings</string>
     <string name="settings_row_language">Language</string>
     <string name="settings_row_permission_centre">Permissions</string>
+    <string name="settings_trash_title">Trash</string>
+    <string name="settings_trash_subtitle_empty">Empty</string>
+    <!-- "3 items · 12.4 MB" — the size half is formatted by rememberByteFormat(), never here.
+         A plural of our own: :feature:settings cannot see :feature:trash's own R.plurals. -->
+    <plurals name="settings_trash_subtitle_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
     <string name="settings_row_about">About</string>
     <string name="settings_row_resident_widget">Show a shortcut in the status bar</string>
     <string name="settings_row_resident_widget_supporting">Off by default. You can turn this off again at any time.</string>

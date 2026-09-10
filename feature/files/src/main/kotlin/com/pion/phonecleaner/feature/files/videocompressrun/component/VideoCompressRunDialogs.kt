@@ -55,7 +55,13 @@ internal fun VideoCompressRunDialogs(
             confirmLabel = stringResource(CoreUiR.string.action_delete),
             onConfirm = { onIntent(VideoCompressRunIntent.DeleteOriginalsConfirmed) },
             title = stringResource(R.string.video_compress_delete_confirm_title),
-            body = stringResource(R.string.video_compress_delete_confirm_body),
+            body = stringResource(
+                if (state.trashEligible) {
+                    R.string.video_compress_delete_trash_body
+                } else {
+                    R.string.video_compress_delete_confirm_body
+                },
+            ),
             dismissLabel = stringResource(CoreUiR.string.action_cancel),
         )
     }

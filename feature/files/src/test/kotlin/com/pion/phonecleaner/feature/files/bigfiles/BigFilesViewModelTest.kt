@@ -22,6 +22,7 @@ import com.pion.phonecleaner.feature.files.testing.FakeMediaStoreRepository
 import com.pion.phonecleaner.feature.files.testing.FakePermissionRepository
 import com.pion.phonecleaner.feature.files.testing.FakeStorageRootProvider
 import com.pion.phonecleaner.feature.files.testing.FakeStorageScanner
+import com.pion.phonecleaner.feature.files.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.files.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.files.testing.runVmTest
 import com.pion.phonecleaner.feature.files.testing.settle
@@ -45,16 +46,42 @@ internal class BigFilesViewModelTest {
     private val permissions = FakePermissionRepository()
     private val deleter = FakeFileDeleter()
     private val analytics = FakeAnalyticsRepository()
+    private val trash = FakeTrashRepository()
 
     private fun viewModel() = BigFilesViewModel(
         savedState = SavedStateHandle(),
         scanBigFiles = ScanBigFilesUseCase(scanner, mediaStore, roots, permissions),
-        deleteFiles = DeleteFilesUseCase(deleter, FakeCleanupLedger()),
+        deleteFiles = DeleteFilesUseCase(deleter, trash, FakeCleanupLedger()),
         markFeatureUsed = MarkFeatureUsedUseCase(FakeFeatureUsageRepository()),
         mimeTypeOf = MimeTypeUseCase(),
         analytics = analytics,
+        permissions = permissions,
         log = AppLogger.NoOp,
     )
+
+    @Test
+    fun `trash confirmation remains binding after permission is revoked`() = mainDispatcher.runVmTest {
+        mediaStore.videos = AppResult.Success(persistentListOf(big("v1")))
+        val vm = viewModel()
+        vm.onIntent(BigFilesIntent.ScreenStarted)
+        settle()
+        vm.onIntent(BigFilesIntent.CompletionAnimationFinished)
+        vm.onIntent(BigFilesIntent.SelectAllToggled)
+        permissions.granted.value = persistentSetOf(AppPermission.AllFiles)
+        vm.onIntent(BigFilesIntent.DeletePressed)
+        assertTrue(vm.state.value.trashEligible)
+        permissions.granted.value = persistentSetOf()
+        trash.moveOutcomes += AppResult.Failure(
+            com.pion.phonecleaner.core.common.error.AppError.PermissionDenied(),
+        )
+        vm.onIntent(BigFilesIntent.DeleteConfirmed)
+        settle()
+        assertEquals(1, trash.trashFilesCalls.size)
+        assertTrue(deleter.requested.isEmpty())
+        assertEquals(listOf("v1"), vm.state.value.files.items.map { it.id })
+        assertEquals(ToolPhase.Ready, vm.state.value.phase)
+        assertTrue(vm.state.value.error is com.pion.phonecleaner.core.common.error.AppError.PermissionDenied)
+    }
 
     /**
      * Coverage is mandatory in the default storage branch: a scan that could not see everything

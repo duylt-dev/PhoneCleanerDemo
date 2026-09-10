@@ -6,12 +6,13 @@ import com.pion.phonecleaner.domain.repository.AppInfoProvider
 import com.pion.phonecleaner.domain.repository.LanguageRepository
 import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.repository.ResidentWidgetSettingsRepository
+import com.pion.phonecleaner.domain.usecase.ObserveTrashSummaryUseCase
 import com.pion.phonecleaner.feature.settings.permissioncentre.PermissionCentreCatalog
 
 /**
  * `settings` (`docs/screens/20-settings-language-and-push.md` §1.2).
  *
- * `init` observes; it does not act. Three `collectSafely` collectors, each folding into one
+ * `init` observes; it does not act. Four `collectSafely` collectors, each folding into one
  * `setState`, all structural children of `viewModelScope` — **no `Job` fields**. `ScreenResumed`
  * therefore does nothing: the flows already re-emit, and an explicit refresh would be a second source
  * of truth.
@@ -24,6 +25,7 @@ class SettingsViewModel(
     appInfo: AppInfoProvider,
     private val widgetSettings: ResidentWidgetSettingsRepository,
     private val permissions: PermissionRepository,
+    observeTrashSummary: ObserveTrashSummaryUseCase,
     log: AppLogger = AppLogger.NoOp,
 ) : MviViewModel<SettingsState, SettingsIntent, SettingsEffect>(
     SettingsState(
@@ -47,6 +49,9 @@ class SettingsViewModel(
             val missing = PermissionCentreCatalog.managed.count { it !in granted }
             setState { copy(missingPermissionCount = missing) }
         }
+        observeTrashSummary().collectSafely { summary ->
+            setState { copy(trashSummary = summary) }
+        }
     }
 
     override fun onIntent(intent: SettingsIntent) {
@@ -57,6 +62,7 @@ class SettingsViewModel(
             SettingsIntent.PermissionCentreRowTapped ->
                 sendEffect(SettingsEffect.NavigateToPermissionCentre)
 
+            SettingsIntent.TrashRowTapped -> sendEffect(SettingsEffect.NavigateToTrash)
             is SettingsIntent.ResidentWidgetToggled -> setResidentWidget(intent.enabled)
             SettingsIntent.BackPressed -> sendEffect(SettingsEffect.NavigateBack)
         }

@@ -17,6 +17,8 @@ import com.pion.phonecleaner.feature.files.testing.FakeCleanupLedger
 import com.pion.phonecleaner.feature.files.testing.FakeFeatureUsageRepository
 import com.pion.phonecleaner.feature.files.testing.FakeFileDeleter
 import com.pion.phonecleaner.feature.files.testing.FakeMediaStoreRepository
+import com.pion.phonecleaner.feature.files.testing.FakePermissionRepository
+import com.pion.phonecleaner.feature.files.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.files.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.files.testing.runVmTest
 import com.pion.phonecleaner.feature.files.testing.settle
@@ -37,10 +39,11 @@ internal class VideoManagerViewModelTest {
     private fun viewModel() = VideoManagerViewModel(
         savedState = SavedStateHandle(),
         loadVideos = LoadVideosUseCase(mediaStore),
-        deleteFiles = DeleteFilesUseCase(deleter, FakeCleanupLedger()),
+        deleteFiles = DeleteFilesUseCase(deleter, FakeTrashRepository(), FakeCleanupLedger()),
         markFeatureUsed = MarkFeatureUsedUseCase(FakeFeatureUsageRepository()),
         mimeTypeOf = MimeTypeUseCase(),
         analytics = FakeAnalyticsRepository(),
+        permissions = FakePermissionRepository(),
         log = AppLogger.NoOp,
     )
 

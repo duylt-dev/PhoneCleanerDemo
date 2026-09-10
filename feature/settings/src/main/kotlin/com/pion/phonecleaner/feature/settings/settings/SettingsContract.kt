@@ -5,6 +5,7 @@ import com.pion.phonecleaner.core.mvi.UiEffect
 import com.pion.phonecleaner.core.mvi.UiIntent
 import com.pion.phonecleaner.core.mvi.UiState
 import com.pion.phonecleaner.domain.model.settings.AppLanguage
+import com.pion.phonecleaner.domain.model.trash.TrashSummary
 
 /**
  * `settings` (`docs/screens/20-settings-language-and-push.md` §1.1). Replaces `DonactioActivity`.
@@ -39,14 +40,21 @@ data class SettingsState(
 
     /** How many of the permissions the centre manages are still missing. `0` hides the badge. */
     val missingPermissionCount: Int = 0,
+
+    /**
+     * Rendered as the Trash row's trailing text. Zero renders as "Empty" rather than "0 items · 0 B" —
+     * a row that reads zero twice tells the user nothing they could not see from the word.
+     */
+    val trashSummary: TrashSummary = TrashSummary(),
 ) : UiState
 
 sealed interface SettingsIntent : UiIntent {
-    /** Arrives on every resume; `init`'s three collectors already re-emit, so it does nothing. */
+    /** Arrives on every resume; `init`'s collectors already re-emit, so it does nothing. */
     data object ScreenResumed : SettingsIntent
     data object LanguageRowTapped : SettingsIntent
     data object AboutRowTapped : SettingsIntent
     data object PermissionCentreRowTapped : SettingsIntent
+    data object TrashRowTapped : SettingsIntent
     data class ResidentWidgetToggled(val enabled: Boolean) : SettingsIntent
     data object BackPressed : SettingsIntent
 }
@@ -55,5 +63,6 @@ sealed interface SettingsEffect : UiEffect {
     data object NavigateToLanguage : SettingsEffect
     data object NavigateToAbout : SettingsEffect
     data object NavigateToPermissionCentre : SettingsEffect
+    data object NavigateToTrash : SettingsEffect
     data object NavigateBack : SettingsEffect
 }

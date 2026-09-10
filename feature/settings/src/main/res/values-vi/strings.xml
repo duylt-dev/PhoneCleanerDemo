@@ -22,6 +22,12 @@
     <string name="settings_title">Cài đặt</string>
     <string name="settings_row_language">Ngôn ngữ</string>
     <string name="settings_row_permission_centre">Quyền</string>
+    <string name="settings_trash_title">Thùng rác</string>
+    <string name="settings_trash_subtitle_empty">Trống</string>
+    <!-- Vietnamese has one CLDR plural category, "other" — an "one" item here is flagged by lint. -->
+    <plurals name="settings_trash_subtitle_count">
+        <item quantity="other">%1$d mục</item>
+    </plurals>
     <string name="settings_row_about">Giới thiệu</string>
     <string name="settings_row_resident_widget">Hiện lối tắt trên thanh trạng thái</string>
     <string name="settings_row_resident_widget_supporting">Mặc định tắt. Bạn có thể tắt lại bất cứ lúc nào.</string>

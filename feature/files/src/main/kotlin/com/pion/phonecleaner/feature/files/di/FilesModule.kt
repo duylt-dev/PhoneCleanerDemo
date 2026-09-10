@@ -45,16 +45,18 @@ import org.koin.dsl.module
  * whatsapp
  */
 val filesModule = module {
+    // One more `get()` than before phase 07: `PermissionRepository`, resolved from `coreDataModule`
+    // — the confirm dialog's advisory read of `AppPermission.AllFiles` (plan `260908-0801-trash-bin`).
     viewModel { params ->
-        BigFilesViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        BigFilesViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { params ->
-        DuplicatesViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        DuplicatesViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { params ->
-        VideoManagerViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        VideoManagerViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     // One more `get()` than `video`: `VideoEncoderCapabilities`, bound as a `single` in
@@ -66,15 +68,16 @@ val filesModule = module {
 
     // params.get() for SavedStateHandle (ids/preset/codec are route scalars, LLM.md §7.2), then
     // compressVideos, estimateCompression, checkSpace, deleteFiles, videos (VideoCandidateRepository),
-    // analytics, log — in that constructor order (phase-07-run-screen.md step 7).
+    // analytics, permissions, log — in that constructor order (phase-07-run-screen.md step 7;
+    // `permissions` added by plan `260908-0801-trash-bin` Phase 07).
     viewModel { params ->
         VideoCompressRunViewModel(
-            params.get(), get(), get(), get(), get(), get(), get(), get(),
+            params.get(), get(), get(), get(), get(), get(), get(), get(), get(),
         )
     }
 
     viewModel { params ->
-        AudioManagerViewModel(params.get(), get(), get(), get(), get(), get(), get())
+        AudioManagerViewModel(params.get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel { params ->

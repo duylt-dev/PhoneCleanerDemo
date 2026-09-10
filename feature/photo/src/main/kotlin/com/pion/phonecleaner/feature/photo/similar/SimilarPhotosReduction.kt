@@ -31,10 +31,22 @@ internal fun SimilarPhotosState.bytesForUris(uris: Set<String>): Long =
         .filter { it.contentUri in uris }
         .sumOf { it.sizeBytes }
 
-/** `freedBytes` is measured. `NothingFound` when nothing was actually reclaimed. */
-internal fun similarCleanupSummary(freedBytes: Long, itemCount: Int): CleanupSummary = CleanupSummary(
+/**
+ * `freedBytes` is measured. `NothingFound` when nothing was actually reclaimed; `MovedToTrash` when
+ * it was and [recoverable] says the bytes went into the bin, not off the device (plan
+ * `260908-0801-trash-bin`, Phase 07).
+ */
+internal fun similarCleanupSummary(
+    freedBytes: Long,
+    itemCount: Int,
+    recoverable: Boolean,
+): CleanupSummary = CleanupSummary(
     feature = FeatureId.SimilarPhotos,
     freedBytes = freedBytes,
     itemCount = itemCount,
-    outcome = if (freedBytes > 0L) CleanupOutcome.Cleaned else CleanupOutcome.NothingFound,
+    outcome = when {
+        freedBytes <= 0L -> CleanupOutcome.NothingFound
+        recoverable -> CleanupOutcome.MovedToTrash
+        else -> CleanupOutcome.Cleaned
+    },
 )

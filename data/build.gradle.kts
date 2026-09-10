@@ -10,11 +10,28 @@ plugins {
 android {
     namespace = "com.pion.phonecleaner.data"
     compileSdk { version = release(37) }
-    defaultConfig { minSdk = 28 }
+    defaultConfig {
+        minSdk = 28
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    // MigrationTestHelper (Phase 09, src/androidTest) reads the exported schema JSON from assets.
+    sourceSets {
+        getByName("androidTest") {
+            assets.srcDir("$projectDir/schemas")
+        }
+    }
+}
+
+ksp {
+    // Turned on in the change that writes the first migration (trash_entries, v1 -> v2), exactly as
+    // AppDatabase.kt's own KDoc says. Every version Room compiles against is exported to
+    // data/schemas/<db-qualified-name>/<version>.json and committed — that is what MigrationTestHelper
+    // verifies a real migration against, instead of trusting a hand-written CREATE TABLE.
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 kotlin {
@@ -68,4 +85,10 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.room.testing)
     testImplementation(libs.androidx.work.testing)
+
+    // androidTest — device-based tests for Room migrations and file operations
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
 }

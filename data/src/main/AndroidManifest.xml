@@ -129,7 +129,10 @@
       `<queries>` block above still carries the launchable majority, so the screen degrades to
       "most apps" rather than back to two.
     -->
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <!-- The app-manager inventory above deliberately includes packages with no launcher;
+         a queries intent cannot express that inventory. Keep this one declared exception visible. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <queries>
         <intent>

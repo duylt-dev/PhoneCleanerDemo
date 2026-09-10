@@ -71,7 +71,7 @@ internal fun SimilarPhotosDialogs(
         onConfirm = { onIntent(SimilarPhotosIntent.DeleteConfirmed) },
         title = stringResource(R.string.photo_album_delete_title),
         body = pluralStringResource(
-            R.plurals.photo_album_delete_body,
+            if (state.trashEligible) R.plurals.photo_album_trash_body else R.plurals.photo_album_delete_body,
             state.selectedCount,
             state.selectedCount,
         ),

@@ -77,14 +77,15 @@ class JunkCleanViewModel(
         val promised = current.categories.sumOf { category ->
             category.items.sumOf { item -> if (item.path in selected) item.sizeBytes else 0L }
         }
-        setState { copy(promisedBytes = promised, total = selected.size) }
+        val recoverable = permissions.isGranted(AppPermission.AllFiles)
+        setState { copy(promisedBytes = promised, total = selected.size, recoverable = recoverable) }
 
         if (!hasStorageAccess()) {
             setState { copy(phase = CleanPhase.PermissionLost) }
             return
         }
 
-        cleanJob = cleanJunk(selected).collectSafely(
+        cleanJob = cleanJunk(selected, requireTrash = currentState.recoverable).collectSafely(
             onError = { error -> setState { copy(phase = CleanPhase.Failed, error = error) } },
         ) { progress -> reduce(progress) }
     }
@@ -117,7 +118,12 @@ class JunkCleanViewModel(
             }
 
             is CleanProgress.Finished -> {
-                setState { copy(phase = CleanPhase.Finished) }
+                // The outcome's own flag REPLACES the advisory permission read taken in `start()`:
+                // `TrashRepository.isAvailable()` at the moment of the move is the truth, and the
+                // result screen is where being wrong about it would show.
+                setState {
+                    copy(phase = CleanPhase.Finished, recoverable = progress.outcome.recoverable)
+                }
                 leaveIfReady()
             }
         }
@@ -148,10 +154,15 @@ class JunkCleanViewModel(
         hasNavigated = true
         // BOTH numbers, always. `if (cleanedSize > 0) cleanedSize else totalSize` reports a total
         // failure as a total success, to the user and to the lifetime ledger (Delta C3).
+        //
+        // `recoverable` travels with them for the same reason: `:app`'s `JunkGraph` builds the
+        // `CleanupSummary`, and without this flag it can only guess `Cleaned`, so a run that moved
+        // every path into the bin would report "Removed" for files still sitting there.
         sendEffect(
             JunkCleanEffect.NavigateToResult(
                 freedBytes = currentState.freedBytes,
                 failedCount = currentState.failedCount,
+                recoverable = currentState.recoverable,
             ),
         )
     }

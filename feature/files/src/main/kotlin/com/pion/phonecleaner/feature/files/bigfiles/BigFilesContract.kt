@@ -44,6 +44,8 @@ data class BigFilesState(
 
     /** A dialog is STATE, never an Effect (`LLM.md` §7.4). */
     val confirm: ConfirmSpec? = null,
+    /** Mode stated by the confirmation; retained through the system consent round trip. */
+    val trashEligible: Boolean = false,
     override val error: AppError? = null,
 ) : FileToolState {
 

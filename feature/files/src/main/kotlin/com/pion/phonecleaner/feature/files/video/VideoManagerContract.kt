@@ -40,6 +40,8 @@ data class VideoManagerState(
     val scanTruncated: Boolean = false,
     val failedCount: Int = 0,
     val confirm: ConfirmSpec? = null,
+    /** Mode stated by the confirmation; retained through the system consent round trip. */
+    val trashEligible: Boolean = false,
     override val error: AppError? = null,
 ) : FileToolState {
 

@@ -3,11 +3,14 @@ package com.pion.phonecleaner.feature.settings.settings
 import app.cash.turbine.test
 import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.model.settings.AppLanguage
+import com.pion.phonecleaner.domain.model.trash.TrashSummary
+import com.pion.phonecleaner.domain.usecase.ObserveTrashSummaryUseCase
 import com.pion.phonecleaner.feature.settings.permissioncentre.PermissionCentreCatalog
 import com.pion.phonecleaner.feature.settings.testing.FakeAppInfoProvider
 import com.pion.phonecleaner.feature.settings.testing.FakeLanguageRepository
 import com.pion.phonecleaner.feature.settings.testing.FakePermissionRepository
 import com.pion.phonecleaner.feature.settings.testing.FakeResidentWidgetSettings
+import com.pion.phonecleaner.feature.settings.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.settings.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.settings.testing.StorageFailure
 import com.pion.phonecleaner.feature.settings.testing.runVmTest
@@ -26,12 +29,14 @@ internal class SettingsViewModelTest {
     private val languages = FakeLanguageRepository()
     private val widget = FakeResidentWidgetSettings()
     private val permissions = FakePermissionRepository()
+    private val trash = FakeTrashRepository()
 
     private fun viewModel() = SettingsViewModel(
         languageRepository = languages,
         appInfo = FakeAppInfoProvider(),
         widgetSettings = widget,
         permissions = permissions,
+        observeTrashSummary = ObserveTrashSummaryUseCase(trash),
     )
 
     // ── the widget switch: PENDING OWNER DECISION 4 ───────────────────────────────────────────
@@ -100,6 +105,22 @@ internal class SettingsViewModelTest {
         assertEquals(0, vm.state.value.missingPermissionCount)
     }
 
+    // ── the trash row's trailing text ─────────────────────────────────────────────────────────
+
+    @Test
+    fun `the bin starts empty`() {
+        assertEquals(TrashSummary(), viewModel().state.value.trashSummary)
+    }
+
+    @Test
+    fun `the observed summary reaches the row`() {
+        val vm = viewModel()
+
+        trash.summary.value = TrashSummary(entryCount = 3, totalBytes = 12_400_000L)
+
+        assertEquals(TrashSummary(entryCount = 3, totalBytes = 12_400_000L), vm.state.value.trashSummary)
+    }
+
     // ── navigation is an Effect ───────────────────────────────────────────────────────────────
 
     @Test
@@ -112,6 +133,9 @@ internal class SettingsViewModelTest {
 
             vm.onIntent(SettingsIntent.PermissionCentreRowTapped)
             assertTrue(awaitItem() is SettingsEffect.NavigateToPermissionCentre)
+
+            vm.onIntent(SettingsIntent.TrashRowTapped)
+            assertTrue(awaitItem() is SettingsEffect.NavigateToTrash)
 
             vm.onIntent(SettingsIntent.AboutRowTapped)
             assertTrue(awaitItem() is SettingsEffect.NavigateToAbout)

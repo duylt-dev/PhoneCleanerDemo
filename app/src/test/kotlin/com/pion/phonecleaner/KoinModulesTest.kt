@@ -2,6 +2,7 @@ package com.pion.phonecleaner
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import androidx.work.WorkerParameters
 import com.pion.phonecleaner.domain.model.cleanup.CleanupSummary
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -40,7 +41,16 @@ class KoinModulesTest : KoinTest {
         //              value object carried by a navigation call, never a service: a
         //              `single<CleanupSummary>` would be a process-wide shared result, which is the
         //              exact bug the competitor's three `volatile` statics caused.
+        //   WorkerParameters — supplied by WorkManager to the Koin worker factory at construction time,
+        //              exactly as Context is supplied by androidContext(). A `single<WorkerParameters>`
+        //              would be a process-wide shared job handle, which is a different job's input data
+        //              on every run.
         val graph = module { includes(appModules) }
-        graph.verify(extraTypes = listOf(Context::class, Duration::class, SavedStateHandle::class, CleanupSummary::class))
+        graph.verify(
+            extraTypes = listOf(
+                Context::class, Duration::class, SavedStateHandle::class,
+                CleanupSummary::class, WorkerParameters::class,
+            ),
+        )
     }
 }

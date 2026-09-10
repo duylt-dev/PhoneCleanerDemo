@@ -3,8 +3,8 @@ package com.pion.phonecleaner.domain.model.feature
 import kotlinx.serialization.Serializable
 
 /**
- * The one feature enum. Twenty-two constants: twenty verbatim from the competitor's own tables, and
- * [BlurryPhotos] and [VideoCompressor], which are this app's own and are marked as such below.
+ * The one feature enum. Twenty-three constants: twenty verbatim from the competitor's own tables, and
+ * [BlurryPhotos], [VideoCompressor] and [Trash], which are this app's own and are marked as such below.
  *
  * The competitor kept these three facts in three unrelated places — a descriptor array index, a
  * `goTag` int on the router, and a deep-link `action_id` — and they had to be edited together by hand.
@@ -83,7 +83,25 @@ enum class FeatureId(
      *    find what a competitor install had recorded, and there is nothing to find for a feature
      *    that never existed there. An invented `flux_…` key would be a lookup that can only miss.
      */
-    VideoCompressor    (24, "100531", "");
+    VideoCompressor    (24, "100531", ""),
+
+    /**
+     * **The third constant here that does NOT come from the competitor**, after [BlurryPhotos] and
+     * [VideoCompressor]. `com.againstvirus.flux` has no recycle bin at all: its whole delete strategy
+     * is `deleteRecursively` inside `catch (Exception) { printStackTrace() }`
+     * (`MenaremovActivity.java:242`), which has nowhere to put a file it is about to destroy.
+     *
+     * The three columns are **ours**, chosen the same way the two above were:
+     *
+     *  - `legacyIndex = 25` continues past 24. It is not a legacy index; it is a `goTag` and a
+     *    deep-link `action_id` only this app will ever emit, kept in sequence so `fromLegacyIndex`
+     *    stays one lookup over one list.
+     *  - `analyticsId = "100532"` likewise continues the sequence. No competitor event carries it.
+     *  - `legacyPrefKey = ""` — **empty on purpose.** The migration worker reads this column once to
+     *    find what a competitor install had recorded, and there is nothing to find for a feature that
+     *    never existed there. An invented `flux_…` key would be a lookup that can only miss.
+     */
+    Trash              (25, "100532", "");
 
     companion object {
         fun fromLegacyIndex(i: Int): FeatureId? = entries.firstOrNull { it.legacyIndex == i }

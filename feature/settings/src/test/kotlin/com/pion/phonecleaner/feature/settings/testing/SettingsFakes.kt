@@ -6,12 +6,20 @@ import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.model.push.PushMessage
 import com.pion.phonecleaner.domain.model.settings.AppLanguage
 import com.pion.phonecleaner.domain.model.settings.LegalDocument
+import com.pion.phonecleaner.domain.model.file.ScannedFile
+import com.pion.phonecleaner.domain.model.trash.TrashDirectoryRequest
+import com.pion.phonecleaner.domain.model.trash.TrashEntry
+import com.pion.phonecleaner.domain.model.trash.TrashMoveOutcome
+import com.pion.phonecleaner.domain.model.trash.TrashPurgeOutcome
+import com.pion.phonecleaner.domain.model.trash.TrashRestoreOutcome
+import com.pion.phonecleaner.domain.model.trash.TrashSummary
 import com.pion.phonecleaner.domain.repository.AppInfoProvider
 import com.pion.phonecleaner.domain.repository.LanguageRepository
 import com.pion.phonecleaner.domain.repository.LegalDocumentUrls
 import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.repository.PushRepository
 import com.pion.phonecleaner.domain.repository.ResidentWidgetSettingsRepository
+import com.pion.phonecleaner.domain.repository.TrashRepository
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
@@ -100,6 +108,45 @@ internal class FakePermissionRepository(
         granted = granted + permissions
         emissions.value = granted.toImmutableSet()
     }
+}
+
+/**
+ * Only [observeSummary] is exercised — `SettingsViewModel` reaches the bin through
+ * `ObserveTrashSummaryUseCase` and nothing else. The rest of the interface is implemented in full
+ * anyway, the same convention `FakeNotificationCleanerRepository` follows, rather than a `TODO()` that
+ * would turn into a surprise the day a test does call one of them.
+ */
+internal class FakeTrashRepository(
+    initial: TrashSummary = TrashSummary(),
+) : TrashRepository {
+
+    val summary = MutableStateFlow(initial)
+
+    override suspend fun isAvailable(): Boolean = true
+
+    override suspend fun trashFiles(files: List<ScannedFile>, source: FeatureId): AppResult<TrashMoveOutcome> =
+        AppResult.Success(TrashMoveOutcome(persistentListOf(), 0L, persistentListOf()))
+
+    override suspend fun trashDirectory(request: TrashDirectoryRequest): AppResult<TrashMoveOutcome> =
+        AppResult.Success(TrashMoveOutcome(persistentListOf(), 0L, persistentListOf()))
+
+    override fun observeEntries(): Flow<ImmutableList<TrashEntry>> =
+        MutableStateFlow<ImmutableList<TrashEntry>>(persistentListOf())
+
+    override fun observeSummary(): Flow<TrashSummary> = summary
+
+    override suspend fun restore(ids: List<String>): AppResult<TrashRestoreOutcome> =
+        AppResult.Success(TrashRestoreOutcome(persistentListOf(), persistentListOf(), renamedCount = 0))
+
+    override suspend fun deleteForever(ids: List<String>): AppResult<TrashPurgeOutcome> =
+        AppResult.Success(TrashPurgeOutcome(persistentListOf(), 0L, persistentListOf()))
+
+    override suspend fun deleteAllForever(): AppResult<TrashPurgeOutcome> = deleteForever(emptyList())
+
+    override suspend fun purgeExpired(): AppResult<TrashPurgeOutcome> =
+        AppResult.Success(TrashPurgeOutcome(persistentListOf(), 0L, persistentListOf()))
+
+    override suspend fun reconcile(): AppResult<Int> = AppResult.Success(0)
 }
 
 internal class FakePushRepository(

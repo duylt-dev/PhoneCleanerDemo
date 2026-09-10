@@ -31,6 +31,19 @@ data class JunkCleanState(
     val processed: Int = 0,
     val total: Int = 0,
     val failedCount: Int = 0,
+
+    /**
+     * Advisory until the run ends, then factual — two lifetimes on purpose.
+     *
+     * `start()` seeds it from `permissions.isGranted(AppPermission.AllFiles)`, the same advisory read
+     * every other delete confirm in this build uses, because the STOP dialog has to be captioned
+     * before anything has moved. `CleanProgress.Finished` then overwrites it with
+     * `CleanOutcome.recoverable`, which is `TrashRepository.isAvailable()` at the moment
+     * `CleanJunkUseCase` actually moved each path. Only the second value reaches the result screen; if
+     * the two disagree the user was told the more cautious thing first, which is the right direction
+     * to be wrong in (plan `260908-0801-trash-bin`, Phase 07).
+     */
+    val recoverable: Boolean = false,
     val phase: CleanPhase = CleanPhase.Cleaning,
     val isStopConfirmVisible: Boolean = false,
     val finishAnimationEnded: Boolean = false,
@@ -73,7 +86,12 @@ sealed interface JunkCleanEffect : UiEffect {
      * `:app`'s NavHost turns this into `CleanupSummary(feature = FeatureId.JunkClean, freedBytes,
      * itemCount, outcome)` for the one shared `CleanResult` route (§8.1).
      */
-    data class NavigateToResult(val freedBytes: Long, val failedCount: Int) : JunkCleanEffect
+    data class NavigateToResult(
+        val freedBytes: Long,
+        val failedCount: Int,
+        /** From `CleanOutcome.recoverable`, so `:app` picks `MovedToTrash` instead of guessing `Cleaned`. */
+        val recoverable: Boolean,
+    ) : JunkCleanEffect
 
     data object NavigateBack : JunkCleanEffect
     data object RequestStoragePermission : JunkCleanEffect

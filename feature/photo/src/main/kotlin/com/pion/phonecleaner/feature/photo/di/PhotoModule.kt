@@ -44,9 +44,14 @@ val photoModule = module {
             loadAlbumPhotos = get(),
             deletePhotos = get(),
             analytics = get(),
+            // PermissionRepository, from coreDataModule — the delete confirm's advisory read of
+            // AppPermission.AllFiles (plan 260908-0801-trash-bin, Phase 07).
+            permissions = get(),
             log = get(),
         )
     }
+    // SimilarPhotosViewModel and BlurryPhotosViewModel both gained a PermissionRepository
+    // constructor parameter in the same phase; viewModelOf resolves it by type, no change needed here.
     viewModelOf(::SimilarPhotosViewModel)
     // Same form and the same reason as SimilarPhotosViewModel: its selection lives in
     // BlurryPhotoSessionStore, so it takes no SavedStateHandle.

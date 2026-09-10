@@ -17,7 +17,9 @@ import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
 import com.pion.phonecleaner.domain.usecase.ScanBlurryPhotosUseCase
 import com.pion.phonecleaner.feature.photo.testing.FakeBlurryPhotoScanner
 import com.pion.phonecleaner.feature.photo.testing.FakeBlurryPhotoSessionStore
+import com.pion.phonecleaner.feature.photo.testing.FakePermissionRepository
 import com.pion.phonecleaner.feature.photo.testing.FakePhotoRepository
+import com.pion.phonecleaner.feature.photo.testing.FakeTrashRepository
 import com.pion.phonecleaner.feature.photo.testing.MainDispatcherRule
 import com.pion.phonecleaner.feature.photo.testing.RecordingAnalytics
 import com.pion.phonecleaner.feature.photo.testing.RecordingFeatureUsage
@@ -64,10 +66,11 @@ class BlurryPhotosViewModelTest {
 
     private fun viewModel() = BlurryPhotosViewModel(
         scanBlurry = ScanBlurryPhotosUseCase(scanner),
-        deletePhotos = DeletePhotosUseCase(repository),
+        deletePhotos = DeletePhotosUseCase(repository, FakeTrashRepository()),
         session = session,
         markFeatureUsed = MarkFeatureUsedUseCase(RecordingFeatureUsage()),
         analytics = analytics,
+        permissions = FakePermissionRepository(),
     )
 
     private fun started() = viewModel().also {

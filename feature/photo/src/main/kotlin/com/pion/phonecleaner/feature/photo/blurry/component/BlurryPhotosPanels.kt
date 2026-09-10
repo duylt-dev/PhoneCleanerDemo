@@ -81,7 +81,7 @@ internal fun BlurryPhotosDialogs(
         onConfirm = { onIntent(BlurryPhotosIntent.DeleteConfirmed) },
         title = stringResource(R.string.photo_blurry_delete_title),
         body = pluralStringResource(
-            R.plurals.photo_blurry_delete_body,
+            if (state.trashEligible) R.plurals.photo_blurry_trash_body else R.plurals.photo_blurry_delete_body,
             state.selectedCount,
             state.selectedCount,
         ),

@@ -24,6 +24,7 @@ fun SettingsRoute(
     onNavigateToLanguage: () -> Unit,
     onNavigateToAbout: () -> Unit,
     onNavigateToPermissionCentre: () -> Unit,
+    onNavigateToTrash: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
@@ -36,6 +37,7 @@ fun SettingsRoute(
             SettingsEffect.NavigateToLanguage -> onNavigateToLanguage()
             SettingsEffect.NavigateToAbout -> onNavigateToAbout()
             SettingsEffect.NavigateToPermissionCentre -> onNavigateToPermissionCentre()
+            SettingsEffect.NavigateToTrash -> onNavigateToTrash()
             SettingsEffect.NavigateBack -> onNavigateBack()
         }
     }

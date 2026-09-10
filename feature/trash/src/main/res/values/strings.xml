@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copy for :feature:trash. Shared chrome (Back, Cancel, Select all, the AppError messages, the
+  twenty-three feature titles) stays in :core:ui and is referenced from there. This screen's own
+  actions — Restore, Delete forever, Empty the bin — are specific enough to need their own copy.
+
+  WORDING BAN (LLM.md §1, §5) — absolute. Nothing below claims to protect, speed up or free anything,
+  and no string carries a percentage. This screen states two facts and no more: what is in the bin,
+  and how long each thing has left. A trashed file has freed zero bytes, so nothing on this path says
+  "freed" — deleting forever is the only place bytes actually leave the device.
+
+  Every confirm body is a <plurals> because ConfirmSpec carries `count` and a @PluralsRes id, never a
+  formatted String — the competitor appends an English plural "s" by hand (java/nc/n0.java:62), and a
+  formatted String held on state is still the old locale's text after the in-app language picker runs.
+-->
+<resources>
+
+    <string name="trash_title">Trash</string>
+
+    <!-- The header line. Stated once, at the top, so no row has to repeat it. -->
+    <string name="trash_retention_note">Anything here is removed automatically after 2 days.</string>
+
+    <string name="trash_empty">Nothing here yet. Files you remove from this app wait here before they go.</string>
+
+    <!-- The one thing that can turn the bin off. It states the consequence, not the permission name. -->
+    <string name="trash_unavailable_title">The bin is off</string>
+    <string name="trash_unavailable_body">Without permission to manage all files, this app cannot move a file aside before removing it, so removing is permanent. Allow access to turn the bin back on.</string>
+    <string name="trash_unavailable_action">Allow access</string>
+
+    <!-- Row: "12 files · 4.2 MB". The size is formatted by rememberByteFormat(), never here. -->
+    <plurals name="trash_entry_file_count">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+
+    <!-- The countdown. `daysLeft` rounds UP and floors at 0, so "0 days" is never rendered for a row
+         that is still restorable — trash_expires_today covers the last stretch instead. -->
+    <plurals name="trash_expires_in_days">
+        <item quantity="one">%1$d day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <string name="trash_expires_today">Less than a day left</string>
+
+    <string name="trash_action_restore">Restore</string>
+    <string name="trash_action_delete_forever">Delete forever</string>
+    <string name="trash_action_empty">Empty the bin</string>
+    <string name="trash_action_select_all">Select all</string>
+
+    <!-- Confirms. "Cannot be undone" is TRUE here, unlike on the tool screens. -->
+    <!-- The one confirm on this screen that is NOT destructive: a restore puts files back. It is
+         still asked, for two reasons the user cannot see beforehand — a restore can rename, because a
+         file of that name may have appeared at the original location since, and a bulk restore of 300
+         items is not a free action. `destructive = false`, so it is not drawn in the error colour. -->
+    <string name="trash_confirm_restore_title">Restore?</string>
+    <plurals name="trash_confirm_restore_body">
+        <item quantity="one">%1$d item goes back where it came from. If a file of that name is already there, the restored one is renamed rather than replacing it.</item>
+        <item quantity="other">%1$d items go back where they came from. Any whose name is already taken there are renamed rather than replacing what is there.</item>
+    </plurals>
+
+    <string name="trash_confirm_delete_title">Delete forever?</string>
+    <plurals name="trash_confirm_delete_body">
+        <item quantity="one">%1$d item will be removed from this device. This cannot be undone.</item>
+        <item quantity="other">%1$d items will be removed from this device. This cannot be undone.</item>
+    </plurals>
+
+    <string name="trash_confirm_empty_title">Empty the bin?</string>
+    <plurals name="trash_confirm_empty_body">
+        <item quantity="one">%1$d item will be removed from this device. This cannot be undone.</item>
+        <item quantity="other">%1$d items will be removed from this device. This cannot be undone.</item>
+    </plurals>
+
+    <!-- Results. The rename count is disclosed because the file did not go back where it came from. -->
+    <plurals name="trash_restored_count">
+        <item quantity="one">%1$d item restored</item>
+        <item quantity="other">%1$d items restored</item>
+    </plurals>
+    <plurals name="trash_restored_renamed">
+        <item quantity="one">%1$d item was renamed because a file of the same name was already there</item>
+        <item quantity="other">%1$d items were renamed because files of the same name were already there</item>
+    </plurals>
+    <plurals name="trash_failed_count">
+        <item quantity="one">%1$d item could not be moved</item>
+        <item quantity="other">%1$d items could not be moved</item>
+    </plurals>
+
+    <!-- Row subtitle: which tool put it here. `%1$s` is a feature title from :core:ui. -->
+    <plurals name="trash_delete_failed_count">
+        <item quantity="one">%1$d item could not be deleted</item>
+        <item quantity="other">%1$d items could not be deleted</item>
+    </plurals>
+    <string name="trash_entry_source">From %1$s</string>
+
+</resources>

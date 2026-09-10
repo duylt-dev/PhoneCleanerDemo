@@ -9,6 +9,7 @@ import com.pion.phonecleaner.domain.usecase.CompressPhotosUseCase
 import com.pion.phonecleaner.domain.usecase.CompressVideosUseCase
 import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.DeletePhotosUseCase
+import com.pion.phonecleaner.domain.usecase.DeleteTrashForeverUseCase
 import com.pion.phonecleaner.domain.usecase.DismissHiddenNotificationUseCase
 import com.pion.phonecleaner.domain.usecase.EstimateCompressionUseCase
 import com.pion.phonecleaner.domain.usecase.EstimateVideoCompressionUseCase
@@ -33,11 +34,16 @@ import com.pion.phonecleaner.domain.usecase.ObserveBatteryUseCase
 import com.pion.phonecleaner.domain.usecase.ObserveHiddenNotificationsUseCase
 import com.pion.phonecleaner.domain.usecase.ObserveLockableAppsUseCase
 import com.pion.phonecleaner.domain.usecase.ObserveNotificationHidingSettingsUseCase
+import com.pion.phonecleaner.domain.usecase.ObserveTrashSummaryUseCase
+import com.pion.phonecleaner.domain.usecase.ObserveTrashUseCase
+import com.pion.phonecleaner.domain.usecase.PurgeExpiredTrashUseCase
 import com.pion.phonecleaner.domain.usecase.ReadDeviceMetricsUseCase
 import com.pion.phonecleaner.domain.usecase.ReadMemoryUseCase
 import com.pion.phonecleaner.domain.usecase.ReadUsageAccessUseCase
+import com.pion.phonecleaner.domain.usecase.ReconcileTrashUseCase
 import com.pion.phonecleaner.domain.usecase.RefreshAppPermissionsUseCase
 import com.pion.phonecleaner.domain.usecase.RemoveFindingUseCase
+import com.pion.phonecleaner.domain.usecase.RestoreFromTrashUseCase
 import com.pion.phonecleaner.domain.usecase.RunSpeedTestUseCase
 import com.pion.phonecleaner.domain.usecase.SavePinUseCase
 import com.pion.phonecleaner.domain.usecase.ScanAppPermissionsUseCase
@@ -85,6 +91,7 @@ val domainModule = module {
     factoryOf(::CompressVideosUseCase)
     factoryOf(::DeleteFilesUseCase)
     factoryOf(::DeletePhotosUseCase)
+    factoryOf(::DeleteTrashForeverUseCase)
     factoryOf(::DismissHiddenNotificationUseCase)
     factoryOf(::EstimateCompressionUseCase)
     factoryOf(::EstimateVideoCompressionUseCase)
@@ -109,11 +116,16 @@ val domainModule = module {
     factoryOf(::ObserveHiddenNotificationsUseCase)
     factoryOf(::ObserveLockableAppsUseCase)
     factoryOf(::ObserveNotificationHidingSettingsUseCase)
+    factoryOf(::ObserveTrashSummaryUseCase)
+    factoryOf(::ObserveTrashUseCase)
+    factoryOf(::PurgeExpiredTrashUseCase)
     factoryOf(::ReadDeviceMetricsUseCase)
     factoryOf(::ReadMemoryUseCase)
     factoryOf(::ReadUsageAccessUseCase)
+    factoryOf(::ReconcileTrashUseCase)
     factoryOf(::RefreshAppPermissionsUseCase)
     factoryOf(::RemoveFindingUseCase)
+    factoryOf(::RestoreFromTrashUseCase)
     factoryOf(::RunSpeedTestUseCase)
     factoryOf(::SavePinUseCase)
     factoryOf(::ScanAppPermissionsUseCase)

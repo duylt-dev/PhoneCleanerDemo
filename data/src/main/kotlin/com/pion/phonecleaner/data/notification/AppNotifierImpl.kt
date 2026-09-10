@@ -1,5 +1,10 @@
 package com.pion.phonecleaner.data.notification
 
+import android.Manifest
+import android.os.Build
+import android.content.pm.PackageManager
+import android.annotation.SuppressLint
+import androidx.core.content.ContextCompat
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -37,8 +42,12 @@ internal class AppNotifierImpl(
 
     override fun areNotificationsEnabled(): Boolean = manager.areNotificationsEnabled()
 
+    @SuppressLint("MissingPermission")
     override fun post(spec: AppNotificationSpec): AppResult<Unit> {
-        if (!areNotificationsEnabled()) {
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED || !areNotificationsEnabled()
+        ) {
             // Not an error the user can act on from where they are: the caller no-ops.
             return AppResult.Failure(AppError.PermissionDenied(POST_NOTIFICATIONS))
         }

@@ -9,8 +9,10 @@ import com.pion.phonecleaner.core.mvi.ToolPhase
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
 import com.pion.phonecleaner.domain.model.file.DuplicateScanProgress
+import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
+import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.usecase.DeleteFilesUseCase
 import com.pion.phonecleaner.domain.usecase.FindDuplicatesUseCase
 import com.pion.phonecleaner.domain.usecase.MarkFeatureUsedUseCase
@@ -42,6 +44,7 @@ class DuplicatesViewModel(
     private val markFeatureUsed: MarkFeatureUsedUseCase,
     private val mimeTypeOf: MimeTypeUseCase,
     private val analytics: AnalyticsRepository,
+    private val permissions: PermissionRepository,
     log: AppLogger,
 ) : MviViewModel<DuplicatesState, DuplicatesIntent, DuplicatesEffect>(DuplicatesState(), log) {
 
@@ -68,7 +71,8 @@ class DuplicatesViewModel(
             DuplicatesIntent.PreviewDismissed -> setState { copy(previewingId = null) }
             DuplicatesIntent.PreviewConfirmed -> openPreviewed()
             DuplicatesIntent.DeletePressed -> if (currentState.canDelete) {
-                setState { copy(confirm = deleteConfirmSpec(selectedCount)) }
+                val trashEligible = permissions.isGranted(AppPermission.AllFiles)
+                setState { copy(confirm = deleteConfirmSpec(selectedCount, trashEligible), trashEligible = trashEligible) }
             }
             DuplicatesIntent.DeleteConfirmed -> runDelete(currentState.selectedIds)
             DuplicatesIntent.DeleteDismissed -> setState { copy(confirm = null) }
@@ -128,6 +132,7 @@ class DuplicatesViewModel(
     }
 
     private fun runDelete(ids: Set<String>) {
+        val requireTrash = currentState.trashEligible
         val targets = currentState.groups.flatMap { it.files }.filter { it.id in ids }
         if (targets.isEmpty()) {
             setState { copy(confirm = null) }
@@ -137,7 +142,7 @@ class DuplicatesViewModel(
         analytics.track(AnalyticsEvent.CleanRequested(targets.sumOf { it.sizeBytes }, targets.size))
         setState { copy(confirm = null, phase = ToolPhase.Deleting, failedCount = 0) }
         launchSafely(onError = ::onFailure) {
-            when (val result = deleteFiles(targets)) {
+            when (val result = deleteFiles(targets, FeatureId.DuplicateFiles, requireTrash = requireTrash)) {
                 is AppResult.Failure -> onFailure(result.error)
                 is AppResult.Success -> reduceDelete(result.value, targets.size)
             }

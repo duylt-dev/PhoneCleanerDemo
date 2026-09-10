@@ -2,6 +2,7 @@ package com.pion.phonecleaner
 
 import android.app.Application
 import com.pion.phonecleaner.core.ui.di.coreUiModule
+import com.pion.phonecleaner.data.di.backgroundModule
 import com.pion.phonecleaner.data.di.coreDataModule
 import com.pion.phonecleaner.data.di.settingsDataModule
 import com.pion.phonecleaner.data.di.notificationDataModule
@@ -15,6 +16,7 @@ import com.pion.phonecleaner.data.di.securityDataModule
 import com.pion.phonecleaner.data.di.junkDataModule
 import com.pion.phonecleaner.data.di.onboardingDataModule
 import com.pion.phonecleaner.data.di.storageDataModule
+import com.pion.phonecleaner.data.di.trashDataModule
 import com.pion.phonecleaner.domain.di.domainModule
 import com.pion.phonecleaner.data.log.AndroidAppLogger
 import com.pion.phonecleaner.feature.antivirus.di.antivirusModule
@@ -29,8 +31,10 @@ import com.pion.phonecleaner.feature.notification.di.notificationModule
 import com.pion.phonecleaner.feature.onboarding.di.onboardingModule
 import com.pion.phonecleaner.feature.photo.di.photoModule
 import com.pion.phonecleaner.feature.settings.di.settingsModule
+import com.pion.phonecleaner.feature.trash.di.trashModule
 import com.pion.phonecleaner.feature.vault.di.vaultModule
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 
 /**
@@ -49,6 +53,9 @@ class App : Application() {
 
         startKoin {
             androidContext(this@App)
+            // BEFORE modules(): Koin registers its WorkerFactory on the KoinApplication, and a
+            // module resolved first would have no factory to hand WorkManager.
+            workManagerFactory()
             modules(appModules)
         }
     }
@@ -73,9 +80,12 @@ val appModules = listOf(
     securityDataModule,
     appLockDataModule,
     settingsDataModule,
+    trashDataModule,
     notificationDataModule,
     networkDataModule,
     deviceDataModule,
+    // :data — background work; the app's only WorkManager module
+    backgroundModule,
     // :domain — every use case, all `factory`
     domainModule,
     // :feature:* — viewModel only. Empty until each cluster's screens land.
@@ -92,4 +102,5 @@ val appModules = listOf(
     deviceModule,
     networkModule,
     settingsModule,
+    trashModule,
 )

@@ -26,15 +26,21 @@ import com.pion.phonecleaner.feature.junk.junkclean.JunkCleanIntent
  *
  * The competitor's `onDestroy` cancels its loop with no journal — the files stay deleted,
  * `cleanedSize` is lost, and the caches are never reset (Delta C10).
+ *
+ * [recoverable] picks the body — the bin's own wording when a move is plausible, the permanent one
+ * otherwise (plan `260908-0801-trash-bin`, Phase 07). It is the same advisory
+ * `permissions.isGranted(AppPermission.AllFiles)` read every other delete confirm in this build uses.
  */
 @Composable
-internal fun StopCleanDialog(onIntent: (JunkCleanIntent) -> Unit) {
+internal fun StopCleanDialog(onIntent: (JunkCleanIntent) -> Unit, recoverable: Boolean) {
     AppDialog(
         onDismissRequest = { onIntent(JunkCleanIntent.StopDismissed) },
         confirmLabel = stringResource(R.string.junk_clean_stop_confirm),
         onConfirm = { onIntent(JunkCleanIntent.StopConfirmed) },
         title = stringResource(R.string.junk_clean_stop_title),
-        body = stringResource(R.string.junk_clean_stop_body),
+        body = stringResource(
+            if (recoverable) R.string.junk_clean_stop_body_trash else R.string.junk_clean_stop_body,
+        ),
         dismissLabel = stringResource(com.pion.phonecleaner.core.ui.R.string.action_cancel),
         onDismiss = { onIntent(JunkCleanIntent.StopDismissed) },
     )

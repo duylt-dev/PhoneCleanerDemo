@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DataUsage
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lock
@@ -159,6 +160,11 @@ object FeatureDescriptors {
             FeatureId.VideoCompressor, R.string.feature_video_compressor_title,
             R.string.feature_video_compressor_description, Icons.Filled.Movie,
             R.string.feature_cta_review,
+        ),
+        FeatureDescriptor(
+            FeatureId.Trash, R.string.feature_trash_title,
+            R.string.feature_trash_description, Icons.Filled.Delete,
+            R.string.feature_cta_open,
         ),
     )
 

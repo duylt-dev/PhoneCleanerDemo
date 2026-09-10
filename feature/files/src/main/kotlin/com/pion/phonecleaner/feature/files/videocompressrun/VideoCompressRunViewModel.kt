@@ -8,9 +8,11 @@ import com.pion.phonecleaner.core.mvi.MviViewModel
 import com.pion.phonecleaner.domain.model.feature.FeatureId
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
 import com.pion.phonecleaner.domain.model.file.ScannedFile
+import com.pion.phonecleaner.domain.model.permission.AppPermission
 import com.pion.phonecleaner.domain.model.video.VideoSpaceCheck
 import com.pion.phonecleaner.domain.repository.AnalyticsEvent
 import com.pion.phonecleaner.domain.repository.AnalyticsRepository
+import com.pion.phonecleaner.domain.repository.PermissionRepository
 import com.pion.phonecleaner.domain.repository.VideoCandidateRepository
 import com.pion.phonecleaner.domain.usecase.CheckSpaceForCompressionUseCase
 import com.pion.phonecleaner.domain.usecase.CompressVideosUseCase
@@ -35,6 +37,7 @@ class VideoCompressRunViewModel(
     private val deleteFiles: DeleteFilesUseCase,
     private val videos: VideoCandidateRepository,
     private val analytics: AnalyticsRepository,
+    private val permissions: PermissionRepository,
     log: AppLogger,
 ) : MviViewModel<VideoCompressRunState, VideoCompressRunIntent, VideoCompressRunEffect>(
     VideoCompressRunState(
@@ -57,8 +60,14 @@ class VideoCompressRunViewModel(
             VideoCompressRunIntent.CompressDismissed -> setState { copy(isRunConfirmVisible = false) }
             // `run.isFinished` already drives the result panel; nothing else to reduce here.
             VideoCompressRunIntent.CompletionAnimationFinished -> Unit
-            VideoCompressRunIntent.DeleteOriginalsPressed ->
-                if (currentState.canDeleteOriginals) setState { copy(isDeleteConfirmVisible = true) }
+            VideoCompressRunIntent.DeleteOriginalsPressed -> if (currentState.canDeleteOriginals) {
+                setState {
+                    copy(
+                        isDeleteConfirmVisible = true,
+                        trashEligible = permissions.isGranted(AppPermission.AllFiles),
+                    )
+                }
+            }
             VideoCompressRunIntent.DeleteOriginalsConfirmed -> onDeleteOriginalsConfirmed()
             VideoCompressRunIntent.DeleteOriginalsDismissed ->
                 setState { copy(isDeleteConfirmVisible = false) }
@@ -154,11 +163,12 @@ class VideoCompressRunViewModel(
 
     /** The delete round trip `VideoManagerViewModel` already has, reused whole. */
     private fun runDelete(targets: List<ScannedFile>) {
+        val requireTrash = currentState.trashEligible
         setState { copy(isDeleteConfirmVisible = false) }
         if (targets.isEmpty()) return
         pendingDeleteIds = targets.map { it.id }.toSet()
         launchSafely(onError = { setState { withFailure(it) } }) {
-            when (val result = deleteFiles(targets)) {
+            when (val result = deleteFiles(targets, FeatureId.VideoCompressor, requireTrash = requireTrash)) {
                 is AppResult.Failure -> setState { withFailure(result.error) }
                 is AppResult.Success -> reduceDelete(result.value)
             }

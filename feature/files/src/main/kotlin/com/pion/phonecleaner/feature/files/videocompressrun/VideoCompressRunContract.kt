@@ -37,6 +37,8 @@ data class VideoCompressRunState(
     val isRunConfirmVisible: Boolean = false,
     val isStopConfirmVisible: Boolean = false,
     val isDeleteConfirmVisible: Boolean = false,
+    /** Mode stated in the confirmation and passed unchanged to the delete use case. */
+    val trashEligible: Boolean = false,
     /** `null` ⇒ the run has not started. */
     val run: VideoRunProgress? = null,
     /** How much smaller the new files are, in total. **Not** freed — the originals are still here. */

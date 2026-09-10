@@ -1,5 +1,3 @@
-@file:OptIn(UnstableApi::class)
-
 package com.pion.phonecleaner.data.files
 
 import android.content.Context
@@ -41,6 +39,7 @@ import kotlinx.coroutines.flow.flowOn
  * throws `IllegalStateException` ("Flow invariant is violated") the first time `emit` is called off
  * that coroutine. `trySend` on a channel has no such restriction.
  */
+@androidx.annotation.OptIn(UnstableApi::class)
 internal class Media3VideoCompressor(
     private val context: Context,
     private val candidates: VideoCandidateRepository,

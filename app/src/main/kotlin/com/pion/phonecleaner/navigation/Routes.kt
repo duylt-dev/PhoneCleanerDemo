@@ -173,6 +173,12 @@ sealed interface Route {
     @Serializable
     data object WhatsAppCleaner : Route
 
+    // -- trash ----------------------------------------------------------------------------------
+
+    /** No arguments: the bin is a list of everything, and its contents come from Room. */
+    @Serializable
+    data object Trash : Route
+
     // -- the shared result screen -------------------------------------------------------------
 
     /**

@@ -2,6 +2,7 @@ package com.pion.phonecleaner.domain.repository
 
 import com.pion.phonecleaner.core.common.result.AppResult
 import com.pion.phonecleaner.domain.model.file.DeleteOutcome
+import com.pion.phonecleaner.domain.model.file.ScannedFile
 import com.pion.phonecleaner.domain.model.photo.Photo
 import com.pion.phonecleaner.domain.model.photo.PhotoAlbum
 import com.pion.phonecleaner.domain.model.photo.PhotoId
@@ -58,4 +59,16 @@ interface PhotoRepository {
      * all-files branch the case simply never fires (`docs/system-architecture.md` §8.4).
      */
     suspend fun delete(ids: List<PhotoId>): AppResult<DeleteOutcome>
+
+    /**
+     * The **pure projection** `Photo -> ScannedFile` for [ids], with no delete policy attached (plan
+     * `260908-0801-trash-bin`, Phase 07, key insight 4). [delete] is refactored to call this, so there
+     * remains exactly **one** projection out of this interface, in one place.
+     *
+     * Why this exists rather than branching inside [delete]: `DeletePhotosUseCase` needs the resolved
+     * `ScannedFile`s to hand to `TrashRepository.trashFiles` when the bin is available, and that
+     * branch has to live in `:domain` where it is visible (engineer decision E3) — putting it here,
+     * inside `:data`, would hide the exception exactly where E3 forbids it.
+     */
+    suspend fun resolve(ids: List<PhotoId>): AppResult<ImmutableList<ScannedFile>>
 }

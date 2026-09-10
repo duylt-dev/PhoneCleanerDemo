@@ -39,6 +39,12 @@ import kotlinx.collections.immutable.persistentSetOf
  * `Route.VideoCompressRun` were wired into the nav graph (phase 08) — the same thing the `JunkClean`
  * paragraph above records.
  *
+ * **`Trash` was a fourth row and was removed on 2026-09-08.** It was never a pending decision — it was
+ * a build-order lock: registration (`FeatureId`, the descriptor, the home tile, the route) had to land
+ * atomically across five modules, and it landed before the screen did (plan 260908-0801 phase 02).
+ * Removing the row was the whole change, once `Route.Trash` was wired into the nav graph (phase 08) —
+ * the same thing the `JunkClean` and `VideoCompressor` paragraphs above record.
+ *
  * Removing a row is the whole change: the tile unlocks, the hero button re-enables, the exit offer may
  * name it again, and nothing else moves. (The clean-result screen was a fourth reader until
  * 2026-09-03, when its suggestion list was removed by owner decision — it now names no feature at all.)

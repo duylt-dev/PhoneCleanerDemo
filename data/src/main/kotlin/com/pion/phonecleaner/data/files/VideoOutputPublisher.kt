@@ -162,6 +162,16 @@ internal class VideoOutputPublisher(
         }.onFailure { log.e(it) { "Could not sweep abandoned temp files" } }
     }
 
+    /**
+     * MUST stay under `DIRECTORY_MOVIES` and MUST stay this app's transcode scratch only.
+     *
+     * [sweepAbandonedTempFiles] deletes everything older than six hours in here, unconditionally, at
+     * the start of every run. The trash root (`data/trash/TrashRoots.kt`) is deliberately elsewhere —
+     * under `getExternalFilesDir(null)/trash` — because a bin stored here would be silently truncated
+     * from two days to six hours, and the user would never learn why their restore list emptied.
+     * `TrashRoots` asserts the two paths cannot overlap (`check` against this exact directory) so a
+     * future change to either cannot silently re-introduce the collision.
+     */
     private fun tempDir(): File {
         val dir = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES) ?: File(context.filesDir, "movies")
         return dir.apply { mkdirs() }
