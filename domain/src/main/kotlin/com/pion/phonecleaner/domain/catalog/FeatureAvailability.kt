@@ -13,7 +13,7 @@ import kotlinx.collections.immutable.persistentSetOf
  *
  * ## Why an availability table exists at all
  *
- * Four of the twenty entry points reach an implementation that PENDING OWNER DECISIONS 1, 2 and 3
+ * Two of the twenty entry points reach an implementation that PENDING OWNER DECISIONS 1 and 2
  * deliberately left inert, and every one of them is on the home page. Without this table each one
  * renders as a working tile that opens a screen with nothing on it, which is the failure the wording
  * rule exists to prevent: the app claims a capability it does not have. Naming them here says so once,
@@ -25,7 +25,6 @@ import kotlinx.collections.immutable.persistentSetOf
  * |---|---|---|---|
  * | [FeatureId.WhatsAppCleaner] | 1 | `EmptyWhatsAppRoots` — six buckets, no paths, always the empty state | a roots table bound in `filesDataModule` |
  * | [FeatureId.NetworkTest] | 2 | `UnconfiguredSpeedTestRepository` — no socket, no bytes, no figure | a procured byte source, or the decision to delete the two speed-test screens |
- * | [FeatureId.RunningApps] | 3 | a screen that renders, but only once the user finds `PACKAGE_USAGE_STATS` in Settings unaided | whether the app asks for that grant |
  *
  * **`JunkClean` was the fourth row and was removed on 2026-09-06**, when decision 1 was settled for the
  * junk cluster (`KotlinJunkRuleCatalog`, our own rules) and `MANAGE_EXTERNAL_STORAGE` was declared, so
@@ -45,6 +44,10 @@ import kotlinx.collections.immutable.persistentSetOf
  * Removing the row was the whole change, once `Route.Trash` was wired into the nav graph (phase 08) —
  * the same thing the `JunkClean` and `VideoCompressor` paragraphs above record.
  *
+ * **`RunningApps` was removed on 2026-09-10.** The owner chose to let the home tile enter the
+ * existing `RunningAppsScan -> RunningApps` flow. The list is named for what Android lets this app
+ * do: show apps the user may open in system Settings and stop there.
+ *
  * Removing a row is the whole change: the tile unlocks, the hero button re-enables, the exit offer may
  * name it again, and nothing else moves. (The clean-result screen was a fourth reader until
  * 2026-09-03, when its suggestion list was removed by owner decision — it now names no feature at all.)
@@ -62,7 +65,6 @@ object FeatureAvailability {
     val comingSoon: ImmutableSet<FeatureId> = persistentSetOf(
         FeatureId.WhatsAppCleaner,
         FeatureId.NetworkTest,
-        FeatureId.RunningApps,
     )
 
     /**

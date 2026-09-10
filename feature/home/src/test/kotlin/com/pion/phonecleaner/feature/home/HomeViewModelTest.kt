@@ -62,6 +62,20 @@ class HomeViewModelTest {
         assertEquals(openable, fixture.featureUsage.marked)
     }
 
+    @Test
+    fun `running apps is openable from home`() = runTest(dispatcher) {
+        val fixture = homeFixture()
+        val effects = fixture.collectEffects(this)
+
+        fixture.viewModel.onIntent(HomeIntent.FeatureTapped(FeatureId.RunningApps))
+        advanceUntilIdle()
+
+        assertFalse(FeatureId.RunningApps in FeatureAvailability.comingSoon)
+        assertEquals(listOf(HomeEffect.NavigateToFeature(FeatureId.RunningApps)), effects)
+        assertEquals(listOf(FeatureId.RunningApps), fixture.analytics.featureOpens)
+        assertEquals(listOf(FeatureId.RunningApps), fixture.featureUsage.marked)
+    }
+
     /**
      * The lock is in the reducer, so a tap that reaches it anyway — a stale composition, a deep link,
      * an accepted exit offer — still goes nowhere. Not tracked and not marked used either: a feature
